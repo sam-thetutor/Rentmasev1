@@ -1,3 +1,4 @@
+// src/pages/OrderConfirmation.js
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -19,7 +20,7 @@ const OrderDetail = styled.p`
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { orderId, address, cart, total } = location.state;
+  const { orderId, address, cart, total } = location.state || {};
   const { clearCart } = useCart();
   const orderDate = new Date();
   const userLocation = 'india'; // Replace with actual location logic
@@ -42,15 +43,21 @@ const OrderConfirmation = () => {
       }
     };
 
-    saveOrder();
-    clearCart();
+    if (orderId && address && cart && total) {
+      saveOrder();
+      clearCart();
+    }
   }, [order, clearCart]);
+
+  if (!address) {
+    return <p>Order not found or address missing.</p>;
+  }
 
   return (
     <ConfirmationContainer>
       <h1>Order Confirmation</h1>
       <OrderDetail>Order ID: {orderId}</OrderDetail>
-      <OrderDetail>Address: {address}</OrderDetail>
+      <OrderDetail>Address: {address.name}, {address.street}, {address.building}, {address.phone}, {address.pincode}</OrderDetail>
       <OrderDetail>Order Date: {orderDate.toLocaleString()}</OrderDetail>
       <OrderDetail>Total: {currencySymbol}{convertPrice(total, userLocation)}</OrderDetail>
       <h3>Items:</h3>

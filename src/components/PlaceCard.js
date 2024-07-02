@@ -11,11 +11,12 @@ const Card = styled.div`
   margin: 15px;
   width: 300px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   position: relative;
 
   &:hover {
     transform: translateY(-5px);
+    outline: 2px solid #00B5E2;
   }
 `;
 

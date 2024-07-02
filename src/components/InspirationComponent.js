@@ -30,6 +30,11 @@ const InspirationItem = styled.div`
   width: 220px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   position: relative;
+  &:hover {
+    transform: translateY(-5px);
+    outline: 2px solid #00B5E2;
+  }
+  
 `;
 
 const InspirationImage = styled.img`

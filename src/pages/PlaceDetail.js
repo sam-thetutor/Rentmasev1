@@ -5,9 +5,12 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import placesData from '../data/places';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { getCurrencySymbol, convertPrice } from '../utils/currency';
 
 const Container = styled.div`
   padding: 20px;
+  padding-left: 250px; /* Adjust this value to change the left padding */
+  padding-right: 250px; /* Adjust this value to change the right padding */
   background-color: #f5f5f5;
 `;
 
@@ -29,6 +32,8 @@ const StickySection = styled.div`
   width: 300px;
   position: sticky;
   top: 20px;
+  max-height: calc(100vh - 40px); /* Make sure the calendar fits within the viewport */
+  overflow: auto;
 `;
 
 const MainImageContainer = styled.div`
@@ -78,7 +83,7 @@ const ShowMoreButton = styled.button`
   bottom: 10px;
   left: 10px;
   padding: 10px 20px;
-  background-color: #ff5a5f;
+  background-color: #00B5E2;
   color: white;
   border: none;
   border-radius: 4px;
@@ -135,6 +140,7 @@ const BookingSection = styled.section`
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px; /* Added margin-bottom to prevent overlapping */
 `;
 
 const Price = styled.p`
@@ -151,7 +157,7 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: calc(100% - 20px);
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
@@ -160,12 +166,38 @@ const Input = styled.input`
 
 const Button = styled.button`
   padding: 10px 20px;
-  background-color: #ff5a5f;
+  background-color: #00B5E2;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+`;
+
+const CustomDatePicker = styled(DatePicker)`
+  .react-datepicker {
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .react-datepicker__header {
+    background-color: #00B5E2;
+    border-bottom: none;
+    padding-top: 10px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .react-datepicker__current-month,
+  .react-datepicker__day-name {
+    color: white;
+  }
+
+  .react-datepicker__day--selected,
+  .react-datepicker__day--keyboard-selected {
+    background-color: #00B5E2;
+    color: white;
+  }
 `;
 
 const Modal = styled.div`
@@ -225,6 +257,8 @@ const PlaceDetail = () => {
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const userLocation = 'india'; // Replace with actual location logic
+  const currencySymbol = getCurrencySymbol(userLocation);
 
   const handleDateChange = (dates) => {
     const [start, end] = dates;
@@ -338,9 +372,9 @@ const PlaceDetail = () => {
         </MainContent>
         <StickySection>
           <BookingSection>
-            <Price>₹{place.price} per night</Price>
+            <Price>{currencySymbol}{convertPrice(place.price, userLocation)} per night</Price>
             <Label htmlFor="dates">Select Dates</Label>
-            <DatePicker
+            <CustomDatePicker
               selected={startDate}
               onChange={handleDateChange}
               startDate={startDate}
@@ -358,7 +392,7 @@ const PlaceDetail = () => {
             />
             <Button onClick={handleBook}>Book Now</Button>
             {total > 0 && (
-              <p>Total: ₹{total}</p>
+              <p>Total: {currencySymbol}{convertPrice(total, userLocation)}</p>
             )}
           </BookingSection>
         </StickySection>

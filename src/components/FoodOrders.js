@@ -1,3 +1,4 @@
+// src/pages/FoodOrders.js
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getCurrencySymbol, convertPrice } from '../utils/currency';
@@ -44,7 +45,9 @@ const FoodOrders = () => {
         orders.map((order, index) => (
           <OrderItem key={index}>
             <OrderTitle>Order #{order.orderId}</OrderTitle>
-            <OrderDetail>Address: {order.address}</OrderDetail>
+            <OrderDetail>
+              Address: {order.address.name}, {order.address.street}, {order.address.building}, {order.address.phone}, {order.address.pincode}
+            </OrderDetail>
             <OrderDetail>Time: {new Date(order.date).toLocaleString()}</OrderDetail>
             <OrderDetail>Total: {currencySymbol}{convertPrice(order.total, location)}</OrderDetail>
             <h3>Items:</h3>

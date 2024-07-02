@@ -5,6 +5,8 @@ import CategoryGrid from '../components/CategoryGrid';
 import SearchForm from '../components/SearchForm';
 import PlaceList from '../components/PlaceList';
 import placesData from '../data/places';
+import InspirationComponent from '../components/InspirationComponent';
+import Restaurants from './Restaurants';
 
 const HomeContainer = styled.div`
   padding: 20px;
@@ -43,8 +45,11 @@ const Home = () => {
       <CategoryGrid />
       <HomeTitle>Welcome to RentMase</HomeTitle>
       <HomeDescription>Your one-stop solution for renting places.</HomeDescription>
-      <SearchForm onSearch={handleSearch} />
+      {/* <SearchForm onSearch={handleSearch} /> */}
       <PlaceList places={filteredPlaces} />
+
+      <InspirationComponent />
+      <Restaurants /> {/* Add the Restaurants component here */}
     </HomeContainer>
   );
 };

@@ -1,3 +1,4 @@
+// src/pages/Checkout.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useCart } from '../hooks/useCart';
@@ -24,6 +25,23 @@ const Input = styled.input`
   border-radius: 5px;
 `;
 
+const Select = styled.select`
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+`;
+
+const Checkbox = styled.input`
+  margin-right: 10px;
+`;
+
 const Button = styled.button`
   padding: 10px;
   background-color: #00B5E2;
@@ -46,7 +64,15 @@ const SummaryItem = styled.p`
 
 function Checkout() {
   const { cart, clearCart } = useCart();
-  const [address, setAddress] = useState('');
+  const [savedAddresses, setSavedAddresses] = useState(JSON.parse(localStorage.getItem('savedAddresses')) || []);
+  const [selectedAddress, setSelectedAddress] = useState('');
+  const [name, setName] = useState('');
+  const [street, setStreet] = useState('');
+  const [building, setBuilding] = useState('');
+  const [phone, setPhone] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [saveAddress, setSaveAddress] = useState(false);
   const navigate = useNavigate();
   const location = 'india'; // Replace with actual location logic
 
@@ -54,16 +80,38 @@ function Checkout() {
   const tax = subtotal * 0.18;
   const total = subtotal + tax;
 
-  const handleAddressChange = (e) => {
-    setAddress(e.target.value);
+  const handleSelectAddress = (e) => {
+    const address = savedAddresses.find(addr => addr.nickname === e.target.value);
+    if (address) {
+      setSelectedAddress(address);
+      setName(address.name);
+      setStreet(address.street);
+      setBuilding(address.building);
+      setPhone(address.phone);
+      setPincode(address.pincode);
+      setNickname(address.nickname);
+    } else {
+      setSelectedAddress('');
+      setName('');
+      setStreet('');
+      setBuilding('');
+      setPhone('');
+      setPincode('');
+      setNickname('');
+    }
   };
 
   const handlePlaceOrder = () => {
+    const newAddress = { name, street, building, phone, pincode, nickname };
+    if (saveAddress && !savedAddresses.some(addr => addr.nickname === nickname)) {
+      const updatedAddresses = [...savedAddresses, newAddress];
+      setSavedAddresses(updatedAddresses);
+      localStorage.setItem('savedAddresses', JSON.stringify(updatedAddresses));
+    }
+
     const orderId = Math.floor(Math.random() * 1000000); // Generate a random order ID
-    // Save the order (this could be an API call in a real app)
-    // For this example, we'll just clear the cart and navigate to the order confirmation page
     clearCart();
-    navigate(`/order-confirmation/${orderId}`, { state: { orderId, address, cart, total } });
+    navigate(`/order-confirmation/${orderId}`, { state: { orderId, address: newAddress, cart, total } });
   };
 
   const currencySymbol = getCurrencySymbol(location);
@@ -72,7 +120,24 @@ function Checkout() {
     <CheckoutContainer>
       <h1>Checkout</h1>
       <AddressForm>
-        <Input type="text" placeholder="Enter your address" value={address} onChange={handleAddressChange} />
+        <Select onChange={handleSelectAddress} value={nickname}>
+          <option value="">Select a saved address</option>
+          {savedAddresses.map((addr, index) => (
+            <option key={index} value={addr.nickname}>{addr.nickname}</option>
+          ))}
+        </Select>
+        <Input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input type="text" placeholder="Street Name" value={street} onChange={(e) => setStreet(e.target.value)} />
+        <Input type="text" placeholder="Building" value={building} onChange={(e) => setBuilding(e.target.value)} />
+        <Input type="text" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Input type="text" placeholder="Pincode" value={pincode} onChange={(e) => setPincode(e.target.value)} />
+        <CheckboxContainer>
+          <Checkbox type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
+          <label>Save this address</label>
+        </CheckboxContainer>
+        {saveAddress && (
+          <Input type="text" placeholder="Nickname for Address" value={nickname} onChange={(e) => setNickname(e.target.value)} />
+        )}
         <Button type="button" onClick={handlePlaceOrder}>Place Order</Button>
       </AddressForm>
       <Summary>

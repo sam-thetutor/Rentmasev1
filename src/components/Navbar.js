@@ -11,10 +11,11 @@ const NavbarContainer = styled.nav`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 140px;
-  height: 100px; /* Adjusted height to fit larger logo */
+  padding: 0 20px;
+  height: 80px; /* Adjusted height */
   background-color: #FFFFFF;
   color: black;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const LeftContainer = styled.div`
@@ -23,21 +24,20 @@ const LeftContainer = styled.div`
 `;
 
 const Logo = styled.img`
-  height: 70px; /* Adjusted size to fit within navbar */
-  margin-left: 120px;
+  height: 60px; /* Adjusted size */
 `;
 
 const CenterContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Align items to the start */
-  width: 60%; /* Increase the width of the center container */
-  margin-left: 20px; /* Added margin to move the logo to the right */
+  justify-content: center;
+  width: 60%;
 `;
 
 const RightContainer = styled.div`
   display: flex;
   align-items: center;
+  gap: 15px; /* Space between right container elements */
 `;
 
 const Navbar = () => {
@@ -55,7 +55,7 @@ const Navbar = () => {
       <RightContainer>
         <SignInButton />
         <CartButton />
-        <SlideMenu /> {/* Add SlideMenu here */}
+        <SlideMenu />
       </RightContainer>
     </NavbarContainer>
   );

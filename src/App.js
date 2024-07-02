@@ -11,10 +11,15 @@ import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Navbar from './components/Navbar';
 import PlaceDetail from './pages/PlaceDetail';
-import BookingConfirmation from './components/BookingConfirmation';
+import BookingConfirmation from './pages/BookingConfirmation';
+import FoodOrders from './components/FoodOrders';
+import ManageAddresses from './pages/ManageAddresses';
+import TravelBookings from './components/TravelBookings';
+import Profile from './pages/Profile';
+import InviteFriends from './pages/InviteFriends';
+import StayBooking from './pages/StayBooking';
 import { CartProvider } from './hooks/useCart';
 import { OrderHistoryProvider } from './hooks/useOrderHistory';
-import FoodOrders from './components/FoodOrders';
 
 function App() {
   return (
@@ -33,8 +38,13 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
             <Route path="/place/:id" element={<PlaceDetail />} />
-            <Route path="/food-orders" element={<FoodOrders />} />
             <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+            <Route path="/food-orders" element={<FoodOrders />} />
+            <Route path="/manage-addresses" element={<ManageAddresses />} />
+            <Route path="/travel-bookings" element={<TravelBookings />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/invite-friends" element={<InviteFriends />} />
+            <Route path="/stay-booking" element={<StayBooking />} />
           </Routes>
         </Router>
       </OrderHistoryProvider>

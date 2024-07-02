@@ -24,10 +24,11 @@ const RestaurantCard = styled(Link)`
   text-decoration: none;
   color: inherit;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  transition: transform 0.2s, outline 0.2s;
 
   &:hover {
     transform: translateY(-5px);
+    outline: 2px solid #00B5E2;
   }
 `;
 

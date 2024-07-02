@@ -1,7 +1,8 @@
+// src/components/SlideMenu.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils } from 'react-icons/fa';
+import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome } from 'react-icons/fa';
 
 const MenuButton = styled.button`
   background-color: transparent;
@@ -90,7 +91,7 @@ const SlideMenu = () => {
               <FaUser /> Profile
             </MenuItem>
           </li>
-          <li>
+          {/* <li>
             <MenuItem to="/my-deals">
               <FaTags /> My Deals
             </MenuItem>
@@ -114,7 +115,7 @@ const SlideMenu = () => {
             <MenuItem to="/my-faves">
               <FaHeart /> My Faves
             </MenuItem>
-          </li>
+          </li> */}
           <li>
             <MenuItem to="/invite-friends">
               <FaUserFriends /> Invite Friends
@@ -126,10 +127,15 @@ const SlideMenu = () => {
             </MenuItem>
           </li>
           <li>
+            <MenuItem to="/manage-addresses">
+              <FaHome /> Manage Addresses
+            </MenuItem>
+          </li>
+          {/* <li>
             <MenuItem to="/logout">
               <FaSignOutAlt /> Logout
             </MenuItem>
-          </li>
+          </li> */}
         </MenuList>
       </MenuContainer>
     </>
