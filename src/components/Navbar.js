@@ -13,7 +13,7 @@ const NavbarContainer = styled.nav`
   align-items: center;
   padding: 0 140px;
   height: 100px; /* Adjusted height to fit larger logo */
-  background-color: #D3D3D3;
+  background-color: #FFFFFF;
   color: black;
 `;
 

@@ -12,9 +12,9 @@ const HeroContainer = styled.div`
 `;
 
 const images = [
-  '../images/slider1.webp',
-  '../images/slider2.webp',
-  '../images/slider3.webp',
+  'https://via.placeholder.com/800x400?text=Slide+1',
+  'https://via.placeholder.com/800x400?text=Slide+2',
+  'https://via.placeholder.com/800x400?text=Slide+3',
   // Add more image paths as needed
 ];
 

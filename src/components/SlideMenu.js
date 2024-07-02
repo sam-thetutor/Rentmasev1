@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils } from 'react-icons/fa';
 
 const MenuButton = styled.button`
   background-color: transparent;
@@ -51,11 +51,12 @@ const MenuItem = styled(Link)`
   transition: color 0.3s;
 
   &:hover {
-    color: blue;
+    color: #00B5E2;
   }
 
   svg {
     margin-right: 10px;
+    color: #00B5E2; /* Change the icon color here */
   }
 `;
 
@@ -117,6 +118,11 @@ const SlideMenu = () => {
           <li>
             <MenuItem to="/invite-friends">
               <FaUserFriends /> Invite Friends
+            </MenuItem>
+          </li>
+          <li>
+            <MenuItem to="/food-orders">
+              <FaUtensils /> Food Orders
             </MenuItem>
           </li>
           <li>

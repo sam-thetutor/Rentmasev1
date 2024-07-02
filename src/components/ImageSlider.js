@@ -3,30 +3,33 @@ import styled from 'styled-components';
 
 const OuterContainer = styled.div`
   width: 80%;
-  padding: 20px; /* Added padding */
-  box-sizing: border-box; /* Ensure padding is included in the width */
+  padding: 20px;
+  box-sizing: border-box;
   position: relative;
 `;
 
 const SliderContainer = styled.div`
-  width: calc(100% - 40px); /* Subtract padding from width */
+  width: calc(100% - 40px);
   margin: auto;
   overflow: hidden;
   position: relative;
-  border-radius: 15px; /* Curved borders for the container */
+  border-radius: ${({ $isCurved }) => ($isCurved ? '15px' : '0')};
+  transition: border-radius 0.5s ease-in-out;
 `;
 
 const SliderWrapper = styled.div`
   display: flex;
-  transition: ${(props) => (props.isTransitioning ? 'transform 0.5s ease-in-out' : 'none')};
-  transform: ${(props) => `translateX(-${props.activeIndex * 100}%)`};
+  transform: ${({ $activeIndex }) => `translateX(-${$activeIndex * 100}%)`};
+  transition: ${({ $isTransitioning }) => ($isTransitioning ? 'transform 0.5s ease-in-out' : 'none')};
 `;
 
 const Slide = styled.div`
   min-width: 100%;
-  height: 500px; /* Fixed height for the images */
-  background: ${(props) => `url(${props.image})`} center/cover no-repeat;
-  border-radius: 15px; /* Curved borders for each slide */
+  height: 500px;
+  background: center/cover no-repeat;
+  border-radius: ${({ $isCurved }) => ($isCurved ? '15px' : '0')};
+  transition: border-radius 0.5s ease-in-out;
+  background-image: url(${props => `https://via.placeholder.com/300x500/CCCCCC/FFFFFF?text=${props.image}`});
 `;
 
 const DotsContainer = styled.div`
@@ -39,19 +42,21 @@ const Dot = styled.div`
   width: 10px;
   height: 10px;
   margin: 0 5px;
-  background-color: ${(props) => (props.active ? 'blue' : 'gray')};
+  background-color: ${props => (props.$active ? '#00B5E2' : 'gray')};
   border-radius: 50%;
   cursor: pointer;
 `;
 
 const ImageSlider = ({ images }) => {
-  const [activeIndex, setActiveIndex] = useState(1); // Start at the first real slide
+  const [activeIndex, setActiveIndex] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isCurved, setIsCurved] = useState(true);
   const totalSlides = images.length;
   const transitionTimeoutRef = useRef(null);
 
   const handleTransitionEnd = () => {
     setIsTransitioning(false);
+    setIsCurved(true);
     if (activeIndex === 0) {
       setActiveIndex(totalSlides);
     } else if (activeIndex === totalSlides + 1) {
@@ -61,8 +66,11 @@ const ImageSlider = ({ images }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setActiveIndex((prevIndex) => prevIndex + 1);
+      setIsCurved(false);
+      setTimeout(() => {
+        setIsTransitioning(true);
+        setActiveIndex((prevIndex) => prevIndex + 1);
+      }, 300); // Slight delay to ensure border-radius is removed before transition starts
     }, 3000);
     return () => clearInterval(interval);
   }, [totalSlides]);
@@ -71,24 +79,27 @@ const ImageSlider = ({ images }) => {
     if (isTransitioning) {
       transitionTimeoutRef.current = setTimeout(() => {
         handleTransitionEnd();
-      }, 500); // Match the transition duration
+      }, 500);
     }
     return () => clearTimeout(transitionTimeoutRef.current);
   }, [activeIndex, isTransitioning]);
 
   const goToSlide = (index) => {
-    setIsTransitioning(true);
-    setActiveIndex(index + 1); // Adjust for the duplicated first slide
+    setIsCurved(false);
+    setTimeout(() => {
+      setIsTransitioning(true);
+      setActiveIndex(index + 1);
+    }, 100); // Slight delay to ensure border-radius is removed before transition starts
   };
 
-  const slides = [images[totalSlides - 1], ...images, images[0]]; // Duplicate last and first slides
+  const slides = [images[totalSlides - 1], ...images, images[0]];
 
   return (
     <OuterContainer>
-      <SliderContainer>
-        <SliderWrapper activeIndex={activeIndex} isTransitioning={isTransitioning}>
+      <SliderContainer $isCurved={isCurved}>
+        <SliderWrapper $activeIndex={activeIndex} $isTransitioning={isTransitioning}>
           {slides.map((image, index) => (
-            <Slide key={index} image={image} />
+            <Slide key={index} image={`${300}x${500}`} $isCurved={isCurved} />
           ))}
         </SliderWrapper>
       </SliderContainer>
@@ -96,7 +107,7 @@ const ImageSlider = ({ images }) => {
         {images.map((_, index) => (
           <Dot
             key={index}
-            active={activeIndex === index + 1}
+            $active={activeIndex === index + 1}
             onClick={() => goToSlide(index)}
           />
         ))}

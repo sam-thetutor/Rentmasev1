@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Hero from '../components/Hero'; // Adjust the import path if necessary
-import CategoryGrid from '../components/CategoryGrid'; // Adjust the import path if necessary
-import RestaurantCarousel from '../components/RestaurantCarousel';
-import FoodItemsCarousel from '../components/FoodItemsCarousel';
+import Hero from '../components/Hero';
+import CategoryGrid from '../components/CategoryGrid';
+import SearchForm from '../components/SearchForm';
+import PlaceList from '../components/PlaceList';
+import placesData from '../data/places';
 
 const HomeContainer = styled.div`
   padding: 20px;
   background-color: #f5f5f5;
-  text-align: center; /* Center the text */
+  text-align: center;
 `;
 
 const HomeTitle = styled.h1`
@@ -24,16 +25,16 @@ const HomeDescription = styled.p`
 `;
 
 const Home = () => {
-  const [cart, setCart] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [places, setPlaces] = useState(placesData);
+  const [filteredPlaces, setFilteredPlaces] = useState(placesData);
 
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-    console.log('Cart items:', cart);
-  };
-
-  const handleSelectRestaurant = (restaurant) => {
-    setSelectedRestaurant(restaurant);
+  const handleSearch = ({ location, startDate, endDate, guests }) => {
+    const results = places.filter(
+      (place) =>
+        place.location.toLowerCase().includes(location.toLowerCase()) &&
+        place.guests >= guests
+    );
+    setFilteredPlaces(results);
   };
 
   return (
@@ -41,12 +42,9 @@ const Home = () => {
       <Hero />
       <CategoryGrid />
       <HomeTitle>Welcome to RentMase</HomeTitle>
-      <HomeDescription>Your one-stop solution for buying products, renting places, and ordering food.</HomeDescription>
-      {selectedRestaurant ? (
-        <FoodItemsCarousel restaurant={selectedRestaurant} addToCart={addToCart} />
-      ) : (
-        <RestaurantCarousel onSelectRestaurant={handleSelectRestaurant} />
-      )}
+      <HomeDescription>Your one-stop solution for renting places.</HomeDescription>
+      <SearchForm onSearch={handleSearch} />
+      <PlaceList places={filteredPlaces} />
     </HomeContainer>
   );
 };

@@ -12,6 +12,7 @@ const Button = styled.button`
   margin-right: 30px; /* Add margin to separate it from the search bar */
   cursor: pointer;
   transition: border-color 0.3s ease, background-color 0.3s ease;
+  height: 40px; /* Set a fixed height to maintain button size */
 
   &:hover {
     background-color: #f0f0f0;
@@ -33,15 +34,14 @@ const LocationText = styled.span`
   font-size: 1rem;
   color: black;
   margin-right: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Ensure text doesn't make the button too wide */
 `;
 
 const LocationButton = () => {
-  const [modalOpen, setModalOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState('Loading...');
-
-  const toggleModal = () => {
-    setModalOpen(!modalOpen);
-  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -51,9 +51,12 @@ const LocationButton = () => {
           fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
             .then((response) => response.json())
             .then((data) => {
-              const city = data.address.city || data.address.town || data.address.village;
-              const country = data.address.country;
-              setCurrentLocation(`${city}, ${country}`);
+              const { address } = data;
+              const city = address.city || address.town || address.village || address.state_district || address.county || 'Unknown City';
+              const country = address.country || 'Unknown Country';
+              const location = `${city}, ${country}`;
+
+              setCurrentLocation(location);
             })
             .catch((error) => {
               console.error(error);
@@ -70,18 +73,12 @@ const LocationButton = () => {
     }
   }, []);
 
-  const handleLocationChange = (newLocation) => {
-    setCurrentLocation(newLocation);
-    setModalOpen(false);
-  };
-
   return (
     <>
-      <Button onClick={toggleModal}>
+      <Button>
         <Icon />
         <LocationText>{currentLocation}</LocationText>
       </Button>
-      
     </>
   );
 };
