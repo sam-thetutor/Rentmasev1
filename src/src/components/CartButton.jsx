@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import CartIcon from '/images/cart.svg'; // Adjust the path as necessary
+import { FiShoppingCart } from 'react-icons/fi'; // Import the cart icon from react-icons
 import { useCart } from '../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,7 +19,7 @@ const Button = styled.button`
   }
 `;
 
-const StyledCartIcon = styled(CartIcon)`
+const StyledCartIcon = styled(FiShoppingCart)`
   width: 24px;
   height: 24px;
   fill: black;

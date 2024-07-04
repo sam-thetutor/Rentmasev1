@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import  LocationIcon from '/images/location.svg'; // Adjust the path as necessary
+import { FiMapPin } from 'react-icons/fi'; // Import the location icon from react-icons
 
 const Button = styled.button`
   display: flex;
@@ -24,10 +24,11 @@ const Button = styled.button`
   }
 `;
 
-const Icon = styled(LocationIcon)`
+const Icon = styled(FiMapPin)`
   width: 24px;
   height: 24px;
   margin-right: 10px;
+  fill: #00B5E2; /* Set the fill color to 00B5E2 */
 `;
 
 const LocationText = styled.span`

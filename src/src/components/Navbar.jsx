@@ -80,10 +80,10 @@ const Navbar = () => {
         <SearchBar />
       </CenterContainer>
       <RightContainer>
-        {/* <SignInButton /> */}
+        <SignInButton />
         <CartButton />
         <SlideMenu />
-      </RightContainer>
+      </RightContainer> 
     </NavbarContainer>
   );
 };

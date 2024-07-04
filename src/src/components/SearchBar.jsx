@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import  SearchIcon  from '/images/search.svg'; // Adjust the path as necessary
+import { FiSearch } from 'react-icons/fi'; // Import the search icon from react-icons
 
 const SearchContainer = styled.div`
   display: flex;
   border: 1px solid lightgrey;
-
   align-items: center;
   background-color: white;
   border-radius: 25px;
@@ -14,10 +13,11 @@ const SearchContainer = styled.div`
   width: 600px; /* Set a fixed width */
 `;
 
-const Icon = styled(SearchIcon)`
+const Icon = styled(FiSearch)`
   width: 24px;
   height: 24px;
   margin-right: 10px;
+  fill: none; /* Set the fill color to 00B5E2 */
 `;
 
 const SearchInput = styled.input`
