@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ReactComponent as CartIcon } from '../images/cart.svg'; // Adjust the path as necessary
+import CartIcon from '/images/cart.svg'; // Adjust the path as necessary
 import { useCart } from '../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
 

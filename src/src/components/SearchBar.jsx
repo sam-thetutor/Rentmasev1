@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ReactComponent as SearchIcon } from '../images/search.svg'; // Adjust the path as necessary
+import  SearchIcon  from '/images/search.svg'; // Adjust the path as necessary
 
 const SearchContainer = styled.div`
   display: flex;

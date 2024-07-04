@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import SearchComponent from '../components/SearchComponent';
 import InspirationComponent from '../components/InspirationComponent';
-import FoodSliderComponent from '../components/FoodSliderComponent';
 import Restaurants from './Restaurants'; // Import the Restaurants component
 
 const FoodDeliveryContainer = styled.div`

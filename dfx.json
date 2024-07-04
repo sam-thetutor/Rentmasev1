@@ -1,0 +1,19 @@
+{
+  "canisters": {
+    "frontend": {
+      "source": [
+        "src/dist"
+      ],
+      "type": "assets",
+      "workspace": "rentmase_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

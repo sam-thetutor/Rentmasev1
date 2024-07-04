@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { ReactComponent as LocationIcon } from '../images/location.svg'; // Adjust the path as necessary
+import  LocationIcon from '/images/location.svg'; // Adjust the path as necessary
 
 const Button = styled.button`
   display: flex;
