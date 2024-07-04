@@ -17,7 +17,7 @@ src/declarations/
 target/
 
 # frontend code
-node_modules/
+**node_modules/
 dist/
 
 # environment variables
