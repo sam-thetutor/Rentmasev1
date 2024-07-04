@@ -1,4 +1,3 @@
-// src/pages/Checkout.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useCart } from '../hooks/useCart';
@@ -10,6 +9,11 @@ const CheckoutContainer = styled.div`
   padding: 20px;
   padding-left: 250px;
   padding-right: 250px;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const AddressForm = styled.form`
@@ -74,7 +78,7 @@ function Checkout() {
   const [nickname, setNickname] = useState('');
   const [saveAddress, setSaveAddress] = useState(false);
   const navigate = useNavigate();
-  const location = 'india'; // Replace with actual location logic
+  const location = ''; // Set to default
 
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
   const tax = subtotal * 0.18;

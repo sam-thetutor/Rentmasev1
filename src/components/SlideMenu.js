@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome } from 'react-icons/fa';
+import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome, FaBed } from 'react-icons/fa';
 
 const MenuButton = styled.button`
   background-color: transparent;
@@ -122,8 +122,13 @@ const SlideMenu = () => {
             </MenuItem>
           </li>
           <li>
-            <MenuItem to="/food-orders">
-              <FaUtensils /> Food Orders
+            <MenuItem to="/travel-bookings">
+              <FaBed /> Rentals
+            </MenuItem>
+          </li>
+          <li>
+            <MenuItem to="/deliveries">
+              <FaUtensils /> Orders
             </MenuItem>
           </li>
           <li>

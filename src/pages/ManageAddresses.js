@@ -1,3 +1,4 @@
+// src/pages/ManageAddresses.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -6,6 +7,11 @@ const ManageAddressesContainer = styled.div`
   padding: 20px;
   padding-left: 250px;
   padding-right: 250px;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const AddressForm = styled.form`

@@ -5,9 +5,14 @@ import { getCurrencySymbol, convertPrice } from '../utils/currency';
 
 const Container = styled.div`
   padding: 20px;
-  padding-left: 250px; /* Adjust this value to change the left padding */
-  padding-right: 250px; /* Adjust this value to change the right padding */
+  padding-left: 250px;
+  padding-right: 250px;
   background-color: #f5f5f5;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const Summary = styled.div`
@@ -20,6 +25,7 @@ const Summary = styled.div`
 
 const Title = styled.h1`
   color: #333;
+  margin-bottom: 20px;
 `;
 
 const Section = styled.section`
@@ -42,7 +48,7 @@ const StyledImage = styled.img`
   max-width: 600px;
   height: auto;
   display: block;
-  margin: 0 auto;
+  margin: 0 auto 20px;
 `;
 
 const Form = styled.form`
@@ -78,7 +84,7 @@ const BookingConfirmation = () => {
   const navigate = useNavigate();
   const state = location.state || {}; // Default to an empty object if state is undefined
   const { startDate, endDate, guests, place, total } = state;
-  const userLocation = 'india'; // Replace with actual location logic
+  const userLocation = ''; // Replace with actual location logic
   const currencySymbol = getCurrencySymbol(userLocation);
 
   const [fullName, setFullName] = useState('');
@@ -113,7 +119,6 @@ const BookingConfirmation = () => {
     bookings.push(newBooking);
     localStorage.setItem('travelBookings', JSON.stringify(bookings));
 
-    // alert('Booking confirmed successfully!');
     navigate('/travel-bookings');
   };
 

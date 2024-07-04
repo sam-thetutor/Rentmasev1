@@ -8,21 +8,21 @@ const GridContainer = styled.div`
   display: flex;
   justify-content: center; /* Center the grid */
   gap: 10px; /* Reduce the spacing between the boxes */
-  padding: 20px;
+  padding: px; /* Reduced padding */
 `;
 
 const CategoryCard = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color:;
+  background-color: ;
   border-radius: 15px;
-  padding: 20px;
+  padding: px; /* Reduced padding */
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  width: 100px; /* Fixed width */
-  height: 150px; /* Fixed height */
+  width: 60px; /* Smaller fixed width */
+  height: 60px; /* Smaller fixed height */
   text-decoration: none; /* Remove default link styling */
 
   &:hover {
@@ -32,29 +32,31 @@ const CategoryCard = styled(Link)`
 `;
 
 const IconContainer = styled.div`
-  width: 60px;
-  height: 60px;
+  width: 30px; /* Smaller width */
+  height: 30px; /* Smaller height */
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
   background-color: #00B5E2;
-  margin-bottom: 10px;
+  margin-bottom: 5px; /* Reduced margin */
 `;
 
 const StyledIcon = styled.div`
   color: white;
-  font-size: 24px;
+  font-size: 16px; /* Smaller icon size */
 `;
 
 const CategoryTitle = styled.h3`
-  font-size: 1rem;
+  font-size: 0.75rem; /* Smaller font size */
   color: #333;
+  margin: 0; /* Removed margin */
+  padding: 0; /* Removed padding */
 `;
 
 const categories = [
   { id: 1, icon: <FaUtensils />, title: 'EAT', link: '/food-delivery' },
-  { id: 2, icon: <FaShoppingCart />, title: 'RETAIL', link: '/shopping' },
+  { id: 2, icon: <FaShoppingCart />, title: 'RETAIL', link: '/shop' },
   { id: 3, icon: <FaBed />, title: 'STAY', link: '/stay-booking' },
 ];
 

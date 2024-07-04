@@ -8,6 +8,11 @@ const ProfileContainer = styled.div`
   padding: 20px;
   padding-left: 250px;
   padding-right: 250px;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const ProfileForm = styled.form`
@@ -71,8 +76,8 @@ const Profile = () => {
         <Input type="date" placeholder="Birthday" value={birthday} onChange={(e) => setBirthday(e.target.value)} required />
         <Button type="button" onClick={handleUpdate}>Update</Button>
       </ProfileForm>
-      <NavigationButton onClick={() => navigate('/food-orders')}>Food Orders</NavigationButton>
-      <NavigationButton onClick={() => navigate('/delivery-orders')}>Delivery Orders</NavigationButton>
+     
+      <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
       <NavigationButton onClick={() => navigate('/travel-bookings')}>Bookings</NavigationButton>
       <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
     </ProfileContainer>

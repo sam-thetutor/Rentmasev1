@@ -118,7 +118,7 @@ const RatingValue = styled.span`
 
 function Restaurants() {
   const [favorites, setFavorites] = useState([]);
-  const location = 'india'; // Replace with actual location logic
+  const location = ''; // Set to default
 
   const toggleFavorite = (restaurantId) => {
     setFavorites((prevFavorites) =>

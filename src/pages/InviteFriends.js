@@ -9,6 +9,11 @@ const InviteContainer = styled.div`
   padding-left: 250px;
   padding-right: 250px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const ReferralCode = styled.div`
@@ -17,6 +22,12 @@ const ReferralCode = styled.div`
   border: 1px solid #ccc;
   border-radius: 5px;
   display: inline-block;
+  width: 100%;
+  max-width: 400px;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 const CopyButton = styled.button`
@@ -28,6 +39,11 @@ const CopyButton = styled.button`
   cursor: pointer;
   font-size: 16px;
   margin: 5px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 8px;
+  }
 `;
 
 const SocialButton = styled.button`
@@ -44,6 +60,12 @@ const SocialButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    width: 35px;
+    height: 35px;
+  }
 `;
 
 const SocialButtons = styled.div`
@@ -57,6 +79,11 @@ const StatsSection = styled.div`
   justify-content: center;
   margin-top: 60px;
   gap: 30px; /* Adjust the gap as needed */
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const StatItem = styled.div`
@@ -69,6 +96,14 @@ const VerticalLine = styled.div`
   border-left: 1px solid #ccc;
   height: 100px;
   margin: 0 20px; /* Adjust the margin as needed */
+
+  @media (max-width: 768px) {
+    height: 1px;
+    width: 80%;
+    border-left: none;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+  }
 `;
 
 const InviteFriends = () => {

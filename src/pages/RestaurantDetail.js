@@ -171,7 +171,7 @@ function RestaurantDetail() {
   const restaurant = foodData.restaurants.find((rest) => rest.id.toString() === id);
   const { addToCart, updateQuantity, cart } = useCart();
   const [favorites, setFavorites] = useState([]);
-  const location = 'india'; // Replace with actual location logic
+  const location = ''; // Set to default
 
   const handleAddToCart = (item) => {
     addToCart({ ...item, uniqueId: `${restaurant.id}-${item.id}` });

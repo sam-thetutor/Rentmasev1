@@ -10,6 +10,11 @@ const ConfirmationContainer = styled.div`
   padding: 20px;
   padding-left: 250px;
   padding-right: 250px;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const OrderDetail = styled.p`
@@ -23,7 +28,7 @@ const OrderConfirmation = () => {
   const { orderId, address, cart, total } = location.state || {};
   const { clearCart } = useCart();
   const orderDate = new Date();
-  const userLocation = 'india'; // Replace with actual location logic
+  const userLocation = ''; // Replace with actual location logic
   const currencySymbol = getCurrencySymbol(userLocation);
 
   const order = {
@@ -66,7 +71,7 @@ const OrderConfirmation = () => {
           {item.quantity} x {item.name} ({currencySymbol}{convertPrice(parseFloat(item.price), userLocation)})
         </OrderDetail>
       ))}
-      <button onClick={() => navigate('/food-orders')}>View Orders</button>
+      <button onClick={() => navigate('/deliveries')}>View Orders</button>
     </ConfirmationContainer>
   );
 };

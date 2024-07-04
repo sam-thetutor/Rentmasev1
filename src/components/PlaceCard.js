@@ -96,7 +96,7 @@ const PlaceCard = ({ place }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [convertedPrice, setConvertedPrice] = useState(place.price);
   const [currencySymbol, setCurrencySymbol] = useState('$');
-  const location = 'india'; // Replace with actual location logic
+  const location = ''; // Set to default
 
   useEffect(() => {
     const symbol = getCurrencySymbol(location);

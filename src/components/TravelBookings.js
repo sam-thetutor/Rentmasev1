@@ -7,6 +7,11 @@ const Container = styled.div`
   padding-left: 250px; /* Adjust this value to change the left padding */
   padding-right: 250px; /* Adjust this value to change the right padding */
   background-color: #f5f5f5;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const BookingItem = styled.div`
@@ -19,22 +24,33 @@ const BookingItem = styled.div`
 
 const Title = styled.h1`
   color: #333;
+  margin-bottom: 20px;
 `;
 
 const BookingDetail = styled.p`
   color: #333;
-  font-size: 18px;
+  font-size: 16px;
+  margin: 5px 0;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const TotalPrice = styled.p`
   color: #333;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 20px;
+  margin-top: 10px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const TravelBookings = () => {
   const [bookings, setBookings] = useState([]);
-  const userLocation = 'india'; // Replace with actual location logic
+  const userLocation = ''; // Replace with actual location logic
   const currencySymbol = getCurrencySymbol(userLocation);
 
   useEffect(() => {
@@ -44,7 +60,7 @@ const TravelBookings = () => {
 
   return (
     <Container>
-      <Title>Travel Bookings</Title>
+      <Title>Rentals</Title>
       {bookings.length === 0 ? (
         <p>No travel bookings found.</p>
       ) : (

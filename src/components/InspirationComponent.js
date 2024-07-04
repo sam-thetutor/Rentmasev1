@@ -139,7 +139,7 @@ const InspirationComponent = () => {
   const { addToCart, updateQuantity, cart } = useCart();
   const [shuffledFoodItems, setShuffledFoodItems] = useState([]);
   const [favorites, setFavorites] = useState([]);
-  const location = 'india'; // Replace with actual location logic
+  const location = ''; // Set to default
 
   useEffect(() => {
     const foodItems = foodData.restaurants.flatMap((restaurant) =>
@@ -154,7 +154,7 @@ const InspirationComponent = () => {
         deliveryTime: restaurant.time,
       }))
     );
-    const shuffled = foodItems.sort(() => 0.5 - Math.random()).slice(0, 10);
+    const shuffled = foodItems.sort(() => 0.5 - Math.random()).slice(0, 5);
     setShuffledFoodItems(shuffled);
   }, []);
 

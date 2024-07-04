@@ -9,9 +9,14 @@ import { getCurrencySymbol, convertPrice } from '../utils/currency';
 
 const Container = styled.div`
   padding: 20px;
-  padding-left: 250px; /* Adjust this value to change the left padding */
-  padding-right: 250px; /* Adjust this value to change the right padding */
+  padding-left: 250px;
+  padding-right: 250px;
   background-color: #f5f5f5;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const ImageGridContainer = styled.div`
@@ -21,19 +26,30 @@ const ImageGridContainer = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 `;
 
 const MainContent = styled.div`
   flex: 1;
   margin-right: 20px;
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+  }
 `;
 
 const StickySection = styled.div`
   width: 300px;
   position: sticky;
   top: 20px;
-  max-height: calc(100vh - 40px); /* Make sure the calendar fits within the viewport */
+  max-height: calc(100vh - 40px);
   overflow: auto;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    position: static;
+    max-height: none;
+  }
 `;
 
 const MainImageContainer = styled.div`
@@ -140,7 +156,7 @@ const BookingSection = styled.section`
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px; /* Added margin-bottom to prevent overlapping */
+  margin-bottom: 20px;
 `;
 
 const Price = styled.p`
@@ -257,7 +273,7 @@ const PlaceDetail = () => {
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const userLocation = 'india'; // Replace with actual location logic
+  const userLocation = ''; // Replace with actual location logic
   const currencySymbol = getCurrencySymbol(userLocation);
 
   const handleDateChange = (dates) => {

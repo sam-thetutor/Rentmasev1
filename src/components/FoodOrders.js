@@ -8,6 +8,11 @@ const OrdersContainer = styled.div`
   padding: 20px;
   padding-left: 250px;
   padding-right: 250px;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const OrderItem = styled.div`
@@ -28,7 +33,7 @@ const OrderDetail = styled.p`
 
 const FoodOrders = () => {
   const [orders, setOrders] = useState([]);
-  const location = 'india'; // Replace with actual location logic
+  const location = ''; // Set to default
   const currencySymbol = getCurrencySymbol(location);
 
   useEffect(() => {
@@ -38,7 +43,7 @@ const FoodOrders = () => {
 
   return (
     <OrdersContainer>
-      <h1>Food Orders</h1>
+      <h1>Deliveries</h1>
       {orders.length === 0 ? (
         <p>No orders placed yet.</p>
       ) : (

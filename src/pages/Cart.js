@@ -9,6 +9,11 @@ const CartContainer = styled.div`
   padding: 20px;
   padding-left: 250px;
   padding-right: 250px;
+
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 `;
 
 const CartItem = styled.div`
@@ -18,6 +23,11 @@ const CartItem = styled.div`
   padding: 10px 0;
   border-bottom: 1px solid #e0e0e0;
   position: relative;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const CartItemImage = styled.img`
@@ -25,12 +35,21 @@ const CartItemImage = styled.img`
   height: 100px;
   object-fit: cover;
   margin-right: 20px;
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
 `;
 
 const CartItemDetails = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const CartItemName = styled.h3`
@@ -52,6 +71,10 @@ const QuantityControls = styled.div`
   align-items: center;
   margin-top: 10px;
   margin-right: 20px;
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+  }
 `;
 
 const QuantityButton = styled.button`
@@ -79,6 +102,11 @@ const RemoveButton = styled.button`
   font-size: 24px;
   cursor: pointer;
   padding: 0;
+
+  @media (max-width: 768px) {
+    position: static;
+    margin-top: 10px;
+  }
 `;
 
 const CheckoutButton = styled.button`
@@ -96,6 +124,10 @@ const CheckoutButton = styled.button`
 const Summary = styled.div`
   text-align: right;
   margin-top: 20px;
+
+  @media (max-width: 768px) {
+    text-align: left;
+  }
 `;
 
 const SummaryItem = styled.p`
@@ -106,7 +138,7 @@ const SummaryItem = styled.p`
 function Cart() {
   const { cart, removeFromCart, updateQuantity } = useCart();
   const navigate = useNavigate();
-  const location = 'india'; // Replace with actual location logic
+  const location = ''; // Set to default
 
   const subtotal = cart.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
   const tax = subtotal * 0.18;
@@ -124,6 +156,7 @@ function Cart() {
   };
 
   const currencySymbol = getCurrencySymbol(location);
+  const placeholderImage = 'https://via.placeholder.com/100';
 
   return (
     <CartContainer>
@@ -133,7 +166,7 @@ function Cart() {
       ) : (
         cart.map((item, index) => (
           <CartItem key={index}>
-            <CartItemImage src={item.imageUrl || 'https://via.placeholder.com/100'} alt={item.name} />
+            <CartItemImage src={item.imageUrl || placeholderImage} alt={item.name} />
             <CartItemDetails>
               <CartItemName>{item.name}</CartItemName>
               <CartItemInfo>{item.restaurantName}</CartItemInfo>
