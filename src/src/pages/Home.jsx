@@ -47,9 +47,9 @@ const Home = () => {
       <Hero />
      
       <HomeTitle>Welcome to RentMase</HomeTitle>
-      <HomeDescription>Your one-stop solution.</HomeDescription>
+      <HomeDescription>The Ultimate SuperApp for everyhing you need</HomeDescription>
       {/* <SearchForm onSearch={handleSearch} /> */}
-      <h2>Book your Vacation Rentals</h2>
+      <h2>Find your next HOME</h2>
       <PlaceList places={filteredPlaces} />
 
       <InspirationComponent />

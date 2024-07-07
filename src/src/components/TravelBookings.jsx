@@ -70,8 +70,8 @@ const TravelBookings = () => {
             <BookingDetail><strong>Name:</strong> {booking.fullName}</BookingDetail>
             <BookingDetail><strong>Email:</strong> {booking.email}</BookingDetail>
             <BookingDetail><strong>Phone:</strong> {booking.phone}</BookingDetail>
-            <BookingDetail><strong>Dates:</strong> {new Date(booking.startDate).toDateString()} - {new Date(booking.endDate).toDateString()}</BookingDetail>
-            <BookingDetail><strong>Guests:</strong> {booking.guests}</BookingDetail>
+            {/* <BookingDetail><strong>Dates:</strong> {new Date(booking.startDate).toDateString()} - {new Date(booking.endDate).toDateString()}</BookingDetail> */}
+            {/* <BookingDetail><strong>Guests:</strong> {booking.guests}</BookingDetail> */}
             <BookingDetail><strong>Place:</strong> {booking.place.name}</BookingDetail>
             <BookingDetail><strong>Description:</strong> {booking.place.details.description}</BookingDetail>
             <TotalPrice>Total: {currencySymbol}{convertPrice(booking.total, userLocation)}</TotalPrice>

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { FaArrowLeft, FaArrowRight, FaEnvelope, FaPhone } from 'react-icons/fa';
 import placesData from '../data/places';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { getCurrencySymbol, convertPrice } from '../utils/currency';
 
 const Container = styled.div`
@@ -151,7 +149,7 @@ const Review = styled.li`
   padding: 10px 0;
 `;
 
-const BookingSection = styled.section`
+const ContactSection = styled.section`
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -188,32 +186,18 @@ const Button = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
 `;
 
-const CustomDatePicker = styled(DatePicker)`
-  .react-datepicker {
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .react-datepicker__header {
-    background-color: #00B5E2;
-    border-bottom: none;
-    padding-top: 10px;
-    border-radius: 8px 8px 0 0;
-  }
-
-  .react-datepicker__current-month,
-  .react-datepicker__day-name {
-    color: white;
-  }
-
-  .react-datepicker__day--selected,
-  .react-datepicker__day--keyboard-selected {
-    background-color: #00B5E2;
-    color: white;
-  }
+const ContactDetails = styled.div`
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f5f5f5;
 `;
 
 const Modal = styled.div`
@@ -267,39 +251,12 @@ const PlaceDetail = () => {
   const navigate = useNavigate();
   const place = placesData.find((place) => place.id.toString() === id);
 
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [guests, setGuests] = useState(1);
-  const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showContact, setShowContact] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
   const userLocation = ''; // Replace with actual location logic
   const currencySymbol = getCurrencySymbol(userLocation);
-
-  const handleDateChange = (dates) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
-
-    if (start && end) {
-      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-      setTotal(days * place.price);
-    }
-  };
-
-  const handleGuestsChange = (e) => {
-    setGuests(e.target.value);
-  };
-
-  const handleBook = () => {
-    if (startDate && endDate) {
-      navigate('/booking-confirmation', {
-        state: { startDate, endDate, guests, place, total }
-      });
-    } else {
-      alert("Please select valid dates.");
-    }
-  };
 
   const openModal = (index) => {
     setCurrentImageIndex(index);
@@ -316,6 +273,10 @@ const PlaceDetail = () => {
 
   const showPreviousImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + place.details.images.length) % place.details.images.length);
+  };
+
+  const handleBookNow = () => {
+    navigate('/booking-confirmation', { state: { place } });
   };
 
   if (!place) {
@@ -387,30 +348,26 @@ const PlaceDetail = () => {
           </Section>
         </MainContent>
         <StickySection>
-          <BookingSection>
-            <Price>{currencySymbol}{convertPrice(place.price, userLocation)} per night</Price>
-            <Label htmlFor="dates">Select Dates</Label>
-            <CustomDatePicker
-              selected={startDate}
-              onChange={handleDateChange}
-              startDate={startDate}
-              endDate={endDate}
-              selectsRange
-              inline
-            />
-            <Label htmlFor="guests">Number of Guests</Label>
-            <Input
-              type="number"
-              id="guests"
-              value={guests}
-              min="1"
-              onChange={handleGuestsChange}
-            />
-            <Button onClick={handleBook}>Book Now</Button>
-            {total > 0 && (
-              <p>Total: {currencySymbol}{convertPrice(total, userLocation)}</p>
+          <ContactSection>
+            <Price>{currencySymbol}{convertPrice(place.price, userLocation)} per month</Price>
+            <Button onClick={() => setShowContact(!showContact)}>
+              <FaPhone style={{ marginRight: '10px' }} /> {showContact ? place.hostDetails.phone : 'Contact via Phone'}
+            </Button>
+            <Button onClick={() => setShowEmail(!showEmail)}>
+              <FaEnvelope style={{ marginRight: '10px' }} /> {showEmail ? place.hostDetails.email : 'Contact via Email'}
+            </Button>
+            {showContact && (
+              <ContactDetails>
+                <p>Phone: {place.hostDetails.phone}</p>
+              </ContactDetails>
             )}
-          </BookingSection>
+            {showEmail && (
+              <ContactDetails>
+                <p>Email: {place.hostDetails.email}</p>
+              </ContactDetails>
+            )}
+            <Button onClick={handleBookNow}>Book Now</Button>
+          </ContactSection>
         </StickySection>
       </ContentWrapper>
       <Modal isOpen={isModalOpen}>

@@ -110,7 +110,7 @@ const InviteFriends = () => {
   return (
     <InviteContainer>
       <h1>Invite Friends</h1>
-      <p>Invite your friends to RentMase & earn tokens</p>
+      <p>Invite your friends to RentMase & earn points</p>
       <ReferralCode>
         <p>Your referral code</p>
         <h3>UNDER MAINTENANCE</h3>
@@ -135,7 +135,7 @@ const InviteFriends = () => {
         </StatItem>
         <VerticalLine />
         <StatItem>
-          <p>Tokens Earned</p>
+          <p>Points Earned</p>
           <h3>0</h3>
         </StatItem>
       </StatsSection>

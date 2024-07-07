@@ -15,10 +15,13 @@ const Title = styled.h2`
 `;
 
 const InspirationList = styled.div`
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `;
 
 const InspirationItem = styled.div`
@@ -27,14 +30,13 @@ const InspirationItem = styled.div`
   border-radius: 10px;
   overflow: hidden;
   margin: 10px;
-  width: 220px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   position: relative;
+
   &:hover {
     transform: translateY(-5px);
     outline: 2px solid #00B5E2;
   }
-  
 `;
 
 const InspirationImage = styled.img`
@@ -154,7 +156,7 @@ const InspirationComponent = () => {
         deliveryTime: restaurant.time,
       }))
     );
-    const shuffled = foodItems.sort(() => 0.5 - Math.random()).slice(0, 5);
+    const shuffled = foodItems.sort(() => 0.5 - Math.random()).slice(0, 6);
     setShuffledFoodItems(shuffled);
   }, []);
 

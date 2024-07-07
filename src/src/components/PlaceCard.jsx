@@ -125,7 +125,7 @@ const PlaceCard = ({ place }) => {
           <Location>{place.location}</Location>
           <Details>{place.distance} kilometres away</Details>
           <Details>{place.dates}</Details>
-          <Price>{currencySymbol}{convertedPrice} total before taxes</Price>
+          <Price>{currencySymbol}{convertedPrice} per month</Price>
           <Host>Hosted by {place.host}</Host>
           <Rating>
             <FaStar />

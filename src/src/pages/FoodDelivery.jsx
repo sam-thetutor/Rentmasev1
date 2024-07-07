@@ -13,7 +13,7 @@ const FoodDeliveryContainer = styled.div`
 function FoodDelivery() {
   return (
     <FoodDeliveryContainer>
-      <SearchComponent />
+      {/* <SearchComponent /> */}
       <InspirationComponent />
       <Restaurants /> {/* Add the Restaurants component here */}
      

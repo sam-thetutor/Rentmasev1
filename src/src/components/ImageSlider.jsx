@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import slider1 from '/images/SLIDER/SLIDER1.jpg';
+import slider2 from '/images/SLIDER/SLIDER2.jpg';
+import slider3 from '/images/SLIDER/SLIDER3.jpg';
 
 const OuterContainer = styled.div`
   width: 80%;
@@ -29,7 +32,7 @@ const Slide = styled.div`
   background: center/cover no-repeat;
   border-radius: ${({ $isCurved }) => ($isCurved ? '15px' : '0')};
   transition: border-radius 0.5s ease-in-out;
-  background-image: url(${props => `https://via.placeholder.com/300x500/CCCCCC/FFFFFF?text=${props.image}`});
+  background-image: url(${props => props.image});
 `;
 
 const DotsContainer = styled.div`
@@ -99,7 +102,7 @@ const ImageSlider = ({ images }) => {
       <SliderContainer $isCurved={isCurved}>
         <SliderWrapper $activeIndex={activeIndex} $isTransitioning={isTransitioning}>
           {slides.map((image, index) => (
-            <Slide key={index} image={`${300}x${500}`} $isCurved={isCurved} />
+            <Slide key={index} image={image} $isCurved={isCurved} />
           ))}
         </SliderWrapper>
       </SliderContainer>
@@ -116,4 +119,10 @@ const ImageSlider = ({ images }) => {
   );
 };
 
-export default ImageSlider;
+const App = () => {
+  const images = [slider1, slider2, slider3];
+
+  return <ImageSlider images={images} />;
+};
+
+export default App;

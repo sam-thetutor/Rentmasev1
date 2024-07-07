@@ -83,7 +83,7 @@ const BookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state || {}; // Default to an empty object if state is undefined
-  const { startDate, endDate, guests, place, total } = state;
+  const { place } = state;
   const userLocation = ''; // Replace with actual location logic
   const currencySymbol = getCurrencySymbol(userLocation);
 
@@ -95,10 +95,6 @@ const BookingConfirmation = () => {
     return <Container>Booking details are missing. Please go back and try again.</Container>;
   }
 
-  const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
-  const tax = total * 0.18;
-  const grandTotal = total + tax;
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const bookingId = Math.floor(Math.random() * 1000000); // Generate a random booking ID
@@ -107,11 +103,8 @@ const BookingConfirmation = () => {
       fullName,
       email,
       phone,
-      startDate,
-      endDate,
-      guests,
       place,
-      total: grandTotal,
+      total: place.price, // Assuming price is per month
     };
 
     // Save booking to local storage
@@ -126,19 +119,11 @@ const BookingConfirmation = () => {
     <Container>
       <Title>Request to Book</Title>
       <Section>
-        <h2>Your trip</h2>
-        <p>Dates: {new Date(startDate).toDateString()} - {new Date(endDate).toDateString()}</p>
-        <p>Guests: {guests}</p>
-      </Section>
-      <Section>
         <Summary>
           <h2>{place.name}</h2>
           <p>{place.details.description}</p>
           <StyledImage src={place.imageUrl} alt={place.name} />
-          <PriceDetail>{days} nights</PriceDetail>
-          <PriceDetail>Subtotal: {currencySymbol}{convertPrice(total, userLocation)}</PriceDetail>
-          <PriceDetail>Tax (18%): {currencySymbol}{convertPrice(tax, userLocation)}</PriceDetail>
-          <TotalPrice>Total: {currencySymbol}{convertPrice(grandTotal, userLocation)}</TotalPrice>
+          <PriceDetail>Price: {currencySymbol}{convertPrice(place.price, userLocation)} per month</PriceDetail>
         </Summary>
       </Section>
       <Section>

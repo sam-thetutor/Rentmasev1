@@ -91,7 +91,7 @@ const SearchForm = ({ onSearch }) => {
         value={location}
         onChange={(e) => setLocation(e.target.value)}
       />
-      <CustomDateInput
+      {/* <CustomDateInput
         selected={startDate}
         onChange={(date) => setStartDate(date)}
         placeholder="Check in"
@@ -100,14 +100,14 @@ const SearchForm = ({ onSearch }) => {
         selected={endDate}
         onChange={(date) => setEndDate(date)}
         placeholder="Check out"
-      />
-      <SmallInput
+      /> */}
+      {/* <SmallInput
         type="number"
         placeholder="Who"
         value={guests}
         min="1"
         onChange={(e) => setGuests(e.target.value)}
-      />
+      /> */}
       <Button onClick={handleSearch}>
         <FaSearch />
       </Button>

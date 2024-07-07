@@ -141,7 +141,7 @@ function Cart() {
   const location = ''; // Set to default
 
   const subtotal = cart.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
-  const tax = subtotal * 0.18;
+  const tax = subtotal * 0.0;
   const total = subtotal + tax;
 
   const handleUpdateQuantity = (item, quantity) => {
@@ -186,7 +186,7 @@ function Cart() {
         <>
           <Summary>
             <SummaryItem>Subtotal: {currencySymbol}{convertPrice(subtotal, location)}</SummaryItem>
-            <SummaryItem>Tax (18%): {currencySymbol}{convertPrice(tax, location)}</SummaryItem>
+            {/* <SummaryItem>Tax (18%): {currencySymbol}{convertPrice(tax, location)}</SummaryItem> */}
             <SummaryItem>Total: {currencySymbol}{convertPrice(total, location)}</SummaryItem>
           </Summary>
           <CheckoutButton onClick={handleCheckout}>Proceed to Checkout</CheckoutButton>

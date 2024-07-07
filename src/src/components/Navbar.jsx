@@ -75,12 +75,14 @@ const Navbar = () => {
           <Logo src="/images/Logo.svg" alt="Logo" />
         </Link>
       </LeftContainer>
+      
       <CenterContainer>
-        <LocationButton />
-        <SearchBar />
+ 
+        {/* <SearchBar /> */}
       </CenterContainer>
       <RightContainer>
-        <SignInButton />
+      <LocationButton />
+        {/* <SignInButton /> */}
         <CartButton />
         <SlideMenu />
       </RightContainer> 
