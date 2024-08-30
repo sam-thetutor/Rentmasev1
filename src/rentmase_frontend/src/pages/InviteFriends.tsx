@@ -5,6 +5,7 @@ import { FaFacebookF, FaTwitter, FaWhatsapp, FaEnvelope, FaLink } from 'react-ic
 import { useAuth } from '../hooks/Context';
 import { tokensPerReward } from '../constants';
 import { Reward } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import RedeemTokens from '../components/RedeemTokens';
 
 const InviteContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -140,6 +141,7 @@ const RedeemButton = styled.button`
 
 const InviteFriends = () => {
   const { user, isAuthenticated, backendActor } = useAuth();
+  const [openModal, setOpenModal] = useState(false);
   const [unclaimedRewards, setUnclaimedRewards] = useState<Reward[]>([]);
 
 
@@ -198,11 +200,14 @@ const InviteFriends = () => {
           <div className="">
             <h5>Worth : {unclaimedRewards.length * tokensPerReward} {" "}
                REM</h5>
-            <RedeemButton>Redeem</RedeemButton>
+            <RedeemButton
+              onClick={() => setOpenModal(true)}
+            >Redeem</RedeemButton>
 
           </div>
         </StatItem>
       </StatsSection>
+      {openModal && <RedeemTokens {...{openModal, setOpenModal, unclaimedRewards}}/>}
     </InviteContainer>
   );
 };
