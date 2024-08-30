@@ -86,14 +86,14 @@ const Button = styled.button`
   }
 `;
 
-const LearderBorderButton = styled(Button)`
-  border: 1px solid #00B5E2;
-  background-color: white;
-  color: #00B5E2;
-
-  &:hover {
-    background-color: #00B5E2;
-    color: white;
+const LearderBorderLink = styled(Link)`
+  padding: 15px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 15px; /* Rounded corners */
+  font-size: 1rem; /* Increased font size */
+  text-decoration: none;
+  color: black;
   }
 `;
 
@@ -114,7 +114,7 @@ const Navbar = () => {
       <RightContainer>
 
         <LocationButton />
-        <LearderBorderButton>Leaderboard</LearderBorderButton>
+        <LearderBorderLink to="leaderboard">Leaderboard</LearderBorderLink>
         <Button
           onClick={isAuthenticated ? logout : () => setOpenModal(true)}
         >

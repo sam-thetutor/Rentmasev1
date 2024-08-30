@@ -18,6 +18,14 @@ module {
         gender: ?Text;
         email : Text;
     };
+
+    public type PublicUser = {
+        id : Principal;
+        firstName : Text;
+        lastName : Text;
+        referrals : [Principal];
+        rewards : [Reward];
+    };
     public type User = {
         id : Principal;
         firstName : Text;

@@ -159,6 +159,21 @@ actor {
         return List.toArray<User>(users);
     };
 
+    public shared query func getPublicUsers() : async [Types.PublicUser] {
+        return List.toArray(List.map<User, Types.PublicUser>(
+            users,
+            func(user : User) : Types.PublicUser {
+                return {
+                    id = user.id;
+                    firstName = user.firstName;
+                    lastName = user.lastName;
+                    referrals = user.referrals;
+                    rewards = user.rewards;
+                };
+            },
+        ));
+    };
+
     public shared ({caller}) func redeemRewards(wallet: Principal, amount: Nat) : async Result.Result<(), Text> {
         let user = List.find<User>(
             users,
@@ -223,7 +238,31 @@ actor {
                 return #ok(());
             };
         };
-    } ;
+    };
+
+    public shared query ({caller}) func getUnclaimedRewards() : async Result.Result<[Types.Reward], Text> {
+        let user = List.find<User>(
+            users,
+            func(user : User) : Bool {
+                return user.id == caller;
+            },
+        );
+        switch (user) {
+            case (null) {
+                return #err("User not found");
+            };
+            case (?_user) {
+                let rewardslist = List.fromArray<Types.Reward>(_user.rewards);
+                let unclaimedRewards = List.filter<Types.Reward>(
+                    rewardslist,
+                    func(reward : Types.Reward) : Bool {
+                        return reward.claimed == false;
+                    },
+                );
+                return #ok(List.toArray<Types.Reward>(unclaimedRewards));
+            };
+        };
+    };
 
     func transferRewards(wallet: Principal, amount: Nat) : async Result.Result<(), Text> {
       let _actor = actor (tokenCanister) : TokenInterface;

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 
 import styled from 'styled-components';
@@ -48,7 +48,13 @@ const RegisterLoginModal = ({ openModal, setOpenModal }) => {
 
   if (!openModal) return null;
 
-  const { login, nfidlogin, } = useAuth();
+  const { login, nfidlogin, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setOpenModal(false)
+    }
+  }, [isAuthenticated])
 
   const cancelButtonRef = useRef(null)
 

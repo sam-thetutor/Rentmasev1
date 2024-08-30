@@ -26,6 +26,7 @@ import Checkout from './pages/Checkout';
 import Footer from './components/Footer';
 import { useAuth } from './hooks/Context';
 import Register from './pages/register/Register';
+import Leaderboard from './pages/Leaderboard';
 
 function App() {
   const { backendActor, isAuthenticated, setUser } = useAuth();
@@ -105,6 +106,7 @@ function App() {
             <Route path="/product/:id" element={<ShopProductDetails addToCart={handleAddToCart} />} />
             <Route path="/order-history" element={<OrderHistoryPage orders={orders} />} />
             <Route path="/signup" element={<Register />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
           <Footer />
         </Router>

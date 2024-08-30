@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuth } from '../hooks/Context';
 
 
@@ -47,8 +47,13 @@ const LoginModal = ({ openModal, setOpenModal }) => {
   const handleClose = () => setOpenModal(false);
 
   if (!openModal) return null;
+  const { login, nfidlogin, isAuthenticated } = useAuth();
 
-  const { login, nfidlogin, } = useAuth();
+  useEffect(() => {
+    if (isAuthenticated) {
+      setOpenModal(false)
+    }
+  }, [isAuthenticated])
 
   const cancelButtonRef = useRef(null)
 

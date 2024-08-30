@@ -61,6 +61,7 @@ const Register = () => {
     const [openModal, setOpenModal] = useState(false);
     const navigate = useNavigate();
     const [saving, setSaving] = useState(false);
+    const [inputInviteCode, setInputInviteCode] = useState('');
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastname] = useState('');
@@ -106,7 +107,7 @@ const Register = () => {
             referralCode,
             dob: dob ? [BigInt(dobInNanoSeconds)] : [],
             gender : gender ? [gender] : [],
-            referrerCode: inviteCode ? [inviteCode] : []
+            referrerCode: inputInviteCode ? [inputInviteCode] : inviteCode ? [inviteCode] : []
         };
 
         const result = await backendActor.registerUser(user);
@@ -162,7 +163,9 @@ const Register = () => {
                         <option value="other">Other</option>
                     </Select>
                     <Input type="date" placeholder="Birthday" value={dob} onChange={(e) => setDob(e.target.value)} required />
-                    {inviteCode && <Input type="text" placeholder="Invite Code (optional)" value={inviteCode} disabled />}
+                    {!inviteCode && <Input type="text" placeholder="Invite Code (optional)" value={inputInviteCode} 
+                    onChange={(e) => setInputInviteCode(e.target.value)}
+                     />}
                     <Button type="button" onClick={handleRegister}>
                         {saving ? 'Saving...' : 'Register'}
                     </Button>
