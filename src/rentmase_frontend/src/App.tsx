@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -24,8 +24,25 @@ import { CartProvider } from './hooks/useCart';
 import { OrderHistoryProvider } from './hooks/useOrderHistory';
 import Checkout from './pages/Checkout';
 import Footer from './components/Footer';
+import { useAuth } from './hooks/Context';
+import Register from './pages/register/Register';
 
 function App() {
+  const { backendActor, isAuthenticated, setUser } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && backendActor) {
+      getUser();
+    }
+  }, [isAuthenticated, backendActor]);
+
+  const getUser = async () => {
+    const user = await backendActor.getUser();
+   if ("ok" in user) {
+      setUser(user.ok);
+    }
+  }
+
   const [cartItems, setCartItems] = useState([]);
   const [orders, setOrders] = useState([]);
 
@@ -87,8 +104,9 @@ function App() {
             <Route path="/shop" element={<Shop addToCart={handleAddToCart} />} />
             <Route path="/product/:id" element={<ShopProductDetails addToCart={handleAddToCart} />} />
             <Route path="/order-history" element={<OrderHistoryPage orders={orders} />} />
+            <Route path="/signup" element={<Register />} />
           </Routes>
-          <Footer/>
+          <Footer />
         </Router>
       </OrderHistoryProvider>
     </CartProvider>

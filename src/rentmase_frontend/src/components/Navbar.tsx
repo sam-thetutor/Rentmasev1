@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import CartButton from './CartButton';
@@ -6,6 +6,8 @@ import SignInButton from './SignInButton';
 import SearchBar from './SearchBar';
 import LocationButton from './LocationButton';
 import SlideMenu from './SlideMenu';
+import LoginModal from './LoginModal';
+import { useAuth } from '../hooks/Context';
 
 const NavbarContainer = styled.nav`
   display: flex;
@@ -67,7 +69,38 @@ const RightContainer = styled.div`
   }
 `;
 
+
+const Button = styled.button`
+  background-color: #00B5E2;
+  border: 1px solid #00B5E2;
+  color: white;
+  padding: 15px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 15px; /* Rounded corners */
+  font-size: 1rem; /* Increased font size */
+
+  &:hover {
+    background-color: white;
+    color: black;
+  }
+`;
+
+const LearderBorderButton = styled(Button)`
+  border: 1px solid #00B5E2;
+  background-color: white;
+  color: #00B5E2;
+
+  &:hover {
+    background-color: #00B5E2;
+    color: white;
+  }
+`;
+
 const Navbar = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const {isAuthenticated, identity, logout} = useAuth();
+
   return (
     <NavbarContainer>
       <LeftContainer>
@@ -75,17 +108,22 @@ const Navbar = () => {
           <Logo src="/images/Logo.svg" alt="Logo" />
         </Link>
       </LeftContainer>
-      
       <CenterContainer>
- 
         {/* <SearchBar /> */}
       </CenterContainer>
       <RightContainer>
-      <LocationButton />
-        {/* <SignInButton /> */}
+
+        <LocationButton />
+        <LearderBorderButton>Leaderboard</LearderBorderButton>
+        <Button
+          onClick={isAuthenticated ? logout : () => setOpenModal(true)}
+        >
+          {isAuthenticated ? 'Logout' : 'Login'}
+        </Button>
         <CartButton />
         <SlideMenu />
-      </RightContainer> 
+      </RightContainer>
+      {openModal && <LoginModal {...{openModal, setOpenModal}}/>}
     </NavbarContainer>
   );
 };

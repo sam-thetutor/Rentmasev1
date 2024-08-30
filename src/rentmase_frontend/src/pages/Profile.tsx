@@ -1,7 +1,10 @@
 // src/pages/Profile.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/Context';
+import { UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { toast } from 'react-toastify';
 
 const ProfileContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -52,21 +55,48 @@ const NavigationButton = styled(Button)`
 `;
 
 const Profile = () => {
-  const [name, setName] = useState('');
+  const { user, isAuthenticated, backendActor } = useAuth();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState( '');
+  const [email, setEmail] = useState('');
+  const [saving , setSaving] = useState(false);
+
   const [gender, setGender] = useState('');
   const [birthday, setBirthday] = useState('');
   const navigate = useNavigate();
 
-  const handleUpdate = () => {
-    // Implement the update logic here
-    alert('Profile updated successfully!');
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setEmail(user.email);
+      setGender(user.gender[0]);  }
+  }, [user]);
+
+  const dobInNanoSeconds = new Date(birthday).getTime() * 1000000;
+
+  const handleUpdate = async () => {
+    setSaving(true);
+    const userPayload : UserUpdatePayload = {
+      ...user,
+      firstName,
+      lastName,
+      email,
+      dob: birthday ? [BigInt(dobInNanoSeconds)] : user.dob,
+      gender :gender ? [gender] : user.gender,
+    };
+    await backendActor.updateProfile(userPayload);
+    toast.success('Profile updated successfully');
+    setSaving(false);
   };
 
   return (
     <ProfileContainer>
       <h1>My Profile</h1>
       <ProfileForm>
-        <Input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input type="text" placeholder="Full Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+        <Input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+        <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <Select value={gender} onChange={(e) => setGender(e.target.value)} required>
           <option value="">Select Gender</option>
           <option value="male">Male</option>
@@ -74,7 +104,9 @@ const Profile = () => {
           <option value="other">Other</option>
         </Select>
         <Input type="date" placeholder="Birthday" value={birthday} onChange={(e) => setBirthday(e.target.value)} required />
-        <Button type="button" onClick={handleUpdate}>Update</Button>
+        <Button type="button" onClick={handleUpdate}>
+          {saving ? 'Saving...' : 'Update'}
+        </Button>
       </ProfileForm>
      
       <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
