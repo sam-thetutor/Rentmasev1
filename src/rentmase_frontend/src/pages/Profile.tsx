@@ -78,11 +78,11 @@ const Profile = () => {
   const handleUpdate = async () => {
     setSaving(true);
     const userPayload : UserUpdatePayload = {
-      ...user,
       firstName,
       lastName,
       email,
       dob: birthday ? [BigInt(dobInNanoSeconds)] : user.dob,
+      refferalCode: user.referralCode,
       gender :gender ? [gender] : user.gender,
     };
     await backendActor.updateProfile(userPayload);
