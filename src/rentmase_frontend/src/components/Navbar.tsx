@@ -99,7 +99,7 @@ const LearderBorderLink = styled(Link)`
 
 const Navbar = () => {
   const [openModal, setOpenModal] = useState(false);
-  const {isAuthenticated, identity, logout} = useAuth();
+  const { isAuthenticated} = useAuth();
 
   return (
     <NavbarContainer>
@@ -115,15 +115,18 @@ const Navbar = () => {
 
         <LocationButton />
         <LearderBorderLink to="leaderboard">Leaderboard</LearderBorderLink>
-        <Button
-          onClick={isAuthenticated ? logout : () => setOpenModal(true)}
-        >
-          {isAuthenticated ? 'Logout' : 'Login'}
-        </Button>
+
         <CartButton />
-        <SlideMenu />
+        {isAuthenticated ? <SlideMenu /> : <Button
+          onClick={() => setOpenModal(true)}
+        >
+          Login
+        </Button>
+
+        }
+
       </RightContainer>
-      {openModal && <LoginModal {...{openModal, setOpenModal}}/>}
+      {openModal && <LoginModal {...{ openModal, setOpenModal }} />}
     </NavbarContainer>
   );
 };

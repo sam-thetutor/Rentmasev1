@@ -104,6 +104,7 @@ actor {
                     lastName = payload.lastName;
                     email = payload.email;
                     dob = payload.dob;
+                    referralCode = payload.refferalCode;
                     gender = payload.gender;
                     lastupdated = Time.now();
                 };

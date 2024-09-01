@@ -3,6 +3,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome, FaBed } from 'react-icons/fa';
+import { useAuth } from '../hooks/Context';
+
+interface OverlayProps {
+  open: boolean;
+}
 
 const MenuButton = styled.button`
   background-color: transparent;
@@ -11,7 +16,7 @@ const MenuButton = styled.button`
   font-size: 24px;
 `;
 
-const MenuContainer = styled.div`
+const MenuContainer = styled.div<OverlayProps>`
   position: fixed;
   top: 0;
   right: 0;
@@ -61,7 +66,29 @@ const MenuItem = styled(Link)`
   }
 `;
 
-const Overlay = styled.div`
+const LogoutButton = styled.button`
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-size: 18px;
+  color: black;
+  transition: color 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: #00B5E2;
+  }
+
+  svg {
+    margin-right: 10px;
+    color: #00B5E2; /* Change the icon color here */
+  }
+`;
+
+const Overlay = styled.div<OverlayProps>`
   display: ${(props) => (props.open ? 'block' : 'none')};
   position: fixed;
   top: 0;
@@ -74,6 +101,7 @@ const Overlay = styled.div`
 
 const SlideMenu = () => {
   const [open, setOpen] = useState(false);
+  const { logout } = useAuth();
 
   const toggleMenu = () => {
     setOpen(!open);
@@ -136,11 +164,13 @@ const SlideMenu = () => {
               <FaHome /> Manage Addresses
             </MenuItem>
           </li>
-          {/* <li>
-            <MenuItem to="/logout">
+          <li>
+            <LogoutButton 
+              onClick={logout}
+            >
               <FaSignOutAlt /> Logout
-            </MenuItem>
-          </li> */}
+            </LogoutButton>
+          </li>
         </MenuList>
       </MenuContainer>
     </>

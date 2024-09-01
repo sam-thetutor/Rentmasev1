@@ -17,6 +17,7 @@ module {
         dob : ?Time.Time;
         gender: ?Text;
         email : Text;
+        refferalCode : Text;
     };
 
     public type PublicUser = {

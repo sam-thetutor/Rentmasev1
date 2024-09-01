@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import { FaFacebookF, FaTwitter, FaWhatsapp, FaEnvelope, FaLink } from 'react-icons/fa';
 import { useAuth } from '../hooks/Context';
 import { tokensPerReward } from '../constants';
-import { Reward } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { Reward, UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import RedeemTokens from '../components/RedeemTokens';
+import { toast } from 'react-toastify';
 
 const InviteContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -125,6 +126,44 @@ const ReferralLink = styled.div`
 
 const RedeemButton = styled.button`
   padding: 10px;
+  // background-color: #00B5E2;
+  background-color: #ccc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 5px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 8px;
+  }
+`;
+
+const CustomizedInput = styled.input`
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  margin: 5px;
+  font-size: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 8px;
+  }
+`;
+
+const CustmiseCodeDiv = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`;
+
+const SaveButton = styled.button`
+  padding: 10px;
   background-color: #00B5E2;
   color: white;
   border: none;
@@ -140,9 +179,11 @@ const RedeemButton = styled.button`
 `;
 
 const InviteFriends = () => {
-  const { user, isAuthenticated, backendActor } = useAuth();
+  const { user, setUser,isAuthenticated, backendActor } = useAuth();
   const [openModal, setOpenModal] = useState(false);
   const [unclaimedRewards, setUnclaimedRewards] = useState<Reward[]>([]);
+  const [customCode, setCustomCode] = useState<string>("");
+  const [saving, setSaving] = useState(false);
 
 
   useEffect(() => {
@@ -156,10 +197,55 @@ const InviteFriends = () => {
     }
   }, [isAuthenticated, backendActor]);
 
+  useEffect(() => {
+    if (user) {
+      setCustomCode(user.referralCode);
+    }
+  }, [user]);
+
+
+  const handleSaveCustomCode = async () => {
+    if (isAuthenticated && backendActor && user) {
+      if (saving) return
+      if (customCode === user.referralCode) {
+        return;
+      }
+      if (customCode.length < 4) {
+        toast.error("Custom code must be at least 4 characters");
+        return;
+      }
+      setSaving(true);
+      const isUnque = await backendActor.isReferralCodeUnique(customCode);
+      if (!isUnque) {
+        setSaving(false);
+        toast.error("Custom code is already taken, please choose another");
+        return;
+      }
+      const updatedUser: UserUpdatePayload = {
+        firstName : user.firstName,
+        lastName : user.lastName,
+        dob : user.dob,
+        gender: user.gender,
+        email : user.email,
+        refferalCode : customCode,
+      };
+      const result = await backendActor.updateProfile(updatedUser);
+      setSaving(false);
+      if ("ok" in result) {
+        setUser(result.ok);
+       toast.success("Custom code saved successfully");
+      } else {
+        toast.error("Failed to save custom code");
+      }
+    } else {
+      toast.error("You are not authenticated");
+    }
+  }
+
 
   return (
     <InviteContainer>
-      <h1>Invite Friends</h1>
+      <h1>Hello {user?.firstName}, Invite Friends</h1>
       <p>Invite your friends to RentMase & earn points</p>
       <ReferralCode>
         <p>Your referral code</p>
@@ -170,6 +256,19 @@ const InviteFriends = () => {
           <h3>https://rentmase.com/signup?invite={user?.referralCode}</h3>
           <CopyButton>Copy</CopyButton>
         </ReferralLink>
+        <h3>
+          Customize your referral code
+        </h3>
+        <CustmiseCodeDiv>
+          <CustomizedInput type="text" value={customCode}
+            onChange={(e) => setCustomCode(e.target.value)}
+           />
+          <SaveButton
+            onClick={handleSaveCustomCode}
+          >
+            {saving ? "Saving..." : "Save"}
+          </SaveButton>
+        </CustmiseCodeDiv>
       </ReferralCode>
       <SocialButtons>
         <SocialButton><FaFacebookF /></SocialButton>
@@ -201,6 +300,7 @@ const InviteFriends = () => {
             <h5>Worth : {unclaimedRewards.length * tokensPerReward} {" "}
                REM</h5>
             <RedeemButton
+              disabled
               onClick={() => setOpenModal(true)}
             >Redeem</RedeemButton>
 
