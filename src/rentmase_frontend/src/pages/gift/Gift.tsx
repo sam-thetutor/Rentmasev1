@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import GiftCard from "./Card";
 import { getAccessToken } from "../../hooks/requests";
 import { giftcards_audience } from "../../constants";
+import Geolocation from "../airtime/Geolocation";
 
 const CardsContainer = styled.div`
   display: flex;
@@ -54,18 +55,20 @@ const Gift = () => {
         });
     } else  {
       setLoading(false);
-      console.log("Location not set");
     }
   }
 
   return (
-    <CardsContainer>
+   <>
+   {!location ? <Geolocation /> :    <CardsContainer>
       {loading ? <LoadingMessage>Loading...</LoadingMessage> : 
         cards?.map((card, index) => (
           <GiftCard key={index} {...card} />
         ))
       }
-    </CardsContainer>
+    </CardsContainer> }
+  
+   </>
   )
 }
 

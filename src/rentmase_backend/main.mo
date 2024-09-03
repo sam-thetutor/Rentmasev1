@@ -21,7 +21,7 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+    let tokenCanister = "fr2qs-haaaa-aaaai-actya-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
@@ -460,10 +460,8 @@ actor class Rentmase() = this {
                             amount = _txn.transferData.amount;
                             spender_subaccount = null;
                         };
-                        Debug.print("Transfering tokens : " # debug_show(transferArg));
                         switch (await _actor.icrc2_transfer_from(transferArg)) {
                             case (#Err(err)) {
-                                Debug.print("Error transfering tokens : " # debug_show(err));
                                 return #err(handleTransferFromError(err));
                             };
                             case (#Ok(_)) {

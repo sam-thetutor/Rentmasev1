@@ -79,17 +79,6 @@ const Button = styled.button`
   }
 `;
 
-const NavigationButton = styled(Button)`
-  background-color: transparent;
-  color: #008DD5;
-  border: 2px solid #008DD5;
-  margin-right: 10px;
-
-  &:hover {
-    background-color: #008DD5;
-    color: white;
-  }
-`;
 
 const Title = styled.h1`
   font-size: 24px;
@@ -103,7 +92,6 @@ const Register = () => {
   const { isAuthenticated, backendActor, user, setUser } = useAuth();
   const [inviteCode, setInviteCode] = useState('');
   const location = useLocation();
-  const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [inputInviteCode, setInputInviteCode] = useState('');
@@ -174,13 +162,6 @@ const Register = () => {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      setOpenModal(false);
-    } else {
-      setOpenModal(true);
-    }
-  }, [isAuthenticated]);
   const generateReferralCode = (userId: string): string => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const codeLength = 7;

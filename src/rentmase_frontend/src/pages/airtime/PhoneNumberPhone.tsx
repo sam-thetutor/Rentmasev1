@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useAuth } from "../../hooks/Context";
 import { toast } from "react-toastify";
+import Geolocation from "./Geolocation";
 
 // Styled Components to Match Profile Page
 const FormContainer = styled.div`
@@ -155,7 +156,8 @@ const PhoneNumberForm: FC<Props> = ({ setComponent, selectedCountry, setPhoneNum
   };
 
   return (
-    <FormContainer>
+  <>
+  {!location ? <Geolocation /> :   <FormContainer>
       <FormField>
         <Label htmlFor="phone">Phone Number</Label>
         <CountryCodeInput>
@@ -182,6 +184,8 @@ const PhoneNumberForm: FC<Props> = ({ setComponent, selectedCountry, setPhoneNum
 
       <SubmitButton onClick={handleNextClick}>Next</SubmitButton>
     </FormContainer>
+  }
+  </>
   );
 };
 

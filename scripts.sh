@@ -11,7 +11,7 @@ dfx deploy token --argument '
           record {
             owner = principal "shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae";
           };
-          100_000_000_000;
+          1_000_000_000_000_000_000;
         };
       };
       metadata = vec {};
@@ -26,14 +26,14 @@ dfx deploy token --argument '
       };
     }
   })
-' 
+' --network ic
 
 
 dfx canister call token icrc1_transfer "(record { 
   to = record { 
-    owner = principal \"r52up-53nzf-qabm7-umbpm-mma4z-alcym-ngag4-de5j5-yx6xt-azgsp-lae\";
+    owner = principal \"666bd-phpu3-miged-tcian-5my27-cbbdi-7ksbe-pnnpy-qrnsg-qp2pm-dae\";
   }; 
-  amount = 10_000_000_000;
+  amount = 10_000_000_000_000;
 })"
 
 

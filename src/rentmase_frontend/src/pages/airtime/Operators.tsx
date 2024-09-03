@@ -118,7 +118,7 @@ type Props = {
 };
 
 const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) => {
-    const { tokenLiveData } = useSelector((state: RootState) => state.app);
+    const { tokenLiveData, tokenBalance } = useSelector((state: RootState) => state.app);
     const { user, isAuthenticated, tokenCanister, identity, backendActor } = useAuth();
     const [fetchNumberOperators] = useLazyGetNumberOperatorsQuery();
     const [amount, setAmount] = useState(0);
@@ -207,6 +207,14 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
 
         const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
         const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
+
+        
+    if (approveAmount > tokenBalance.balance) {
+        toast.error('Insufficient balance, please top up');
+        setBuyingAirtime(false);
+        return;
+      }
+  
 
         const arg: ApproveArgs = {
             fee: [],

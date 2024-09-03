@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/Context';
 import { UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 // Styled components
 const ProfileContainer = styled.div`
@@ -107,13 +109,13 @@ const WalletBalanceDiv = styled.div`
 `;
 
 const Profile = () => {
+  const {tokenBalance} = useSelector((state : RootState) => state.app);
   const { user, isAuthenticated, backendActor, tokenCanister } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [saving, setSaving] = useState(false);
-  const [walletBalance, setWalletBalance] = useState(0);
 
   const [gender, setGender] = useState('');
   const [birthday, setBirthday] = useState('');
@@ -125,20 +127,7 @@ const Profile = () => {
     }
   }, [user, isAuthenticated]);
 
-  useEffect(() => {
-    if (user && tokenCanister) {
-      getBalance();
-    }
-  }, [user, tokenCanister]);
 
-  const getBalance = async () => {
-    const balance = await tokenCanister.icrc1_balance_of({
-      owner: user.id,
-      subaccount: []
-    });
-    console.log("Balance: ", balance);
-    setWalletBalance(Number(balance));
-  }
 
   useEffect(() => {
     if (user) {
@@ -231,7 +220,7 @@ const Profile = () => {
         <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
         <div className="">
           <WalletBalanceDiv>Wallet Balance: { }
-            {walletBalance / 100_000_000} RENT
+            {tokenBalance?.balance / 100_000_000} RENT
           </WalletBalanceDiv>
           <h5>
             Principal  : {user?.id.toString()}

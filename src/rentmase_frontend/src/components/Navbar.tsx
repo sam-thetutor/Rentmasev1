@@ -3,6 +3,12 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import CartButton from './CartButton';
 import SignInButton from './SignInButton';
+import { FiMapPin } from 'react-icons/fi'; // Import the location icon from react-icons
+import { MdLocationOn } from 'react-icons/md';
+import { FaLocationArrow } from 'react-icons/fa';
+import { LocationType } from '../redux/types';
+import { setLocation, setLocationStatus, setTokenBalance } from '../redux/slices/app';
+import { CountryData } from '../pages/airtime/types';
 import LocationButton from './LocationButton';
 import SlideMenu from './SlideMenu';
 import LoginModal from './LoginModal';
@@ -12,6 +18,7 @@ import { ConnectWallet } from "@nfid/identitykit/react"
 import { useDispatch, useSelector } from 'react-redux';
 import { setTokenLiveData } from '../redux/slices/app';
 import { RootState } from '../redux/store';
+import SignUpModal from './SignUpModal';
 
 const NavbarContainer = styled.nav`
   display: flex;
@@ -131,7 +138,7 @@ const Button = styled.button`
   }
 `;
 
-const ButtonLink = styled(Link)`
+const ButtonLink = styled.button`
   background-color: #008DD5;
   border: none;
   color: white;
@@ -188,8 +195,32 @@ const LearderBorderLink = styled(Link)`
 const Navbar = () => {
   const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const [openSignUpModal, setOpenSignUpModal] = useState(false);
+  const { isAuthenticated, user, tokenCanister } = useAuth();
   const { location } = useSelector((state: RootState) => state.app);
+
+  useEffect(() => {
+    if (user && tokenCanister) {
+      getBalance();
+    }
+  }, [user, tokenCanister]);
+
+  useEffect(() => {
+    if (isAuthenticated && !user) {
+      setOpenSignUpModal(true);
+    }
+  }, [user, isAuthenticated]);
+
+  const getBalance = async () => {
+    const balance = await tokenCanister.icrc1_balance_of({
+      owner: user.id,
+      subaccount: []
+    });
+    dispatch(setTokenBalance({
+      balance: Number(balance),
+      principal: user.id.toString(),
+    }));
+  }
 
   useEffect(() => {
     if (location) {
@@ -201,37 +232,95 @@ const Navbar = () => {
   const fethTokenPrice = async () => {
     const response = await fetch("https://api.dexscreener.com/latest/dex/pairs/icp/mnbr7-uiaaa-aaaam-adaaq-cai:ryjl3-tyaaa-aaaaa-aaaba-cai");
     const data = await response.json();
-    console.log("Data from token price", data);
     dispatch(setTokenLiveData(data));
   }
 
+  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+            .then((response) => response.json())
+            .then((data) => {
+              const { address } = data;
+              const city = address.city || address.town || address.village || address.state_district || address.county || 'Unknown City';
+              const country = address.country || 'Unknown Country';
+
+              const location = `${city}, ${country}`;
+
+              processLocations(city, country, location);
+            })
+            .catch((error) => {
+              dispatch(setLocationStatus('Geolocation Error'));
+              console.error("Geolocation Error:", error);
+              setCurrentLocation(null);
+            });
+        },
+        (error) => {
+          dispatch(setLocationStatus('Denied'));
+          console.error("Geolocation Error:", error);
+          setCurrentLocation(null);
+        }
+      );
+    } else {
+      setCurrentLocation('Geolocation not supported');
+    }
+  }, []);
+
+
+  const processLocations = async (city: string, cntry: string, location: string) => {
+    console.log("")
+    const response = await fetch("https://topups.reloadly.com/countries");
+    const data = await response.json();
+    const _country = data.find((country: CountryData) => country.name === cntry);
+    if (_country) {
+      const _location: LocationType = {
+        city: city,
+        country: cntry,
+        fullLocation: location,
+        isoName: _country.isoName,
+        currencyCode: _country.currencyCode,
+      }
+      dispatch(setLocation(_location));
+      setCurrentLocation(location);
+    } else {
+      setLocationStatus("NotFound")
+      setCurrentLocation(location);
+    }
+  }
 
   return (
     <NavbarContainer>
-         {/* <ConnectWallet />; */}
+      {/* <ConnectWallet />; */}
       <LeftContainer>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'black' }}>
           <Logo src="/images/logoB.svg" alt="Logo" />
         </Link>
-        <StyledLocationButton>
-          <LocationButton />
-        </StyledLocationButton>
+        {currentLocation && <StyledLocationButton>
+          <LocationButton {...{ currentLocation }} />
+        </StyledLocationButton>}
       </LeftContainer>
       <CenterContainer>
         <RentmaseText>rentmase</RentmaseText>
       </CenterContainer>
-   
+
       <RightContainer>
         <LearderBorderLink to="leaderboard">Leaderboard</LearderBorderLink>
         {isAuthenticated ? (
           <>
-          {user ? <SlideMenu /> : <ButtonLink to="/signup">Sign Up</ButtonLink>}
+            {user ? <SlideMenu /> : <ButtonLink 
+              onClick={() => setOpenSignUpModal(true)}
+            >Sign Up</ButtonLink>}
           </>
         ) : (
           <Button onClick={() => setOpenModal(true)}>Login</Button>
         )}
       </RightContainer>
       {openModal && <LoginModal {...{ openModal, setOpenModal }} />}
+      {openSignUpModal && <SignUpModal {...{openSignUpModal, setOpenSignUpModal }} />}
     </NavbarContainer>
   );
 };

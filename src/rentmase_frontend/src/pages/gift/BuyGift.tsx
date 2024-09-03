@@ -203,10 +203,9 @@ const BuyGift = ({ card, setOpenModal }) => {
   const [getpair] = useLazyGetPairEchangeRateQuery();
   const { isAuthenticated, user, tokenCanister, backendActor } = useAuth();
   const handleClose = () => setOpenModal(false);
-  const navigate = useNavigate();
   const [amount, setAmount] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
-  const { location, countries, tokenLiveData } = useSelector((state: RootState) => state.app);
+  const { location, countries, tokenLiveData, tokenBalance } = useSelector((state: RootState) => state.app);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [toEmail, setToEmail] = useState<string | null>(null);
@@ -350,6 +349,13 @@ const BuyGift = ({ card, setOpenModal }) => {
 
     const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
     const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
+  
+
+    if (approveAmount > tokenBalance.balance) {
+      toast.error('Insufficient balance, please top up');
+      setLoading(false);
+      return;
+    }
 
     const arg: ApproveArgs = {
       fee: [],
@@ -402,6 +408,8 @@ const BuyGift = ({ card, setOpenModal }) => {
             countryCode: selectedCountry.isoName,
             phoneNumber: phoneNumber,
           }
+          console.log("Data", data);
+          console.log("Card", card);
           buyCard(data).then((res) => {
             setLoading(false);
             if (res.data) {
