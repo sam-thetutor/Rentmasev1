@@ -27,9 +27,26 @@ import Footer from './components/Footer';
 import { useAuth } from './hooks/Context';
 import Register from './pages/register/Register';
 import Leaderboard from './pages/Leaderboard';
+import Payments from './pages/payments/Payments';
+import Bills from './pages/bills/Bills';
+import Airtime from './pages/airtime/Airtime';
+import Gift from './pages/gift/Gift';
+import { useAuthenticateMutation } from './redux/api/servicesSlice';
+
 
 function App() {
+  const [
+    authenticate,
+    { data: authenticateData, error: authenticateError, isLoading: authenticateLoading },
+  ] = useAuthenticateMutation();
   const { backendActor, isAuthenticated, setUser } = useAuth();
+
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      // authenticate({});
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated && backendActor) {
@@ -39,7 +56,7 @@ function App() {
 
   const getUser = async () => {
     const user = await backendActor.getUser();
-   if ("ok" in user) {
+    if ("ok" in user) {
       setUser(user.ok);
     }
   }
@@ -107,6 +124,11 @@ function App() {
             <Route path="/order-history" element={<OrderHistoryPage orders={orders} />} />
             <Route path="/signup" element={<Register />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/payments/bills" element={<Bills />} />
+            <Route path="/payments/airtime" element={<Airtime />} />
+            <Route path="/payments/gift-cards" element={<Gift />} />
+            <Route path="*" element={<h1>Not Found</h1>} />
           </Routes>
           <Footer />
         </Router>

@@ -43,9 +43,9 @@ const Home = () => {
 
   return (
     <HomeContainer>
-       <CategoryGrid />
+      <CategoryGrid />
       <Hero />
-     
+
       <HomeTitle>Welcome to RentMase</HomeTitle>
       <HomeDescription>The Ultimate SuperApp for everyhing you need</HomeDescription>
       {/* <SearchForm onSearch={handleSearch} /> */}
@@ -54,10 +54,10 @@ const Home = () => {
 
       <InspirationComponent />
       <h2>Restaurants near you.</h2>
-      <RestaurantCarousel /> {/* Add the Restaurants component here */}
+      <RestaurantCarousel />
 
       <h2>Products delivered to your doorstep.</h2>
-      <ProductCarousel/>
+      <ProductCarousel />
     </HomeContainer>
   );
 };

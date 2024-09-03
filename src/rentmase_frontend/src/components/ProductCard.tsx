@@ -5,6 +5,10 @@ import { useCart } from '../hooks/useCart';
 import { getCurrencySymbol, convertPrice } from '../utils/currency';
 import { FaCheck, FaHeart, FaRegHeart, FaStar } from 'react-icons/fa';
 
+type StyleProps = {
+  isFavorite: boolean;
+};
+
 const Card = styled.div`
   text-align: left;
   border: 1px solid #e0e0e0;
@@ -32,7 +36,7 @@ const ProductImage = styled.img`
   object-fit: cover;
 `;
 
-const FavoriteButton = styled.button`
+const FavoriteButton = styled.button<StyleProps>`
   position: absolute;
   top: 10px;
   right: 10px;
