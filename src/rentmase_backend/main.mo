@@ -5,20 +5,24 @@ import Result "mo:base/Result";
 import Bool "mo:base/Bool";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
+import Int "mo:base/Int";
 import Types "types";
 
-actor {
-      type User = Types.User;
-      type TokenInterface = Types.TokenInterface;
+actor class Rentmase() = this {
+    type User = Types.User;
+    type TokenInterface = Types.TokenInterface;
+    type InternalTxn = Types.InternalTxn;
+    type TxnPayload = Types.TxnPayload;
 
     var rewardAmount = 100;
-    let tokenCanister = "rrkah-fqaaa-aaaaa-aaaaq-cai";
-    let tokenDecimals= 100_000_000;
+    let tokenCanister = "bw4dl-smaaa-aaaaa-qaacq-cai";
+    let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
+    stable var transactions = List.nil<InternalTxn>();
 
     public shared ({ caller }) func registerUser(payload : Types.UserPayload) : async Result.Result<User, Text> {
-        assert(not Principal.isAnonymous(caller));
+        assert (not Principal.isAnonymous(caller));
         switch (payload.referrerCode) {
             case (null) {
                 let user = _createUser(payload, caller);
@@ -60,8 +64,8 @@ actor {
                             };
                         };
                         users := List.map(users, updateUser);
-                       let user = _createUser(payload, caller);
-                       return #ok(user);
+                        let user = _createUser(payload, caller);
+                        return #ok(user);
                     };
                 };
             };
@@ -86,7 +90,7 @@ actor {
         return user;
     };
 
-    public shared ({caller}) func updateProfile(payload : Types.UserUpdatePayload) : async Result.Result<User, Text> {
+    public shared ({ caller }) func updateProfile(payload : Types.UserUpdatePayload) : async Result.Result<User, Text> {
         let user = List.find<User>(
             users,
             func(user : User) : Bool {
@@ -155,27 +159,29 @@ actor {
         };
     };
 
-    public shared query ({caller}) func getAllUsers() : async [User] {
-        assert(Principal.isController(caller));
+    public shared query ({ caller }) func getAllUsers() : async [User] {
+        assert (Principal.isController(caller));
         return List.toArray<User>(users);
     };
 
     public shared query func getPublicUsers() : async [Types.PublicUser] {
-        return List.toArray(List.map<User, Types.PublicUser>(
-            users,
-            func(user : User) : Types.PublicUser {
-                return {
-                    id = user.id;
-                    firstName = user.firstName;
-                    lastName = user.lastName;
-                    referrals = user.referrals;
-                    rewards = user.rewards;
-                };
-            },
-        ));
+        return List.toArray(
+            List.map<User, Types.PublicUser>(
+                users,
+                func(user : User) : Types.PublicUser {
+                    return {
+                        id = user.id;
+                        firstName = user.firstName;
+                        lastName = user.lastName;
+                        referrals = user.referrals;
+                        rewards = user.rewards;
+                    };
+                },
+            )
+        );
     };
 
-    public shared ({caller}) func redeemRewards(wallet: Principal, amount: Nat) : async Result.Result<(), Text> {
+    public shared ({ caller }) func redeemRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
         let user = List.find<User>(
             users,
             func(user : User) : Bool {
@@ -213,7 +219,10 @@ actor {
                         let claimedRewards = List.map<Types.Reward, Types.Reward>(
                             tobeClaimedRewards,
                             func(reward : Types.Reward) : Types.Reward {
-                                return { reward with claimed = true; claimedAt = ?Time.now() };
+                                return {
+                                    reward with claimed = true;
+                                    claimedAt = ?Time.now();
+                                };
                             },
                         );
                         let remainingRewards = List.drop<Types.Reward>(unclaimedRewards, amount);
@@ -234,14 +243,12 @@ actor {
                         return #ok(());
                     };
                 };
-
-
                 return #ok(());
             };
         };
     };
 
-    public shared query ({caller}) func getUnclaimedRewards() : async Result.Result<[Types.Reward], Text> {
+    public shared query ({ caller }) func getUnclaimedRewards() : async Result.Result<[Types.Reward], Text> {
         let user = List.find<User>(
             users,
             func(user : User) : Bool {
@@ -265,28 +272,28 @@ actor {
         };
     };
 
-    func transferRewards(wallet: Principal, amount: Nat) : async Result.Result<(), Text> {
-      let _actor = actor (tokenCanister) : TokenInterface;
-      let transferArg : Types.TransferArg = {
-          to = { owner = wallet; subaccount = null };
-          fee = null;
-          memo = null;
-          from_subaccount = null;
-          created_at_time = null;
-          amount = amount * tokenDecimals;
-      };
-      switch (await _actor.icrc1_transfer(transferArg)) {
-          case (#Err(err)) {
-              return #err(handleTransferError(err));
-          };
-          case (#Ok(_)) {
-              return #ok(());
-          };
-      };
-      return #ok(());
+    func transferRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
+        let _actor = actor (tokenCanister) : TokenInterface;
+        let transferArg : Types.TransferArg = {
+            to = { owner = wallet; subaccount = null };
+            fee = null;
+            memo = null;
+            from_subaccount = null;
+            created_at_time = null;
+            amount = amount * tokenDecimals;
+        };
+        switch (await _actor.icrc1_transfer(transferArg)) {
+            case (#Err(err)) {
+                return #err(handleTransferError(err));
+            };
+            case (#Ok(_)) {
+                return #ok(());
+            };
+        };
+        return #ok(());
     };
 
-     func handleTransferError(err : Types.TransferError) : Text {
+    func handleTransferError(err : Types.TransferError) : Text {
         return switch (err) {
             case (#GenericError(details)) {
                 "Generic error: " # details.message # " (code: " # Nat.toText(details.error_code) # ")";
@@ -315,5 +322,165 @@ actor {
         };
     };
 
+/*************************
+    * Internal Transactions
+*************************/
 
+    public shared ({ caller }) func intiateTxn(payload : Types.TxnPayload) : async Result.Result<InternalTxn, Text> {
+        let id = List.size<InternalTxn>(transactions);
+        let txn : InternalTxn = {
+            id;
+            userEmail = payload.userEmail;
+            status = #Initiated;
+            transferAmount = payload.transferAmount;
+            transferData = {
+                from = { owner = caller; subaccount = null };
+                amount = payload.transferAmount * tokenDecimals;
+            };
+            txnType = payload.txnType;
+            userPrincipal = caller;
+            timestamp = Time.now();
+        };
+        transactions := List.push<InternalTxn>(txn, transactions);
+        return #ok(txn);
+    };
+
+    public shared func transferTransaction(txnId : Int) : async Result.Result<InternalTxn, Text> {
+        let txn = List.find<InternalTxn>(
+            transactions,
+            func(txn : InternalTxn) : Bool {
+                return txn.id == txnId;
+            },
+        );
+        switch (txn) {
+            case (null) {
+                return #err("Transaction not found");
+            };
+            case (?_txn) {
+                switch (_txn.status) {
+                    case (#Initiated) {
+                        let _actor = actor (tokenCanister) : TokenInterface;
+                        let transferArg : Types.TransferFromArgs = {
+                            to = { owner = Principal.fromActor(this); subaccount = null };
+                            fee = null;
+                            memo = null;
+                            from = _txn.transferData.from;
+                            created_at_time = ?Nat64.fromIntWrap(Time.now());
+                            amount = _txn.transferData.amount;
+                            spender_subaccount = null;
+                        };
+                        switch (await _actor.icrc2_transfer_from (transferArg)) {
+                            case (#Err(err)) {
+                                return #err(handleTransferFromError(err));
+                            };
+                            case (#Ok(_)) {
+                                let updatedTxn : InternalTxn = {
+                                    _txn with
+                                    status = #TokensTransfered;
+                                };
+                                func updateTxn(t : InternalTxn) : InternalTxn {
+                                    if (t.id == _txn.id) {
+                                        return updatedTxn;
+                                    } else {
+                                        return t;
+                                    };
+                                };
+                                transactions := List.map(transactions, updateTxn);
+                                return #ok(updatedTxn);
+                            };
+                        };
+                    };
+                    case (#Completed) {
+                        return #err("Transaction already completed");
+                    };
+                    case (#TokensTransfered) {
+                        return #err("Tokens already transfered");
+                    };
+                };
+            };
+        };
+    };
+
+    public shared func completeTxn(txnId : Int) : async Result.Result<InternalTxn, Text> {
+        let txn = List.find<InternalTxn>(
+            transactions,
+            func(txn : InternalTxn) : Bool {
+                return txn.id == txnId;
+            },
+        );
+        switch (txn) {
+            case (null) {
+                return #err("Transaction not found");
+            };
+            case (?_txn) {
+                switch (_txn.status) {
+                    case (#Initiated) {
+                        return #err("Transaction not yet transfered");
+                    };
+                    case (#Completed) {
+                        return #err("Transaction already completed");
+                    };
+                    case (#TokensTransfered) {
+                        let updatedTxn : InternalTxn = {
+                            _txn with
+                            status = #Completed;
+                        };
+                        func updateTxn(t : InternalTxn) : InternalTxn {
+                            if (t.id == _txn.id) {
+                                return updatedTxn;
+                            } else {
+                                return t;
+                            };
+                        };
+                        transactions := List.map(transactions, updateTxn);
+                        return #ok(updatedTxn);
+                    };
+                };
+            };
+        };
+    };
+
+    public shared query  ({caller}) func getTxnsByEmail(email : Text) : async [InternalTxn] {
+        assert (Principal.isController(caller));
+        return List.toArray<InternalTxn>(
+            List.filter<InternalTxn>(
+                transactions,
+                func(txn : InternalTxn) : Bool {
+                    return txn.userEmail == email;
+                },
+            )
+        );
+    };
+
+    func handleTransferFromError(err : Types.TransferFromError) : Text {
+        return switch (err) {
+            case (#GenericError(details)) {
+                "Generic error: " # details.message # " (code: " # Nat.toText(details.error_code) # ")";
+            };
+            case (#TemporarilyUnavailable) {
+                "Temporarily unavailable";
+            };
+            case (#InsufficientAllowance(details)) {
+                "Insufficient allowance, required: " # Nat.toText(details.allowance);
+            };
+            case (#BadBurn(details)) {
+                "Bad burn, minimum amount: " # Nat.toText(details.min_burn_amount);
+            };
+            case (#Duplicate(details)) {
+                "Duplicate transaction, original ID: " # Nat.toText(details.duplicate_of);
+            };
+            case (#BadFee(details)) {
+                "Incorrect fee, expected: " # Nat.toText(details.expected_fee);
+            };
+            case (#CreatedInFuture(details)) {
+                "Created in the future, ledger time: " # Nat64.toText(details.ledger_time);
+            };
+            case (#TooOld) {
+                "Transaction too old";
+            };
+            case (#InsufficientFunds(details)) {
+                "Insufficient funds, balance: " # Nat.toText(details.balance);
+            };
+        };
+    };
 };

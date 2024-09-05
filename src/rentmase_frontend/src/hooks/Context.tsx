@@ -15,6 +15,8 @@ import { getAuthClient } from "./nfid";
 import { Actor, ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
 import { canisterId, idlFactory } from "../../../declarations/rentmase_backend";
 import { _SERVICE, User } from "../../../declarations/rentmase_backend/rentmase_backend.did";
+import { _SERVICE as TOKENSERVICE } from "../../../declarations/token/token.did";
+import { tokenCanisterId, tokenIDL } from "../constants";
 
 const network = process.env.DFX_NETWORK || "local";
 const localhost = "http://localhost:4943";
@@ -23,6 +25,7 @@ const host = "https://icp0.io";
 interface AuthContextType {
   isAuthenticated: boolean | null;
   backendActor: ActorSubclass<_SERVICE> | null;
+  tokenCanister: ActorSubclass<TOKENSERVICE> | null;
   identity: Identity | null;
   user: User | null;
   setUser: (user: User) => void;
@@ -57,6 +60,7 @@ export const useAuthClient = (options = defaultOptions) => {
   const [authClient, setAuthClient] = useState<AuthClient | null>(null);
   const [backendActor, setBackendActor] =
     useState<ActorSubclass<_SERVICE> | null>(null);
+  const [tokenCanister, setTokenCanister] = useState<ActorSubclass<TOKENSERVICE> | null>(null);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
@@ -141,6 +145,15 @@ export const useAuthClient = (options = defaultOptions) => {
       agent.fetchRootKey();
     }
 
+    const _tokenCanister: ActorSubclass<TOKENSERVICE> = Actor.createActor(
+      tokenIDL,
+      {
+        agent,
+        canisterId: tokenCanisterId,
+      }
+    );
+    setTokenCanister(_tokenCanister);
+
     const _backendActor: ActorSubclass<_SERVICE> = Actor.createActor(
       idlFactory,
       {
@@ -161,6 +174,7 @@ export const useAuthClient = (options = defaultOptions) => {
   return {
     isAuthenticated,
     backendActor,
+    tokenCanister,
     login,
     logout,
     nfidlogin,

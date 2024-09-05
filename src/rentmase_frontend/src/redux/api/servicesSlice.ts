@@ -31,6 +31,12 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         params: { countryCode}, 
       }),
     }),
+    getNumberOperators: builder.query({
+      query: ({countryCode, phoneNumber, iso}) => ({
+        url: `/number-operator`, 
+        params: {countryCode, phoneNumber, iso}, 
+      }),
+    }),
   }),
 });
 
@@ -39,5 +45,6 @@ export const {
   useLogoutMutation,
   useTopUpAirtimeMutation,
   useGetOperatorsQuery,
-  useGetCountryOperatersQuery,
+  useLazyGetCountryOperatersQuery,
+  useLazyGetNumberOperatorsQuery,
 } = usersApiSlice;

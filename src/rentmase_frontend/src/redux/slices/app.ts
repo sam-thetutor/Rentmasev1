@@ -1,23 +1,26 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { LocationType } from "../types";
 
 export interface GlobalState {
-// TODO: Define the state of the app
+  location: LocationType | null;
 }
 
 const initialState: GlobalState = {
-  // TODO: Define the initial state of the app
+  location: null,
 };
 
 export const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
-    // TODO: Define the reducers
+    setLocation: (state, action: PayloadAction<LocationType | null>) => {
+      state.location = action.payload;
   },
+},
 });
 
 export const {
-// TODO: Export the actions
+  setLocation,
 } = appSlice.actions;
 
 export default appSlice.reducer;

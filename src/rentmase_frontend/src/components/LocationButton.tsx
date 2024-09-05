@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiMapPin } from 'react-icons/fi'; // Import the location icon from react-icons
+import { LocationType } from '../redux/types';
+import { useDispatch } from 'react-redux';
+import { setLocation } from '../redux/slices/app';
 
 const Button = styled.button`
   display: flex;
@@ -42,6 +45,7 @@ const LocationText = styled.span`
 `;
 
 const LocationButton = () => {
+  const dispatch = useDispatch();
   const [currentLocation, setCurrentLocation] = useState('Loading...');
 
   useEffect(() => {
@@ -55,8 +59,14 @@ const LocationButton = () => {
               const { address } = data;
               const city = address.city || address.town || address.village || address.state_district || address.county || 'Unknown City';
               const country = address.country || 'Unknown Country';
+           
               const location = `${city}, ${country}`;
-
+              const _location : LocationType = {
+                city: city,
+                country: country,
+                fullLocation: location
+              }
+              dispatch(setLocation(_location));
               setCurrentLocation(location);
             })
             .catch((error) => {

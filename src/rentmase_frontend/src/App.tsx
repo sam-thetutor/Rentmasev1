@@ -44,7 +44,7 @@ function App() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // authenticate({});
+      authenticate({});
     }
   }, [isAuthenticated]);
 
