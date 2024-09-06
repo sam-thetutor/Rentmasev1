@@ -6,7 +6,7 @@ import { CountryData } from './types';
 import { useAuth } from '../../hooks/Context';
 import { toast } from 'react-toastify';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
-import { backendCanisterId } from '../../constants';
+import { backendCanisterId, tokenDecimas, tokenFee } from '../../constants';
 import { Principal } from '@dfinity/principal';
 import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
 
@@ -137,22 +137,21 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             memo: [],
             from_subaccount: [],
             created_at_time: [],
-            amount: BigInt(parseFloat(amount) * 100_000_000),
-            expected_allowance: [BigInt(parseFloat(amount) * 100_000_000)],
+            amount: BigInt(parseFloat(amount) * tokenDecimas + tokenFee),
+            expected_allowance: [],
             expires_at: [],
             spender: {
                 owner: Principal.fromText(backendCanisterId),
                 subaccount: []
             },
         }
-        console.log("Approve args", arg);
-        const res = await tokenCanister.icrc2_approve(arg);
 
+        const res = await tokenCanister.icrc2_approve(arg);
 
         if ("Ok" in res) {
             const arg2: TxnPayload = {
                 userEmail: user.email,
-                transferAmount: BigInt(parseFloat(amount) * 100_000_000),
+                transferAmount: BigInt((parseFloat(amount))  * tokenDecimas),
                 txnType: { 'AirtimeTopup': { operator: operator.name, countryCode: selectedCountry.isoName, operaterId: String(operator.id), phoneNumber, amount } }
             }
 
@@ -185,16 +184,11 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                 toast.error('Airtime top up failed');
                 return
             }
-
         } else {
             console.log("Error", res);
             toast.error('Airtime top up failed');
             return
         }
-
-
-
-
     };
 
     return (

@@ -1,4 +1,5 @@
 
+import { get } from "http";
 import { apiSlice } from "./apiSlice";
 
 export const usersApiSlice = apiSlice.injectEndpoints({
@@ -37,6 +38,12 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         params: {countryCode, phoneNumber, iso}, 
       }),
     }),
+    getCouuntryGiftCards: builder.query({
+      query: ({countryCode}) => ({
+        url: `/country-giftcards`, 
+        params: {countryCode}, 
+      }),
+    }),
   }),
 });
 
@@ -47,4 +54,5 @@ export const {
   useGetOperatorsQuery,
   useLazyGetCountryOperatersQuery,
   useLazyGetNumberOperatorsQuery,
+  useLazyGetCouuntryGiftCardsQuery,
 } = usersApiSlice;

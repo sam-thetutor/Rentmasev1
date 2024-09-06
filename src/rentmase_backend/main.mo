@@ -15,7 +15,7 @@ actor class Rentmase() = this {
     type TxnPayload = Types.TxnPayload;
 
     var rewardAmount = 100;
-    let tokenCanister = "bw4dl-smaaa-aaaaa-qaacq-cai";
+    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
@@ -335,7 +335,7 @@ actor class Rentmase() = this {
             transferAmount = payload.transferAmount;
             transferData = {
                 from = { owner = caller; subaccount = null };
-                amount = payload.transferAmount * tokenDecimals;
+                amount = payload.transferAmount;
             };
             txnType = payload.txnType;
             userPrincipal = caller;
@@ -362,7 +362,7 @@ actor class Rentmase() = this {
                         let _actor = actor (tokenCanister) : TokenInterface;
                         let transferArg : Types.TransferFromArgs = {
                             to = { owner = Principal.fromActor(this); subaccount = null };
-                            fee = null;
+                            fee = ?10_000;
                             memo = null;
                             from = _txn.transferData.from;
                             created_at_time = ?Nat64.fromIntWrap(Time.now());

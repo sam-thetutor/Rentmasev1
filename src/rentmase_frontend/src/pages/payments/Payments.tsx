@@ -14,7 +14,7 @@ const Title = styled.h1`
     align-self: center;
     `;
 
-    const CarouselContainer = styled.div`
+const CarouselContainer = styled.div`
   position: relative;
   width: 100%;
   overflow: hidden;
@@ -59,62 +59,54 @@ const ArrowButton = styled.button`
 `;
 
 const services = [
-    {
-        id: 1,
-        name: "Airtime Top Up",
-        link: "/airtime",
-        description: "Top up your airtime",
-        image: "https://via.placeholder.com/150",
-        price: 0,
-    },
-    {
-        id: 3,
-        name: "Bills",
-        link : "/bills",
-        description: "Pay your bills",
-        image: "https://via.placeholder.com/150",
-        price: 0,
-    },
-    {
-        id: 6,
-        name: "Gift Cards",
-        link: "/gift-cards",
-        description: "Buy gift cards",
-        image: "https://via.placeholder.com/150",
-        price: 0,
-    },
+  {
+    id: 1,
+    name: "Airtime Top Up",
+    link: "/airtime",
+    description: "Top up your airtime",
+    image: "https://via.placeholder.com/150",
+    price: 0,
+  },
+  {
+    id: 6,
+    name: "Gift Cards",
+    link: "/gift-cards",
+    description: "Buy gift cards",
+    image: "https://via.placeholder.com/150",
+    price: 0,
+  }
 ];
 
 
 const Payments = () => {
-    const { backendActor, isAuthenticated, setUser } = useAuth();
+  const { backendActor, isAuthenticated, setUser } = useAuth();
 
-    return (
-        <div><Title>
-            Top up airtime and data, pay bills, and buy gift cards
-        </Title>
-        <CarouselContainer>
-      <ArrowButton
-    //  onClick={scrollLeft } 
-     >
-        <FaChevronLeft />
-      </ArrowButton>
-      <List >
-        {services.map((product) => (
-          <BuyProductCard
-            key={product.id}
-            product={product}
-          />
-        ))}
-      </List>
-      <ArrowButton 
-    //   onClick={scrollRight}
-      >
-        <FaChevronRight />
-      </ArrowButton>
-    </CarouselContainer>
-        </div>
-    )
+  return (
+    <div><Title>
+      Top up airtime and data, pay bills, and buy gift cards
+    </Title>
+      <CarouselContainer>
+        <ArrowButton
+        //  onClick={scrollLeft } 
+        >
+          <FaChevronLeft />
+        </ArrowButton>
+        <List >
+          {services.map((product) => (
+            <BuyProductCard
+              key={product.id}
+              product={product}
+            />
+          ))}
+        </List>
+        <ArrowButton
+        //   onClick={scrollRight}
+        >
+          <FaChevronRight />
+        </ArrowButton>
+      </CarouselContainer>
+    </div>
+  )
 }
 
 export default Payments

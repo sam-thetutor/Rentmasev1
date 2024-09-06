@@ -55,7 +55,7 @@ const NavigationButton = styled(Button)`
 `;
 
 const Register = () => {
-    const { isAuthenticated, backendActor, user } = useAuth();
+    const { isAuthenticated, backendActor, user , setUser} = useAuth();
     const [inviteCode, setInviteCode] = useState('');
     const location = useLocation();
     const [openModal, setOpenModal] = useState(false);
@@ -114,6 +114,7 @@ const Register = () => {
         if ("ok" in result) {
             toast.success('Registered successfully');
             setSaving(false);
+            setUser(result.ok);
             navigate('/profile');
         } else {
             setSaving(false);

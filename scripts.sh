@@ -4,12 +4,12 @@ dfx deploy token --argument '
       token_name = "Token E";
       token_symbol = "E";
       minting_account = record {
-        owner = principal "shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae";
+        owner = principal "nu4ce-6r22f-2x4c3-byypo-ltk2h-rpoks-qd3hw-w22d6-n6adq-iwahh-jae";
       };
       initial_balances = vec {
         record {
           record {
-            owner = principal "shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae";
+            owner = principal "nu4ce-6r22f-2x4c3-byypo-ltk2h-rpoks-qd3hw-w22d6-n6adq-iwahh-jae";
           };
           100_000_000_000;
         };
@@ -19,7 +19,7 @@ dfx deploy token --argument '
       archive_options = record {
         trigger_threshold = 2000;
         num_blocks_to_archive = 1000;
-        controller_id = principal "shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae";
+        controller_id = principal "nu4ce-6r22f-2x4c3-byypo-ltk2h-rpoks-qd3hw-w22d6-n6adq-iwahh-jae";
       };
       feature_flags = opt record {
         icrc2 = true;
@@ -28,4 +28,4 @@ dfx deploy token --argument '
   })
 '
 
-dfx canister call token icrc1_transfer "(record { to = record { owner = principal \"htufu-7bjgg-mf643-tjqaa-mxvij-oxlra-wnaim-3s4lg-rvxws-zq7ux-nae\";}; amount = 1_000_000_000_000;})"
+dfx canister call token icrc1_transfer "(record { to = record { owner = principal \"lvr2m-qiywl-xzoe3-5ci2z-exnbi-4y3z4-h6ils-6wpjv-kpq6i-cyfa6-dqe\";}; amount = 1_000_000_000_000;})"

@@ -4,6 +4,7 @@ import { FiMapPin } from 'react-icons/fi'; // Import the location icon from reac
 import { LocationType } from '../redux/types';
 import { useDispatch } from 'react-redux';
 import { setLocation } from '../redux/slices/app';
+import { CountryData } from '../pages/airtime/types';
 
 const Button = styled.button`
   display: flex;
@@ -59,15 +60,10 @@ const LocationButton = () => {
               const { address } = data;
               const city = address.city || address.town || address.village || address.state_district || address.county || 'Unknown City';
               const country = address.country || 'Unknown Country';
-           
+
               const location = `${city}, ${country}`;
-              const _location : LocationType = {
-                city: city,
-                country: country,
-                fullLocation: location
-              }
-              dispatch(setLocation(_location));
-              setCurrentLocation(location);
+
+              processLocations(city, country, location);
             })
             .catch((error) => {
               console.error(error);
@@ -83,6 +79,26 @@ const LocationButton = () => {
       setCurrentLocation('Geolocation not supported');
     }
   }, []);
+
+
+  const processLocations = async (city : string, cntry : string, location : string) => {
+    const response = await fetch("https://topups.reloadly.com/countries");
+    const data = await response.json();
+    const _country = data.find((country: CountryData) => country.name === cntry);
+    if (_country) {
+      const _location: LocationType = {
+        city: city,
+        country: cntry,
+        fullLocation: location,
+        isoName: _country.isoName,
+      }
+      dispatch(setLocation(_location));
+      setCurrentLocation(location);
+    } else {
+      setCurrentLocation(location);
+    }
+   
+  }
 
   return (
     <>

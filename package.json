@@ -18,6 +18,7 @@
   "dependencies": {
     "@headlessui/react": "^2.1.3",
     "@heroicons/react": "^2.1.5",
+    "@infu/icblast": "^2.0.46",
     "@nfid/embed": "^0.10.3",
     "@reduxjs/toolkit": "^2.2.7",
     "libphonenumber-js": "^1.11.7",

@@ -32,14 +32,23 @@ import Bills from './pages/bills/Bills';
 import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
 import { useAuthenticateMutation } from './redux/api/servicesSlice';
+import { fetchTokens } from './hooks/tokens/tokens';
 
 
 function App() {
   const [
-    authenticate,
-    { data: authenticateData, error: authenticateError, isLoading: authenticateLoading },
+    authenticate
   ] = useAuthenticateMutation();
   const { backendActor, isAuthenticated, setUser } = useAuth();
+
+  // const getTokens = async () => {
+  //   const tokens = await fetchTokens();
+  //   console.log("Tokens: ", tokens);
+  // }
+
+  // useEffect(() => {
+  //   getTokens();
+  // }, []);
 
 
   useEffect(() => {
