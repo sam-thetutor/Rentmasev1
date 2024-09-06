@@ -66,6 +66,12 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (isAuthenticated && !user) {
+        navigate('/signup');
+    }
+}, [user, isAuthenticated]);
+
+  useEffect(() => {
     if (user) {
       setFirstName(user.firstName);
       setLastName(user.lastName);

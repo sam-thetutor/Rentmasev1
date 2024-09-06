@@ -133,7 +133,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         }
 
         const arg: ApproveArgs = {
-            fee: [],
+            fee: [BigInt(10_000)],
             memo: [],
             from_subaccount: [],
             created_at_time: [],
@@ -145,6 +145,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                 subaccount: []
             },
         }
+        console.log("Approve args", arg);
         const res = await tokenCanister.icrc2_approve(arg);
 
 
@@ -158,10 +159,8 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             const res2 = await backendActor.intiateTxn(arg2);
 
             if ("ok" in res2) {
-                console.log("Success", res2);
-                toast.success('Transaction initiated');
                 const data = {
-                    txnId : res2.ok.id,
+                    txnId : res2.ok.id.toString(),
                     operatorId: operator.id,
                     amount: amount,
                     useLocalAmount: false,
