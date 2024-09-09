@@ -4,11 +4,13 @@ import ImageSlider from './ImageSlider';
 
 const HeroContainer = styled.div`
   width: 100%;
-  height: 600px; /* Adjust the height as needed */
+  height: auto; /* Set auto height to let the content define it */
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f8f9fa; /* Optional background color */
+  background-color: transparent; /* Optional background color */
+  padding-bottom: 10px; 
+  padding-top: 20px; /* No bottom padding to remove the gap */
 `;
 
 const images = [

@@ -149,11 +149,11 @@ const SlideMenu = () => {
               <FaUserFriends /> Invite Friends
             </MenuItem>
           </li>
-          <li>
+          {/* <li>
             <MenuItem to="/travel-bookings">
               <FaBed /> Rentals
             </MenuItem>
-          </li>
+          </li> */}
           <li>
             <MenuItem to="/deliveries">
               <FaUtensils /> Orders

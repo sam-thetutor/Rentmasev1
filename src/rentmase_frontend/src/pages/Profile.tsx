@@ -7,51 +7,84 @@ import { UserUpdatePayload } from '../../../declarations/rentmase_backend/rentma
 import { toast } from 'react-toastify';
 
 const ProfileContainer = styled.div`
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  padding-left: 250px;
-  padding-right: 250px;
+  font-family: 'Poppins', sans-serif;
+  padding: 40px;
+  background-color: #f5f5f5;
+  max-width: 600px;
+  margin: 0 auto;
 
   @media (max-width: 768px) {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 20px;
   }
+`;
+
+const ProfileHeading = styled.h1`
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-weight: 600;
 `;
 
 const ProfileForm = styled.form`
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  gap: 15px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 `;
 
 const Input = styled.input`
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
   border-radius: 5px;
+  font-size: 1rem;
+  color: #333;
+  outline: none;
+
+  &:focus {
+    border-color: #00b5e2;
+  }
 `;
 
 const Select = styled.select`
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
   border-radius: 5px;
+  font-size: 1rem;
+  color: #333;
+
+  &:focus {
+    border-color: #00b5e2;
+  }
 `;
 
 const Button = styled.button`
-  padding: 10px;
-  background-color: #ccc;
+  padding: 12px;
+  background-color: #00b5e2;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
-  margin-bottom: 10px;
-  margin-right: 10px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #008bb2;
+  }
 `;
 
 const NavigationButton = styled(Button)`
-  background-color: #00B5E2;
+  background-color: transparent;
+  color: #00b5e2;
+  border: 1px solid #00b5e2;
+  margin-top: 10px;
+
+  &:hover {
+    background-color: #00b5e2;
+    color: white;
+  }
 `;
 
 const Profile = () => {

@@ -1,12 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from 'react-icons/fa';
+
+// Define the path to your SVG images
+import telegramIcon from '/images/SLIDER/telegram.svg';
+import nuanceIcon from '/images/SLIDER/nuance.svg';
+import dscvrIcon from '/images/SLIDER/dscvr.svg';
+import twitterIcon from '/images/SLIDER/x.svg';
 
 const FooterContainer = styled.footer`
-  background-color: #fff;
+  background-color: #111111; /* Dark grey background */
   padding: 40px 20px;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 `;
+
 
 const FooterContent = styled.div`
   max-width: 1200px;
@@ -17,37 +23,6 @@ const FooterContent = styled.div`
   text-align: center;
 `;
 
-const FooterLinks = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-  margin: 20px 0;
-`;
-
-const FooterLinkGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const FooterLinkTitle = styled.h4`
-  margin-bottom: 10px;
-  color: #333;
-  font-size: 16px;
-  font-weight: bold;
-`;
-
-const FooterLink = styled.a`
-  color: #757575;
-  text-decoration: none;
-  margin-bottom: 5px;
-
-  &:hover {
-    color: #00B5E2;
-  }
-`;
-
 const SocialIcons = styled.div`
   display: flex;
   justify-content: center;
@@ -56,11 +31,23 @@ const SocialIcons = styled.div`
 `;
 
 const SocialIcon = styled.a`
-  color: #00B5E2;
+  color: #008DD5;
   font-size: 24px;
+  display: inline-flex;
+  align-items: center;
 
   &:hover {
     color: #333;
+  }
+
+  img {
+    width: 20px; /* Adjust the size of your SVG */
+    height: 20px;
+    transition: transform 0.3s;
+  }
+
+  &:hover img {
+    transform: scale(1.1);
   }
 `;
 
@@ -78,15 +65,13 @@ const FooterText = styled.p`
   font-size: 14px;
 `;
 
-const AppButtons = styled.div`
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-`;
+const FooterLink = styled.a`
+  color: #757575;
+  text-decoration: none;
+  margin-bottom: 5px;
 
-const AppButton = styled.a`
-  img {
-    height: 40px;
+  &:hover {
+    color: #008DD5;
   }
 `;
 
@@ -94,41 +79,21 @@ const Footer = () => {
   return (
     <FooterContainer>
       <FooterContent>
-        <FooterLinks>
-          {/* <FooterLinkGroup>
-            <FooterLinkTitle>Company</FooterLinkTitle>
-            <FooterLink href="#">Blog</FooterLink>
-            <FooterLink href="#">Press</FooterLink>
-            <FooterLink href="#">FAQ</FooterLink>
-            <FooterLink href="#">Contact Us</FooterLink>
-            <FooterLink href="#">Be a partner</FooterLink>
-          </FooterLinkGroup> */}
-          {/* <FooterLinkGroup>
-            <FooterLinkTitle>Product</FooterLinkTitle>
-            <FooterLink href="#">FavePay</FooterLink>
-            <FooterLink href="#">Fave Deals</FooterLink>
-            <FooterLink href="#">Fave eCards</FooterLink>
-            <FooterLink href="#">New Users - Free Treat</FooterLink>
-          </FooterLinkGroup> */}
-          {/* <FooterLinkGroup>
-            <FooterLinkTitle>Partnerships</FooterLinkTitle>
-            <FooterLink href="#">Fave x GrabPay</FooterLink>
-            <FooterLink href="#">Fave x Boost</FooterLink>
-            <FooterLink href="#">DuitNow</FooterLink>
-          </FooterLinkGroup> */}
-        </FooterLinks>
         <SocialIcons>
-          <SocialIcon href="#"><FaFacebookF /></SocialIcon>
-          <SocialIcon href="#"><FaInstagram /></SocialIcon>
-          <SocialIcon href="#"><FaLinkedinIn /></SocialIcon>
-          <SocialIcon href="#"><FaYoutube /></SocialIcon>
+          <SocialIcon href="https://t.me/rentmase_chat">
+            <img src={telegramIcon} alt="Telegram" />
+          </SocialIcon>
+          <SocialIcon href="https://nuance.xyz/publication/rentmase">
+            <img src={nuanceIcon} alt="Nuance" />
+          </SocialIcon>
+          <SocialIcon href="https://dscvr.one/p/rentmase">
+            <img src={dscvrIcon} alt="DSCVR" />
+          </SocialIcon>
+          <SocialIcon href="https://x.com/RentMase">
+            <img src={twitterIcon} alt="Twitter" />
+          </SocialIcon>
         </SocialIcons>
         <FooterBottom>
-          {/* <AppButtons>
-            <AppButton href="#"><img src="/images/app-store.png" alt="App Store" /></AppButton>
-            <AppButton href="#"><img src="/images/google-play.png" alt="Google Play" /></AppButton>
-            <AppButton href="#"><img src="/images/app-gallery.png" alt="App Gallery" /></AppButton>
-          </AppButtons> */}
           <FooterText>© 2024 RentMase. All Rights Reserved.</FooterText>
           <FooterText>
             <FooterLink href="#">Terms & Conditions</FooterLink> | <FooterLink href="#">Privacy Policy</FooterLink>

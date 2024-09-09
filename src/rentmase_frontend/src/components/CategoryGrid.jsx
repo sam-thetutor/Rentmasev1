@@ -1,34 +1,39 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FaUtensils, FaShoppingCart, FaBed } from 'react-icons/fa';
+import { FaUtensils, FaShoppingCart,FaMoneyBillWave, FaTags,FaBed } from 'react-icons/fa';
 import { GiBuyCard } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 
 // Define the styled-components
+// Define the styled-components
 const GridContainer = styled.div`
-  display: flex;
-  justify-content: center; /* Center the grid */
-  gap: 10px; /* Reduce the spacing between the boxes */
-  padding: px; /* Reduced padding */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 15px;
+  border: 2px solid #008DD5; /* Outline around the entire container */
+  border-radius: 50px; /* Full pill-shaped border */
+  background-color: transparent;
 `;
 
 const CategoryCard = styled(Link)`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  background-color: ;
-  border-radius: 15px;
-  padding: px; /* Reduced padding */
+  gap: 10px; /* Space between icon and text */
+  background-color: transparent;
+  border-radius: 30px;
+  padding: 10px 20px; /* Padding inside the link */
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  width: 60px; /* Smaller fixed width */
-  height: 60px; /* Smaller fixed height */
   text-decoration: none; /* Remove default link styling */
+  color: #333;
 
   &:hover {
+    background-color: #E8F8FF; /* Light blue background on hover */
     transform: scale(1.05);
-    outline: 2px solid #00B5E2;
+    outline: 2px solid #008DD5;
   }
 `;
 
@@ -39,27 +44,31 @@ const IconContainer = styled.div`
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  background-color: #00B5E2;
-  margin-bottom: 5px; /* Reduced margin */
+  background-color: #008DD5;
 `;
 
 const StyledIcon = styled.div`
   color: white;
-  font-size: 16px; /* Smaller icon size */
+  font-size: 16px; /* Icon size */
 `;
 
 const CategoryTitle = styled.h3`
-  font-size: 0.75rem; /* Smaller font size */
+  font-size: 1rem;
   color: #333;
-  margin: 0; /* Removed margin */
-  padding: 0; /* Removed padding */
+  margin: 0;
+  font-family: 'Poppins', sans-serif; /* Apply Poppins */
 `;
 
+
+
+
 const categories = [
-  { id: 1, icon: <FaUtensils />, title: 'EAT', link: '/food-delivery' },
-  { id: 2, icon: <FaShoppingCart />, title: 'RETAIL', link: '/shop' },
-  { id: 3, icon: <FaBed />, title: 'STAY', link: '/stay-booking' },
-  { id: 4, icon: <GiBuyCard />, title: 'Buy', link: '/payments' },
+  // { id: 1, icon: <FaUtensils />, title: 'EAT', link: '/food-delivery' },
+  // { id: 2, icon: <FaShoppingCart />, title: 'RETAIL', link: '/shop' },
+  // { id: 3, icon: <FaBed />, title: 'STAY', link: '/stay-booking' },
+  // { id: 4, icon: <GiBuyCard />, title: 'Buy', link: '/payments' },
+  { id: 5, icon: <FaMoneyBillWave />, title: 'CashBacks', link: '/' },  // New icon for CashBacks
+  { id: 6, icon: <FaTags />, title: 'Discounted', link: '/payments' },
 ];
 
 const CategoryGrid = () => {
@@ -73,6 +82,7 @@ const CategoryGrid = () => {
           <CategoryTitle>{title}</CategoryTitle>
         </CategoryCard>
       ))}
+     
     </GridContainer>
   );
 };

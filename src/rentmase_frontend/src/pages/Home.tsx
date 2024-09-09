@@ -6,26 +6,35 @@ import SearchForm from '../components/SearchForm';
 import PlaceList from '../components/PlaceList';
 import placesData from '../data/places';
 import InspirationComponent from '../components/InspirationComponent';
-
 import RestaurantCarousel from './RestaurantCarousel';
 import ProductCarousel from '../components/ProductCarousel';
 
 const HomeContainer = styled.div`
-  padding: 20px;
-  background-color: #f5f5f5;
+  padding: 40px 20px;
+  background-color: #F5F7FA; /* Light background color */
   text-align: center;
+  font-family: 'Poppins', sans-serif; /* Apply Poppins globally */
 `;
 
 const HomeTitle = styled.h1`
-  text-align: center;
-  color: #333;
-  margin-bottom: 40px;
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: #111827;
+  margin-bottom: 20px;
 `;
 
 const HomeDescription = styled.p`
-  text-align: center;
-  color: #555;
-  margin-bottom: 40px;
+  font-size: 1.125rem;
+  color: #6B7280; /* Text color for description */
+  margin-bottom: 0px;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 500;
+  margin-top: 60px;
+  margin-bottom: 30px;
+  color: #111827;
 `;
 
 const Home = () => {
@@ -45,19 +54,25 @@ const Home = () => {
     <HomeContainer>
       <CategoryGrid />
       <Hero />
-
-      <HomeTitle>Welcome to RentMase</HomeTitle>
-      <HomeDescription>The Ultimate SuperApp for everyhing you need</HomeDescription>
+      <HomeDescription>
+        Welcome to RentMase.
+      </HomeDescription>
+      <HomeTitle>World's First Fully Decentralized SuperApp</HomeTitle>
+      
+      
+      {/* Optionally enable the search form */}
       {/* <SearchForm onSearch={handleSearch} /> */}
-      <h2>Find your next HOME</h2>
+      
+      {/* <SectionTitle>Find your next HOME</SectionTitle>
       <PlaceList places={filteredPlaces} />
 
       <InspirationComponent />
-      <h2>Restaurants near you.</h2>
+      
+      <SectionTitle>Restaurants near you</SectionTitle>
       <RestaurantCarousel />
 
-      <h2>Products delivered to your doorstep.</h2>
-      <ProductCarousel />
+      <SectionTitle>Products delivered to your doorstep</SectionTitle>
+      <ProductCarousel /> */}
     </HomeContainer>
   );
 };
