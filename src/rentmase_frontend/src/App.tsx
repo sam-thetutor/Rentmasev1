@@ -33,6 +33,8 @@ import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
 import { useAuthenticateMutation } from './redux/api/servicesSlice';
 import { fetchTokens } from './hooks/tokens/tokens';
+import { useSelector } from 'react-redux';
+import { RootState } from './redux/store';
 
 
 function App() {
@@ -40,6 +42,7 @@ function App() {
     authenticate
   ] = useAuthenticateMutation();
   const { backendActor, isAuthenticated, setUser } = useAuth();
+  const {audience} = useSelector((state : RootState) => state.app);
 
   // const getTokens = async () => {
   //   const tokens = await fetchTokens();
@@ -53,9 +56,9 @@ function App() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      authenticate({});
+      authenticate({audience: audience})
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authenticate, audience]);
 
   useEffect(() => {
     if (isAuthenticated && backendActor) {

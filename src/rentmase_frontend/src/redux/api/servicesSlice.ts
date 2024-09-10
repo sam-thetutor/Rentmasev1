@@ -1,13 +1,13 @@
 
-import { get } from "http";
 import { apiSlice } from "./apiSlice";
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     authenticate: builder.mutation({
-      query: () => ({
+      query: ({audience}) => ({
         url: "/auth/get-access-token",
         method: "POST",
+        body: { audience },
       }),
     }),
     logout : builder.mutation({

@@ -1,13 +1,22 @@
-import styled from "styled-components";
+
 import { useEffect, useState } from "react";
 import PhoneNumberForm from "./PhoneNumberPhone";
 import Operators from "./Operators";
 import { CountryData } from "./types";
+import { useAuthenticateMutation } from "../../redux/api/servicesSlice";
+import { useAuth } from "../../hooks/Context";
+import { useDispatch } from "react-redux";
+import { setAudience } from "../../redux/slices/app";
 
 
 
 
-const AirtimeForm = () => {
+const Airtime = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setAudience("topups-sandbox"));
+  }, [dispatch]);
 
   const [phoneNumber, setPhoneNumber] = useState("");
   const [component, setComponent] = useState("phone-number");
@@ -22,5 +31,5 @@ const AirtimeForm = () => {
   );
 };
 
-export default AirtimeForm;
+export default Airtime
 
