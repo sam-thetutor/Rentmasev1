@@ -2,9 +2,13 @@ import styled from "styled-components";
 import { useAuth } from "../../hooks/Context";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ProductCard from "../../components/ProductCard";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BuyProductCard from "./BuyProductCard";
 import { link } from "fs";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { setCountries } from "../../redux/slices/app";
+import { CountryData } from "../airtime/types";
 
 const Title = styled.h1`
     font-family: Arial, sans-serif;
@@ -79,7 +83,20 @@ const services = [
 
 
 const Payments = () => {
-  const { backendActor, isAuthenticated, setUser } = useAuth();
+  const { location } = useSelector((state: RootState) => state.app);
+  const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (location) {
+            getCountries();
+        }
+    }, [location]);
+
+    const getCountries = async () => {
+        const response = await fetch("https://topups.reloadly.com/countries");
+        const data = await response.json();
+        dispatch(setCountries(data));
+    };
 
   return (
     <div><Title>

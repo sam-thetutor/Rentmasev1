@@ -96,27 +96,20 @@ type Props = {
 
 const PhoneNumberForm: FC<Props> = ({ setComponent, selectedCountry, setPhoneNumber, phoneNumber, setSelectedCountry }) => {
     const {isAuthenticated} = useAuth();
-    const { location } = useSelector((state: RootState) => state.app);
-    const [countries, setCountries] = useState<CountryData[]>([]);
-
+    const { location , countries } = useSelector((state: RootState) => state.app);
+    
     useEffect(() => {
-        if (location) {
-            getCountries();
+        if (countries) {
+            const country = countries.find((country: CountryData) => country.name === location.country);
+            if (country) {
+                setSelectedCountry(country);
+            } else {
+                setSelectedCountry(countries[0]);
+            }
         }
-    }, [location]);
+    }, [countries]);
 
-    const getCountries = async () => {
-        const response = await fetch("https://topups.reloadly.com/countries");
-        const data = await response.json();
-        setCountries(data);
 
-        const country = data.find((country: CountryData) => country.name === location.country);
-        if (country) {
-            setSelectedCountry(country);
-        } else {
-            setSelectedCountry(data[0]);
-        }
-    };
 
 
     const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
