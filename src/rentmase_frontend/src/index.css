@@ -3,9 +3,15 @@
 @tailwind utilities; */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* Add this to your global CSS or inside a styled-components definition */
 body {
-  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom, #033a55  -90%, #f1faff 20%);
+  min-height: 100vh;  /* Ensure the background covers the full height of the page */
+  margin: 0;  /* Remove default margin */
+  padding: 0;  /* Remove default padding */
+  font-family: 'Poppins', sans-serif;  /* Optional: Apply a consistent font */
 }
+
 
 body {
   margin: 0;

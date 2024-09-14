@@ -11,7 +11,7 @@ import ProductCarousel from '../components/ProductCarousel';
 
 const HomeContainer = styled.div`
   padding: 40px 20px;
-  background-color: #F5F7FA; /* Light background color */
+  background-color: transparet;
   text-align: center;
   font-family: 'Poppins', sans-serif; /* Apply Poppins globally */
 `;
@@ -63,7 +63,7 @@ const Home = () => {
       {/* Optionally enable the search form */}
       {/* <SearchForm onSearch={handleSearch} /> */}
       
-      {/* <SectionTitle>Find your next HOME</SectionTitle>
+      <SectionTitle>Find your next HOME</SectionTitle>
       <PlaceList places={filteredPlaces} />
 
       <InspirationComponent />
@@ -72,7 +72,7 @@ const Home = () => {
       <RestaurantCarousel />
 
       <SectionTitle>Products delivered to your doorstep</SectionTitle>
-      <ProductCarousel /> */}
+      <ProductCarousel />
     </HomeContainer>
   );
 };

@@ -33,6 +33,7 @@ import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
 import { useAuthenticateMutation } from './redux/api/servicesSlice';
 import { fetchTokens } from './hooks/tokens/tokens';
+import PurchasesHistory from './components/PurchasesHistory';
 
 
 function App() {
@@ -137,6 +138,7 @@ function App() {
             <Route path="/payments/bills" element={<Bills />} />
             <Route path="/payments/airtime" element={<Airtime />} />
             <Route path="/payments/gift-cards" element={<Gift />} />
+            <Route path="/purchases-history" element={<PurchasesHistory />} />
             <Route path="*" element={<h1>Not Found</h1>} />
           </Routes>
           <Footer />

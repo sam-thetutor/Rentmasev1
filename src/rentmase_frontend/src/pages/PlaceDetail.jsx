@@ -1,19 +1,40 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaArrowLeft, FaArrowRight, FaEnvelope, FaPhone } from 'react-icons/fa';
 import placesData from '../data/places';
 import { getCurrencySymbol, convertPrice } from '../utils/currency';
+import { FaArrowLeft, FaArrowRight, FaEnvelope, FaPhone, FaHome, FaListUl, FaStar } from 'react-icons/fa';
 
 const Container = styled.div`
   padding: 20px;
   padding-left: 250px;
   padding-right: 250px;
-  background-color: #f5f5f5;
+  background-color: transparent; /* Transparent background */
 
   @media (max-width: 768px) {
     padding-left: 20px;
     padding-right: 20px;
+  }
+`;
+
+const CurvedSection = styled.section`
+  margin: 20px 0;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9);  /* White background with opacity */
+  border-radius: 20px;  /* Curved background */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);  /* Soft shadow */
+`;
+
+const SectionTitle = styled.h3`
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 10px;
+
+  svg {
+    margin-right: 10px;
+    color: #008DD5;  /* Icon color */
   }
 `;
 
@@ -61,14 +82,14 @@ const MainImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  aspect-ratio: 1/1;
+  border-radius: 10px; /* Rounded corners for a polished look */
 `;
 
 const GridImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  aspect-ratio: 1/1;
+  border-radius: 10px; /* Rounded corners */
 `;
 
 const ImageGrid = styled.div`
@@ -97,12 +118,17 @@ const ShowMoreButton = styled.button`
   bottom: 10px;
   left: 10px;
   padding: 10px 20px;
-  background-color: #00B5E2;
+  background-color: #008dd5;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #005f7d;
+  }
 `;
 
 const Title = styled.h1`
@@ -113,6 +139,7 @@ const Title = styled.h1`
 const Subtitle = styled.h2`
   color: #555;
   margin-bottom: 20px;
+  font-weight: 400;
 `;
 
 const Section = styled.section`
@@ -138,6 +165,8 @@ const AmenitiesList = styled.ul`
 
 const Amenity = styled.li`
   padding: 5px 0;
+  color: #333;
+  font-size: 16px;
 `;
 
 const ReviewsList = styled.ul`
@@ -147,13 +176,15 @@ const ReviewsList = styled.ul`
 
 const Review = styled.li`
   padding: 10px 0;
+  color: #333;
+  font-size: 16px;
 `;
 
 const ContactSection = styled.section`
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.9);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
   margin-bottom: 20px;
 `;
 
@@ -164,32 +195,23 @@ const Price = styled.p`
   margin-bottom: 20px;
 `;
 
-const Label = styled.label`
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
-`;
-
-const Input = styled.input`
-  width: calc(100% - 20px);
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`;
-
 const Button = styled.button`
   padding: 10px 20px;
-  background-color: #00B5E2;
+  background-color: #008dd5;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #005f7d;
+  }
 `;
 
 const ContactDetails = styled.div`
@@ -197,7 +219,7 @@ const ContactDetails = styled.div`
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.9);
 `;
 
 const Modal = styled.div`
@@ -225,6 +247,7 @@ const ModalContent = styled.div`
 const ModalImage = styled.img`
   width: 100%;
   height: auto;
+  border-radius: 10px;
 `;
 
 const ArrowButton = styled.button`
@@ -311,49 +334,55 @@ const PlaceDetail = () => {
             <p>{place.details.description}</p>
           </Section>
 
-          <Section>
-            <h3>Hosted by</h3>
-            <HostInfo>
-              <HostImage src={place.hostDetails.imageUrl} alt={place.hostDetails.name} />
-              <div>
-                <p>{place.hostDetails.name}</p>
-                <p>Superhost: {place.hostDetails.superhost ? "Yes" : "No"}</p>
-                <p>Response rate: {place.hostDetails.responseRate}</p>
-                <p>Languages: {place.hostDetails.languages.join(", ")}</p>
-              </div>
-            </HostInfo>
-            <p>{place.hostDetails.description}</p>
-          </Section>
+          <CurvedSection>
+  <SectionTitle><FaHome /> Hosted by</SectionTitle>  {/* FaHome is the icon for this section */}
+  <HostInfo>
+    <HostImage src={place.hostDetails.imageUrl} alt={place.hostDetails.name} />
+    <div>
+      <p>{place.hostDetails.name}</p>
+      <p>Superhost: {place.hostDetails.superhost ? "Yes" : "No"}</p>
+      <p>Response rate: {place.hostDetails.responseRate}</p>
+      <p>Languages: {place.hostDetails.languages.join(", ")}</p>
+    </div>
+  </HostInfo>
+  <p>{place.hostDetails.description}</p>
+</CurvedSection>
 
-          <Section>
-            <h3>Amenities</h3>
-            <AmenitiesList>
-              {place.details.amenities.map((amenity, index) => (
-                <Amenity key={index}>{amenity}</Amenity>
-              ))}
-            </AmenitiesList>
-          </Section>
+
+<CurvedSection>
+  <SectionTitle><FaListUl /> Amenities</SectionTitle>  {/* FaListUl is the icon for this section */}
+  <AmenitiesList>
+    {place.details.amenities.map((amenity, index) => (
+      <Amenity key={index}>{amenity}</Amenity>
+    ))}
+  </AmenitiesList>
+</CurvedSection>
+
           
-          <Section>
-            <h3>Reviews</h3>
-            <ReviewsList>
-              {place.details.reviews.map((review) => (
-                <Review key={review.id}>
-                  <p>{review.name}</p>
-                  <p>{review.comment}</p>
-                  <p>Rating: {review.rating}</p>
-                </Review>
-              ))}
-            </ReviewsList>
-          </Section>
+<CurvedSection>
+  <SectionTitle><FaStar /> Reviews</SectionTitle>  {/* FaStar is the icon for this section */}
+  <ReviewsList>
+    {place.details.reviews.map((review) => (
+      <Review key={review.id} style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: '15px', borderRadius: '15px', marginBottom: '10px' }}>
+        <p>{review.name}</p>
+        <p>{review.comment}</p>
+        <div style={{ display: 'flex', alignItems: 'center', color: '#ff9900' }}>
+          <FaStar />  {/* Add a star icon for the rating */}
+          <p style={{ marginLeft: '5px' }}>Rating: {review.rating}</p>
+        </div>
+      </Review>
+    ))}
+  </ReviewsList>
+</CurvedSection>
+
         </MainContent>
         <StickySection>
           <ContactSection>
             <Price>{currencySymbol}{convertPrice(place.price, userLocation)} per month</Price>
-            <Button onClick={() => setShowContact(!showContact)}>
+            {/* <Button onClick={() => setShowContact(!showContact)}>
               <FaPhone style={{ marginRight: '10px' }} /> {showContact ? place.hostDetails.phone : 'Contact via Phone'}
-            </Button>
-            <Button onClick={() => setShowEmail(!showEmail)}>
+            </Button> */}
+            {/* <Button onClick={() => setShowEmail(!showEmail)}>
               <FaEnvelope style={{ marginRight: '10px' }} /> {showEmail ? place.hostDetails.email : 'Contact via Email'}
             </Button>
             {showContact && (
@@ -365,7 +394,7 @@ const PlaceDetail = () => {
               <ContactDetails>
                 <p>Email: {place.hostDetails.email}</p>
               </ContactDetails>
-            )}
+            )} */}
             <Button onClick={handleBookNow}>Book Now</Button>
           </ContactSection>
         </StickySection>

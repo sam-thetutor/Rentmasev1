@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getCurrencySymbol, convertPrice } from '../utils/currency';
 
-const OrdersContainer = styled.div`
+const PurchasesContainer = styled.div`
   max-width: 1000px;
   margin: 0 auto;
   padding: 40px 20px;
@@ -22,7 +22,7 @@ const Title = styled.h1`
   margin-bottom: 30px;
 `;
 
-const OrderItem = styled.div`
+const PurchaseItem = styled.div`
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -36,13 +36,13 @@ const OrderItem = styled.div`
   }
 `;
 
-const OrderTitle = styled.h2`
+const PurchaseTitle = styled.h2`
   font-size: 20px;
   color: #333;
   margin-bottom: 10px;
 `;
 
-const OrderDetail = styled.p`
+const PurchaseDetail = styled.p`
   margin: 5px 0;
   font-size: 16px;
   color: #555;
@@ -57,48 +57,48 @@ const ItemsTitle = styled.h3`
   padding-bottom: 5px;
 `;
 
-const EmptyOrdersMessage = styled.p`
+const EmptyPurchasesMessage = styled.p`
   text-align: center;
   font-size: 18px;
   color: #888;
   margin-top: 20px;
 `;
 
-const FoodOrders = () => {
-  const [orders, setOrders] = useState([]);
+const PurchasesHistory = () => {
+  const [purchases, setPurchases] = useState([]);
   const location = ''; // Set to default or pass as needed
   const currencySymbol = getCurrencySymbol(location);
 
   useEffect(() => {
-    const fetchedOrders = JSON.parse(localStorage.getItem('orders')) || [];
-    setOrders(fetchedOrders);
+    const fetchedPurchases = JSON.parse(localStorage.getItem('purchases')) || [];
+    setPurchases(fetchedPurchases);
   }, []);
 
   return (
-    <OrdersContainer>
-      <Title>Deliveries</Title>
-      {orders.length === 0 ? (
-        <EmptyOrdersMessage>No orders placed yet.</EmptyOrdersMessage>
+    <PurchasesContainer>
+      <Title>Purchase History</Title>
+      {purchases.length === 0 ? (
+        <EmptyPurchasesMessage>No purchases made yet.</EmptyPurchasesMessage>
       ) : (
-        orders.map((order, index) => (
-          <OrderItem key={index}>
-            <OrderTitle>Order #{order.orderId}</OrderTitle>
-            <OrderDetail>
-              Address: {order.address.name}, {order.address.street}, {order.address.building}, {order.address.phone}, {order.address.pincode}
-            </OrderDetail>
-            <OrderDetail>Time: {new Date(order.date).toLocaleString()}</OrderDetail>
-            <OrderDetail>Total: {currencySymbol}{convertPrice(order.total, location)}</OrderDetail>
+        purchases.map((purchase, index) => (
+          <PurchaseItem key={index}>
+            <PurchaseTitle>Purchase #{purchase.purchaseId}</PurchaseTitle>
+            <PurchaseDetail>
+              Address: {purchase.address.name}, {purchase.address.street}, {purchase.address.building}, {purchase.address.phone}, {purchase.address.pincode}
+            </PurchaseDetail>
+            <PurchaseDetail>Time: {new Date(purchase.date).toLocaleString()}</PurchaseDetail>
+            <PurchaseDetail>Total: {currencySymbol}{convertPrice(purchase.total, location)}</PurchaseDetail>
             <ItemsTitle>Items:</ItemsTitle>
-            {order.cart.map((item, idx) => (
-              <OrderDetail key={idx}>
+            {purchase.cart.map((item, idx) => (
+              <PurchaseDetail key={idx}>
                 {item.quantity} x {item.name} ({currencySymbol}{convertPrice(parseFloat(item.price), location)})
-              </OrderDetail>
+              </PurchaseDetail>
             ))}
-          </OrderItem>
+          </PurchaseItem>
         ))
       )}
-    </OrdersContainer>
+    </PurchasesContainer>
   );
 };
 
-export default FoodOrders;
+export default PurchasesHistory;

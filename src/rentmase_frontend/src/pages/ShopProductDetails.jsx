@@ -92,7 +92,7 @@ const ShowMoreButton = styled.button`
   bottom: 10px;
   left: 10px;
   padding: 10px 20px;
-  background-color: #00B5E2;
+  background-color: #008DD5;
   color: white;
   border: none;
   border-radius: 4px;
@@ -127,11 +127,11 @@ const Price = styled.p`
 
 const Button = styled.button`
   padding: 10px 20px;
-  background-color: #00B5E2;
+  background-color: #cccccc; /* Gray out the button when disabled */
   color: white;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: not-allowed; /* Indicate the button is not clickable */
   font-size: 16px;
   display: flex;
   align-items: center;
@@ -210,14 +210,6 @@ const ShopProductDetails = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.images.length) % product.images.length);
   };
 
-  const handleAddToCart = () => {
-    addToCart({ ...product, uniqueId: product.id, quantity: 1 });
-    setIsAddedToCart(true);
-    setTimeout(() => {
-      setIsAddedToCart(false);
-    }, 2000);
-  };
-
   if (!product) {
     return <Container>Product not found</Container>;
   }
@@ -272,7 +264,7 @@ const ShopProductDetails = () => {
         </MainContent>
         <ProductStickySection>
           <Price>{currencySymbol}{convertedPrice}</Price>
-          <Button onClick={handleAddToCart}>
+          <Button disabled>
             {isAddedToCart ? <FaCheck style={{ marginRight: '8px' }} /> : null}
             {isAddedToCart ? 'Added to Cart' : 'Add to Cart'}
           </Button>

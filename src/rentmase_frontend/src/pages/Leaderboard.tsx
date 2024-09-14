@@ -1,100 +1,174 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { PublicUser, User } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { PublicUser } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import { useAuth } from '../hooks/Context';
 import { tokensPerReward } from '../constants';
 
-// Container for the Leaderboard
 const LeaderboardContainer = styled.div`
-  width: 80%;
+  max-width: 1200px;
   margin: 50px auto;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+   margin-top: 100px;
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
 `;
 
-// Table styling
+const LeaderboardTitle = styled.h2`
+  color: #008DD5;
+  font-size: 28px;
+  margin-bottom: 10px;
+`;
+
+const TotalUsersText = styled.p`
+  color: #555;
+  font-size: 16px;
+  margin-bottom: 30px;
+`;
+
 const LeaderboardTable = styled.table`
   width: 100%;
   border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+`;
+
+const TableHead = styled.thead`
+  background-color: #008DD5;
+  color: white;
+`;
+
+const TableHeader = styled.th`
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 500;
   text-align: left;
 `;
 
-// Table Head styling
-const TableHead = styled.thead`
-  background-color: #00B5E2;
-  color: white;
-`;
-
-// Table Header Cell styling
-const TableHeader = styled.th`
-  padding: 15px;
-  font-size: 1rem;
-  border-bottom: 2px solid #ddd;
-`;
-
-// Table Body styling
 const TableBody = styled.tbody`
-  background-color: #f9f9f9;
+  tr:nth-child(even) {
+    background-color: #f3f8fb;
+  }
 `;
 
-// Table Row styling
 const TableRow = styled.tr`
-  &:nth-child(even) {
-    background-color: #f2f2f2;
-  }
   &:hover {
-    background-color: #e0f7fa;
+    background-color: #e1f3f8;
   }
 `;
 
-// Table Data Cell styling
 const TableData = styled.td`
   padding: 15px;
-  border-bottom: 1px solid #ddd;
-  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+  color: #333;
+  text-align: left;
 `;
 
-// Sample Button styling (optional, if you want actions on the leaderboard)
-const Button = styled.button`
-  background-color: #00B5E2;
-  border: 1px solid #00B5E2;
-  color: white;
-  padding: 10px 15px;
-  margin-left: 10px;
-  cursor: pointer;
-  border-radius: 15px;
-  font-size: 0.8rem;
+const TrophyContainer = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+  margin-right: 15px;
+`;
 
-  &:hover {
-    background-color: white;
-    color: black;
-  }
+const TrophyWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Trophy = styled.span`
+  font-size: 32px;
 `;
 
 const Leaderboard = () => {
-  const { backendActor } = useAuth();
+  const { backendActor, user } = useAuth();
   const [users, setUsers] = useState<PublicUser[]>([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-if (backendActor) {
+    if (backendActor) {
       getUsers();
     }
   }, [backendActor]);
 
   const getUsers = async () => {
     if (backendActor) {
-      const users = await backendActor.getPublicUsers();
-      //sort users by rewards
-      users.sort((a, b) => b.rewards.length - a.rewards.length);
-      setUsers(users);
+      const publicUsers = await backendActor.getPublicUsers();
+      publicUsers.sort((a, b) => b.rewards.length - a.rewards.length);
+      setUsers(publicUsers);
+
+      // If the current user exists, find their rank
+      const currentUserData = publicUsers.find((u) => u.firstName === user?.firstName);
+      setCurrentUser(currentUserData);
     }
+  };
+
+  const getTrophy = (rank) => {
+    if (rank === 1) return '🏆';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return '';
+  };
+
+  const renderRows = () => {
+    const top10Users = users.slice(0, 10);
+    const userRank = users.findIndex((u) => u.firstName === currentUser?.firstName) + 1;
+
+    return (
+      <>
+        {/* Display Top 10 users */}
+        {top10Users.map((user, index) => (
+          <TableRow key={index}>
+            <TableData>
+              <TrophyWrapper>
+                <TrophyContainer>{getTrophy(index + 1)}</TrophyContainer>
+                {index + 1}
+              </TrophyWrapper>
+            </TableData>
+            <TableData>{user.firstName}</TableData>
+            <TableData>{user.rewards.length * tokensPerReward}</TableData>
+            <TableData>{user.referrals.length}</TableData>
+          </TableRow>
+        ))}
+
+        {/* Add ellipses row if there are more than 10 users */}
+        {users.length > 10 && (
+          <TableRow>
+            <TableData colSpan={4} style={{ textAlign: 'center', fontSize: '18px' }}>
+              ...
+            </TableData>
+          </TableRow>
+        )}
+
+        {/* Display current user row if not in top 10 */}
+        {userRank > 10 && currentUser && (
+          <TableRow>
+            <TableData>
+              <TrophyWrapper>
+                <TrophyContainer>{getTrophy(userRank)}</TrophyContainer>
+                {userRank}
+              </TrophyWrapper>
+            </TableData>
+            <TableData>{currentUser.firstName}</TableData>
+            <TableData>{currentUser.rewards.length * tokensPerReward}</TableData>
+            <TableData>{currentUser.referrals.length}</TableData>
+          </TableRow>
+        )}
+      </>
+    );
   };
 
   return (
     <LeaderboardContainer>
-      <h2>Leaderboard</h2>
+      <LeaderboardTitle>Leaderboard</LeaderboardTitle>
+      <TotalUsersText>Total Users: {users.length}</TotalUsersText>
       <LeaderboardTable>
         <TableHead>
           <tr>
@@ -104,16 +178,7 @@ if (backendActor) {
             <TableHeader>Invited Users</TableHeader>
           </tr>
         </TableHead>
-        <TableBody>
-          {users?.map((user, index) => (
-            <TableRow key={index}>
-              <TableData>{index + 1}</TableData>
-              <TableData>{user.firstName}</TableData>
-              <TableData>{user.rewards.length * tokensPerReward}</TableData>
-              <TableData>{user.referrals.length}</TableData>
-            </TableRow>
-          ))}
-        </TableBody>
+        <TableBody>{renderRows()}</TableBody>
       </LeaderboardTable>
     </LeaderboardContainer>
   );

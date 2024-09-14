@@ -13,8 +13,22 @@ const CarouselContainer = styled.div`
 
 const List = styled.div`
   display: flex;
-  overflow-x: hidden;
+  justify-content: flex-start;
+  gap: 20px;
+  padding-left: 60px; /* Adjust left padding to show the first item */
+  padding-right: 60px; /* Adjust right padding to show the last item */
   scroll-behavior: smooth;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const ItemWrapper = styled.div`
+  min-width: 220px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease-in-out;
 `;
 
 const ArrowButton = styled.button`
@@ -36,7 +50,7 @@ const ArrowButton = styled.button`
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.7);
-    outline: 2px solid #00B5E2;
+    outline: 2px solid #008DD5;
   }
 
   &:first-of-type {
@@ -51,20 +65,7 @@ const ArrowButton = styled.button`
 const ProductCarousel = () => {
   const [favorites, setFavorites] = useState([]);
   const listRef = useRef(null);
-  const [width, setWidth] = useState(0);
-
-  useEffect(() => {
-    if (listRef.current) {
-      setWidth(listRef.current.offsetWidth);
-    }
-    const handleResize = () => {
-      if (listRef.current) {
-        setWidth(listRef.current.offsetWidth);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [listRef]);
+  const itemWidth = 350; // Set a fixed width for each product item
 
   const toggleFavorite = (productId) => {
     setFavorites((prevFavorites) =>
@@ -75,15 +76,11 @@ const ProductCarousel = () => {
   };
 
   const scrollLeft = () => {
-    if (listRef.current) {
-      listRef.current.scrollBy({ left: -width, behavior: 'smooth' });
-    }
+    listRef.current.scrollBy({ left: -itemWidth, behavior: 'smooth' });
   };
 
   const scrollRight = () => {
-    if (listRef.current) {
-      listRef.current.scrollBy({ left: width, behavior: 'smooth' });
-    }
+    listRef.current.scrollBy({ left: itemWidth, behavior: 'smooth' });
   };
 
   return (
@@ -93,12 +90,13 @@ const ProductCarousel = () => {
       </ArrowButton>
       <List ref={listRef}>
         {shopData.products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            toggleFavorite={toggleFavorite}
-            isFavorite={favorites.includes(product.id)}
-          />
+          <ItemWrapper key={product.id}>
+            <ProductCard
+              product={product}
+              toggleFavorite={toggleFavorite}
+              isFavorite={favorites.includes(product.id)}
+            />
+          </ItemWrapper>
         ))}
       </List>
       <ArrowButton onClick={scrollRight}>

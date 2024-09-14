@@ -11,8 +11,8 @@ const FooterContainer = styled.footer`
   background-color: #111111; /* Dark grey background */
   padding: 40px 20px;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 100px;
 `;
-
 
 const FooterContent = styled.div`
   max-width: 1200px;
@@ -80,23 +80,23 @@ const Footer = () => {
     <FooterContainer>
       <FooterContent>
         <SocialIcons>
-          <SocialIcon href="https://t.me/rentmase_chat">
+          <SocialIcon href="https://t.me/rentmase_chat" target="_blank" rel="noopener noreferrer">
             <img src={telegramIcon} alt="Telegram" />
           </SocialIcon>
-          <SocialIcon href="https://nuance.xyz/publication/rentmase">
+          <SocialIcon href="https://nuance.xyz/publication/rentmase" target="_blank" rel="noopener noreferrer">
             <img src={nuanceIcon} alt="Nuance" />
           </SocialIcon>
-          <SocialIcon href="https://dscvr.one/p/rentmase">
+          <SocialIcon href="https://dscvr.one/p/rentmase" target="_blank" rel="noopener noreferrer">
             <img src={dscvrIcon} alt="DSCVR" />
           </SocialIcon>
-          <SocialIcon href="https://x.com/RentMase">
+          <SocialIcon href="https://x.com/RentMase" target="_blank" rel="noopener noreferrer">
             <img src={twitterIcon} alt="Twitter" />
           </SocialIcon>
         </SocialIcons>
         <FooterBottom>
           <FooterText>© 2024 RentMase. All Rights Reserved.</FooterText>
           <FooterText>
-            <FooterLink href="#">Terms & Conditions</FooterLink> | <FooterLink href="#">Privacy Policy</FooterLink>
+            <FooterLink href="#" target="_blank" rel="noopener noreferrer">Terms & Conditions</FooterLink> | <FooterLink href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</FooterLink>
           </FooterText>
         </FooterBottom>
       </FooterContent>

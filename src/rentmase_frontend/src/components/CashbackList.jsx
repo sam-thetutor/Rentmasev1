@@ -1,8 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
+import CashbackCard from './CashbackCard';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import RestaurantCard from '../components/RestaurantCard';
-import foodData from '../components/foodData';
 
 const CarouselContainer = styled.div`
   position: relative;
@@ -13,8 +12,8 @@ const CarouselContainer = styled.div`
 
 const List = styled.div`
   display: flex;
-  justify-content: flex-start;
-  gap: 20px;
+  justify-content: flex-start; /* Ensure that items are properly aligned */
+  gap: 20px; /* Add a gap between the items */
   padding-left: 60px; /* Adjust left padding to show the first item */
   padding-right: 60px; /* Adjust right padding to show the last item */
   scroll-behavior: smooth;
@@ -26,7 +25,7 @@ const List = styled.div`
 `;
 
 const ItemWrapper = styled.div`
-  min-width: 260px; /* Set the minimum width for each restaurant card */
+  min-width: 300px;
   flex-shrink: 0;
   transition: transform 0.3s ease-in-out;
 `;
@@ -50,7 +49,7 @@ const ArrowButton = styled.button`
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.7);
-    outline: 2px solid #008DD5;
+    outline: 2px solid #00B5E2;
   }
 
   &:first-of-type {
@@ -62,29 +61,16 @@ const ArrowButton = styled.button`
   }
 `;
 
-const RestaurantCarousel = () => {
-  const [favorites, setFavorites] = useState([]);
+const CashbackList = ({ cashbacks }) => {
   const listRef = useRef(null);
-  const itemWidth = 350; // Set the width for each restaurant item
-
-  const toggleFavorite = (restaurantId) => {
-    setFavorites((prevFavorites) =>
-      prevFavorites.includes(restaurantId)
-        ? prevFavorites.filter((id) => id !== restaurantId)
-        : [...prevFavorites, restaurantId]
-    );
-  };
+  const itemWidth = 350; // The width of each item (including padding and margin)
 
   const scrollLeft = () => {
-    if (listRef.current) {
-      listRef.current.scrollBy({ left: -itemWidth, behavior: 'smooth' });
-    }
+    listRef.current.scrollBy({ left: -itemWidth, behavior: 'smooth' });
   };
 
   const scrollRight = () => {
-    if (listRef.current) {
-      listRef.current.scrollBy({ left: itemWidth, behavior: 'smooth' });
-    }
+    listRef.current.scrollBy({ left: itemWidth, behavior: 'smooth' });
   };
 
   return (
@@ -93,13 +79,9 @@ const RestaurantCarousel = () => {
         <FaChevronLeft />
       </ArrowButton>
       <List ref={listRef}>
-        {foodData.restaurants.map((restaurant) => (
-          <ItemWrapper key={restaurant.id}>
-            <RestaurantCard
-              restaurant={restaurant}
-              toggleFavorite={toggleFavorite}
-              isFavorite={favorites.includes(restaurant.id)}
-            />
+        {cashbacks.map((cashback) => (
+          <ItemWrapper key={cashback.id}>
+            <CashbackCard cashback={cashback} />
           </ItemWrapper>
         ))}
       </List>
@@ -110,4 +92,4 @@ const RestaurantCarousel = () => {
   );
 };
 
-export default RestaurantCarousel;
+export default CashbackList;

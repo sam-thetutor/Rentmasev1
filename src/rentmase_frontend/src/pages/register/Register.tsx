@@ -6,52 +6,98 @@ import { toast } from 'react-toastify';
 import { UserPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
 import styled from 'styled-components';
 
+// Styled components
 const RegisterContainer = styled.div`
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  padding-left: 250px;
-  padding-right: 250px;
-
+  font-family: 'Poppins', sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom:100px;
+    margin-top:100px;
   @media (max-width: 768px) {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 20px;
   }
 `;
 
 const RegisterForm = styled.form`
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
 `;
 
 const Input = styled.input`
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+  transition: border 0.2s ease-in-out;
+
+  &:focus {
+    border-color: #008DD5;
+  }
 `;
 
 const Select = styled.select`
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+  transition: border 0.2s ease-in-out;
+
+  &:focus {
+    border-color: #008DD5;
+  }
 `;
 
 const Button = styled.button`
-  padding: 10px;
-  background-color: #ccc;
+  padding: 12px 20px;
+  background-color: #008DD5;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  margin-bottom: 10px;
-  margin-right: 10px;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #008bb3;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
 `;
 
 const NavigationButton = styled(Button)`
-  background-color: #00B5E2;
+  background-color: transparent;
+  color: #008DD5;
+  border: 2px solid #008DD5;
+  margin-right: 10px;
+
+  &:hover {
+    background-color: #008DD5;
+    color: white;
+  }
+`;
+
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  color: #008DD5; /* Change to blue */
+  margin-bottom: 30px;
 `;
 
 const Register = () => {
@@ -150,7 +196,7 @@ const Register = () => {
         <div>
             <RegisterContainer>
                 <h1>
-                    Registration
+                <Title>Sign Up</Title>
                 </h1>
                 <RegisterForm>
                     <Input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
@@ -172,9 +218,9 @@ const Register = () => {
                     </Button>
                 </RegisterForm>
 
-                <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
+                {/* <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
                 <NavigationButton onClick={() => navigate('/travel-bookings')}>Bookings</NavigationButton>
-                <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
+                <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton> */}
             </RegisterContainer>
             <RegisterLoginModal {...{ openModal, setOpenModal }} />
         </div>

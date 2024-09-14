@@ -1,4 +1,3 @@
-// src/pages/RestaurantDetail.js
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -63,17 +62,25 @@ const MenuItem = styled.div`
   width: 220px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   position: relative;
+
   &:hover {
     transform: translateY(-5px);
-    outline: 2px solid #00B5E2;
+    outline: 2px solid #008DD5;
   }
+`;
 
+const MenuItemImageContainer = styled.div`
+  position: relative;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
 `;
 
 const MenuItemImage = styled.img`
   width: 100%;
   height: 150px;
-  object-fit: cover;
+  object-fit: contain;
+  background-color: white;
 `;
 
 const DeliveryTimeOverlay = styled.div`
@@ -133,11 +140,11 @@ const RatingValue = styled.span`
 const AddToCartButton = styled.button`
   display: block;
   padding: 10px 20px;
-  background-color: #00B5E2;
+  background-color: #cccccc; /* Gray out when disabled */
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: not-allowed; /* Indicate button is not clickable */
   margin-top: 10px;
   margin-bottom: 10px;
   margin-left: auto;
@@ -153,7 +160,7 @@ const QuantityControls = styled.div`
 
 const QuantityButton = styled.button`
   padding: 5px 10px;
-  background-color: #00B5E2;
+  background-color: #008DD5;
   color: white;
   border: none;
   border-radius: 5px;
@@ -172,17 +179,6 @@ function RestaurantDetail() {
   const { addToCart, updateQuantity, cart } = useCart();
   const [favorites, setFavorites] = useState([]);
   const location = ''; // Set to default
-
-  const handleAddToCart = (item) => {
-    addToCart({ ...item, uniqueId: `${restaurant.id}-${item.id}` });
-  };
-
-  const handleUpdateQuantity = (item, quantity) => {
-    if (quantity <= 0) {
-      quantity = 1;
-    }
-    updateQuantity({ ...item, uniqueId: `${restaurant.id}-${item.id}` }, quantity);
-  };
 
   const toggleFavorite = (item) => {
     setFavorites((prevFavorites) =>
@@ -234,17 +230,9 @@ function RestaurantDetail() {
                   <FaStar />
                   <RatingValue>{restaurant.rating}</RatingValue>
                 </Rating>
-                {getItemQuantity(item) > 0 ? (
-                  <QuantityControls>
-                    <QuantityButton onClick={() => handleUpdateQuantity(item, getItemQuantity(item) - 1)}>-</QuantityButton>
-                    <QuantityDisplay>{getItemQuantity(item)}</QuantityDisplay>
-                    <QuantityButton onClick={() => handleUpdateQuantity(item, getItemQuantity(item) + 1)}>+</QuantityButton>
-                  </QuantityControls>
-                ) : (
-                  <AddToCartButton onClick={() => handleAddToCart(item)}>
-                    Add to Cart
-                  </AddToCartButton>
-                )}
+                <AddToCartButton disabled>
+                  Add to Cart
+                </AddToCartButton>
               </Details>
             </MenuItem>
           );

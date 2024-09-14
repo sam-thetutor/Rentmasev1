@@ -6,85 +6,98 @@ import { useAuth } from '../hooks/Context';
 import { UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import { toast } from 'react-toastify';
 
+// Styled components
 const ProfileContainer = styled.div`
   font-family: 'Poppins', sans-serif;
-  padding: 40px;
-  background-color: #f5f5f5;
   max-width: 600px;
   margin: 0 auto;
-
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 100px;
+  margin-top: 100px;
   @media (max-width: 768px) {
     padding: 20px;
   }
 `;
 
-const ProfileHeading = styled.h1`
-  text-align: center;
-  color: #333;
-  margin-bottom: 30px;
-  font-weight: 600;
-`;
-
 const ProfileForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 `;
 
 const Input = styled.input`
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  font-size: 1rem;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
   color: #333;
   outline: none;
+  transition: border 0.2s ease-in-out;
 
   &:focus {
-    border-color: #00b5e2;
+    border-color: #008DD5;
   }
 `;
 
 const Select = styled.select`
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  font-size: 1rem;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
   color: #333;
+  outline: none;
+  transition: border 0.2s ease-in-out;
 
   &:focus {
-    border-color: #00b5e2;
+    border-color: #008DD5;
   }
 `;
 
 const Button = styled.button`
-  padding: 12px;
-  background-color: #00b5e2;
+  padding: 12px 20px;
+  background-color: #008DD5;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 
   &:hover {
-    background-color: #008bb2;
+    background-color: #008bb3;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 `;
 
 const NavigationButton = styled(Button)`
   background-color: transparent;
-  color: #00b5e2;
-  border: 1px solid #00b5e2;
-  margin-top: 10px;
+  color: #008DD5;
+  border: 2px solid #008DD5;
+  margin-right: 10px;
 
   &:hover {
-    background-color: #00b5e2;
+    background-color: #008DD5;
     color: white;
   }
+`;
+
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  color: #008DD5; /* Change to blue */
+  margin-bottom: 30px;
 `;
 
 const Profile = () => {
@@ -130,28 +143,53 @@ const Profile = () => {
   };
 
   return (
-    <ProfileContainer>
-      <h1>My Profile</h1>
-      <ProfileForm>
-        <Input type="text" placeholder="Full Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-        <Input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-        <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <Select value={gender} onChange={(e) => setGender(e.target.value)} required>
-          <option value="">Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </Select>
-        <Input type="date" placeholder="Birthday" value={birthday} onChange={(e) => setBirthday(e.target.value)} required />
-        <Button type="button" onClick={handleUpdate}>
-          {saving ? 'Saving...' : 'Update'}
-        </Button>
-      </ProfileForm>
-     
-      <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
-      <NavigationButton onClick={() => navigate('/travel-bookings')}>Bookings</NavigationButton>
-      <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
-    </ProfileContainer>
+    <div>
+      <ProfileContainer>
+        <Title>My Profile</Title>
+        <ProfileForm>
+          <Input
+            type="text"
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+          />
+          <Input
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+          />
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Select value={gender} onChange={(e) => setGender(e.target.value)} required>
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </Select>
+          <Input
+            type="date"
+            placeholder="Birthday"
+            value={birthday}
+            onChange={(e) => setBirthday(e.target.value)}
+            required
+          />
+          <Button type="button" onClick={handleUpdate}>
+            {saving ? 'Saving...' : 'Update'}
+          </Button>
+        </ProfileForm>
+        <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
+        <NavigationButton onClick={() => navigate('/travel-bookings')}>Bookings</NavigationButton>
+        <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
+      </ProfileContainer>
+    </div>
   );
 };
 

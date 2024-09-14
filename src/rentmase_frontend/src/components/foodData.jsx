@@ -6,7 +6,7 @@ const foodData = {
       name: 'McDonald\'s',
       imageUrl: '/images/RESTAURANTS/McDonalds/logo.png',
       details: 'Burgers, Fast Food, Beverages',
-      location: 'JM Road, Pune',
+      
       rating: 4.2,
       reviews: 120,
       time: '29 min',
@@ -23,7 +23,7 @@ const foodData = {
       name: 'Burger King',
       imageUrl: '/images/RESTAURANTS/BurgerKing/logo.png',
       details: 'Burger, Fast Food, Beverages',
-      location: 'MG Road, Pune',
+      
       rating: 4.0,
       reviews: 200,
       time: '39 min',
@@ -40,7 +40,7 @@ const foodData = {
       name: 'KFC',
       imageUrl: '/images/RESTAURANTS/KFC/logo.png',
       details: 'Fast Food, Beverages',
-      location: 'FC Road, Pune',
+      
       rating: 4.1,
       reviews: 150,
       time: '33 min',
@@ -57,7 +57,7 @@ const foodData = {
       name: 'Subway',
       imageUrl: '/images/RESTAURANTS/Subway/logo.png',
       details: 'Healthy Food, Beverages',
-      location: 'KP Road, Pune',
+      
       rating: 4.3,
       reviews: 100,
       time: '25 min',
@@ -74,7 +74,7 @@ const foodData = {
       name: 'Starbucks',
       imageUrl: '/images/RESTAURANTS/Starbucks/logo.png',
       details: 'Coffee, Beverages, Snacks',
-      location: 'Camp, Pune',
+     
       rating: 4.5,
       reviews: 300,
       time: '45 min',

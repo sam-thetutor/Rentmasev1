@@ -12,12 +12,22 @@ const CarouselContainer = styled.div`
 
 const List = styled.div`
   display: flex;
-  overflow-x: auto;
+  justify-content: flex-start; /* Ensure that items are properly aligned */
+  gap: 20px; /* Add a gap between the items */
+  padding-left: 60px; /* Adjust left padding to show the first item */
+  padding-right: 60px; /* Adjust right padding to show the last item */
   scroll-behavior: smooth;
+  overflow-x: auto;
 
   &::-webkit-scrollbar {
     display: none;
   }
+`;
+
+const ItemWrapper = styled.div`
+  min-width: 300px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease-in-out;
 `;
 
 const ArrowButton = styled.button`
@@ -39,7 +49,7 @@ const ArrowButton = styled.button`
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.7);
-    outline: 2px solid #00B5E2;
+    outline: 2px solid #008DD5;
   }
 
   &:first-of-type {
@@ -53,13 +63,14 @@ const ArrowButton = styled.button`
 
 const PlaceList = ({ places }) => {
   const listRef = useRef(null);
+  const itemWidth = 350; // The width of each item (including padding and margin)
 
   const scrollLeft = () => {
-    listRef.current.scrollBy({ left: -500, behavior: 'smooth' });
+    listRef.current.scrollBy({ left: -itemWidth, behavior: 'smooth' });
   };
 
   const scrollRight = () => {
-    listRef.current.scrollBy({ left: 500, behavior: 'smooth' });
+    listRef.current.scrollBy({ left: itemWidth, behavior: 'smooth' });
   };
 
   return (
@@ -69,7 +80,9 @@ const PlaceList = ({ places }) => {
       </ArrowButton>
       <List ref={listRef}>
         {places.map((place) => (
-          <PlaceCard key={place.id} place={place} />
+          <ItemWrapper key={place.id}>
+            <PlaceCard place={place} />
+          </ItemWrapper>
         ))}
       </List>
       <ArrowButton onClick={scrollRight}>
