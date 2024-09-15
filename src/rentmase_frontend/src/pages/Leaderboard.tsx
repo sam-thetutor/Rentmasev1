@@ -115,7 +115,7 @@ if (backendActor) {
           ))}
         </TableBody>
       </LeaderboardTable>
-    </LeaderboardContainer>
+    </LeaderboardContainer> 
   );
 };
 
