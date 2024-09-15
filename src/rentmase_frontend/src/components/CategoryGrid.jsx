@@ -1,14 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FaUtensils, FaShoppingCart, FaMoneyBillWave, FaTags, FaBed } from 'react-icons/fa';
-import { GiBuyCard } from 'react-icons/gi';
 import { Link } from 'react-router-dom';
 
 const GridContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
   gap: 10px;
   padding: 10px 15px;
   border: 2px solid #008DD5;
@@ -16,12 +14,16 @@ const GridContainer = styled.div`
   background-color: transparent;
   max-width: 1200px; /* Limit the width */
   margin: 0 auto; /* Center it horizontally */
+  flex-wrap: nowrap; /* Prevent wrapping */
+  overflow: hidden; /* Hide any overflow to prevent scrollbars */
 
   @media (max-width: 768px) {
-    padding: 10px; /* Adjust padding for smaller screens */
+    flex-wrap: nowrap; /* Prevent wrapping on small screens */
+    justify-content: space-between; /* Distribute space equally */
+    padding: 5px; /* Adjust padding for smaller screens */
+    gap: 3px; /* Reduce gap between elements */
   }
 `;
-
 
 const CategoryCard = styled(Link)`
   display: flex;
@@ -35,6 +37,8 @@ const CategoryCard = styled(Link)`
   transition: transform 0.2s, box-shadow 0.2s;
   text-decoration: none;
   color: #333;
+  white-space: nowrap; /* Prevent text from breaking */
+  flex-shrink: 1; /* Allow shrinking on small screens */
 
   &:hover {
     background-color: #E8F8FF;
@@ -43,40 +47,54 @@ const CategoryCard = styled(Link)`
   }
 
   @media (max-width: 768px) {
-    padding: 8px 15px; /* Adjust padding for smaller screens */
+    padding: 5px 8px; /* Smaller padding on small screens */
+    gap: 5px; /* Reduce gap between icon and text */
   }
 `;
 
 const IconContainer = styled.div`
-  width: 30px;
-  height: 30px;
+  width: 25px; /* Smaller size for icons */
+  height: 25px; /* Smaller size for icons */
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
   background-color: #008DD5;
+
+  @media (max-width: 768px) {
+    width: 20px; /* Even smaller on small screens */
+    height: 20px;
+  }
 `;
 
 const StyledIcon = styled.div`
   color: white;
-  font-size: 16px;
+  font-size: 14px;
+  MARGIN-TOP:1PX;
+
+  @media (max-width: 768px) {
+    font-size: 12px; /* Smaller icon size on small screens */
+  }
 `;
 
 const CategoryTitle = styled.h3`
-  font-size: 1rem;
+  font-size: 0.9rem; /* Smaller text size */
   color: #333;
   margin: 0;
   font-family: 'Poppins', sans-serif;
+
+  @media (max-width: 768px) {
+    font-size: 0.65rem; /* Further reduce font size on small screens */
+  }
 `;
 
 // Define the categories data
 const categories = [
-  { id: 1, icon: <FaUtensils />, title: 'EAT', link: '/food-delivery' },
-  { id: 2, icon: <FaShoppingCart />, title: 'RETAIL', link: '/shop' },
-  { id: 3, icon: <FaBed />, title: 'STAY', link: '/stay-booking' },
-
-  { id: 5, icon: <FaMoneyBillWave />, title: 'CASBACKS', link: '/' },
-  { id: 6, icon: <FaTags />, title: 'DISCOUNTED', link: '/payments' },
+  { id: 1, icon: <FaMoneyBillWave />, title: 'Cashbacks', link: '/' },
+  { id: 2, icon: <FaTags />, title: 'Discounts', link: '/payments' },
+  { id: 3, icon: <FaUtensils />, title: 'Eat', link: '/food-delivery' },
+  { id: 4, icon: <FaShoppingCart />, title: 'Retail', link: '/shop' },
+  { id: 5, icon: <FaBed />, title: 'Stay', link: '/stay-booking' },
 ];
 
 const CategoryGrid = () => {

@@ -208,7 +208,6 @@ const TaskButton = styled.button`
     background-color: #008BB2;
   }
 `;
-
 // Modal Styles
 const ModalOverlay = styled.div`
   position: fixed;
@@ -257,17 +256,16 @@ const ModalButton = styled.button`
     background-color: #008BB2;
   }
 `;
-
-// InviteFriends Component
 const InviteFriends = () => {
   const { user, setUser, isAuthenticated, backendActor } = useAuth();
   const [openModal, setOpenModal] = useState(false);
   const [unclaimedRewards, setUnclaimedRewards] = useState<Reward[]>([]);
   const [customCode, setCustomCode] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('Copy'); // State to track the copy status
+  const [copyLinkStatus, setCopyLinkStatus] = useState('Copy'); // State for the referral link copy
   const [modalTask, setModalTask] = useState(""); // Track the task for which the link is submitted
   const [link, setLink] = useState(""); // Input field for link submission
-
   useEffect(() => {
     if (isAuthenticated && backendActor) {
       (async () => {
@@ -284,6 +282,13 @@ const InviteFriends = () => {
       setCustomCode(user.referralCode);
     }
   }, [user]);
+
+  const handleCopy = (text, setStatus) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setStatus('Copied!');
+      setTimeout(() => setStatus('Copy'), 2000); // Reset the status after 2 seconds
+    });
+  };
 
   const handleSaveCustomCode = async () => {
     if (isAuthenticated && backendActor && user) {
@@ -324,16 +329,20 @@ const InviteFriends = () => {
   return (
     <InviteContainer>
       <SectionTitle>Hello {user?.firstName}, <br /> Invite Friends</SectionTitle>
-      <SubTitle>Invite your friends to RentMase & earn points</SubTitle>
-      
+      <SubTitle>Invite your friends to RentMase & earn $RENT</SubTitle>
+
       <ReferralCodeContainer>
         <ReferralTitle>Your referral code</ReferralTitle>
         <ReferralCode>{user?.referralCode}</ReferralCode>
-        <CopyButton>Copy</CopyButton>
+        <CopyButton onClick={() => handleCopy(user?.referralCode, setCopyStatus)}>
+          {copyStatus}
+        </CopyButton>
 
         <ReferralTitle>Your referral link</ReferralTitle>
         <ReferralCode>https://rentmase.com/signup?invite={user?.referralCode}</ReferralCode>
-        <CopyButton>Copy</CopyButton>
+        <CopyButton onClick={() => handleCopy(`https://rentmase.com/signup?invite=${user?.referralCode}`, setCopyLinkStatus)}>
+          {copyLinkStatus}
+        </CopyButton>
 
         <CustomizeReferral>
           <ReferralTitle>Customize your referral code</ReferralTitle>
@@ -358,19 +367,19 @@ const InviteFriends = () => {
           <StatValue>{user?.referrals.length}</StatValue>
         </StatItem>
         <StatItem>
-          <StatTitle>Total Points Earned</StatTitle>
+          <StatTitle>Total $RENT Earned</StatTitle>
           <StatValue>{user?.rewards.length}</StatValue>
-          <p>Worth: {user?.rewards.length * tokensPerReward} REM</p>
+          <p>Worth: *** $REM</p>
+          <p>The $Rent earned will be converted to $REM at SNS at a yet to be determined ratio</p>
         </StatItem>
         <StatItem>
-          <StatTitle>Available Points</StatTitle>
+          <StatTitle>Available $RENT</StatTitle>
           <StatValue>{unclaimedRewards.length}</StatValue>
           <p>Worth: {unclaimedRewards.length * tokensPerReward} REM</p>
           <RedeemButton onClick={() => setOpenModal(true)} disabled>Redeem</RedeemButton>
         </StatItem>
       </StatsSection>
 
-      {/* Task Section */}
       <TaskSection>
         <SectionTitle>Complete Tasks & Earn More</SectionTitle>
         <TaskTable>
@@ -381,17 +390,17 @@ const InviteFriends = () => {
           </TaskRow>
           <TaskRow>
             <TaskColumn>Share on Social Media</TaskColumn>
-            <TaskColumn>Share RentMase on any social platform and earn 50 points</TaskColumn>
+            <TaskColumn>Share RentMase on any social platform and earn 50 $RENT</TaskColumn>
             <TaskColumn><TaskButton>Verify</TaskButton></TaskColumn>
           </TaskRow>
           <TaskRow>
             <TaskColumn>Leave a Review</TaskColumn>
-            <TaskColumn>Submit a review of your experience and earn 30 points</TaskColumn>
+            <TaskColumn>Submit a review of your experience and earn 30 $RENT</TaskColumn>
             <TaskColumn><TaskButton>Verify</TaskButton></TaskColumn>
           </TaskRow>
           <TaskRow>
             <TaskColumn>Invite a Friend</TaskColumn>
-            <TaskColumn>Invite a friend who signs up and earns 100 points</TaskColumn>
+            <TaskColumn>Invite a friend who signs up and earns 100 $RENT</TaskColumn>
             <TaskColumn><TaskButton>Verify</TaskButton></TaskColumn>
           </TaskRow>
         </TaskTable>
