@@ -22,18 +22,21 @@ const Card = styled.div`
 
   &:hover {
     transform: translateY(-5px);
-    outline: 2px solid #00B5E2;
+    outline: 2px solid #008DD5;
   }
 `;
 
 const ImageContainer = styled.div`
   position: relative;
+  background-color: white; /* Add this line for a white background */
+  padding: 10px; /* Optional: Add padding to create some space around the image */
+  border-radius: 8px; /* Optional: Round the corners */
 `;
 
 const ProductImage = styled.img`
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  object-fit: contain; /* Updated from cover to contain */
 `;
 
 const FavoriteButton = styled.button<StyleProps>`
@@ -92,17 +95,18 @@ const RatingValue = styled.span`
 
 const AddToCartButton = styled.button`
   padding: 10px 20px;
-  background-color: #00B5E2;
+  background-color: #cccccc; /* Gray out the button */
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: not-allowed; /* Show that the button is not clickable */
   margin-top: 10px;
   margin-bottom: 10px;
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: fit-content;
+  transition: background-color 0.3s;
 `;
 
 const QuantityControls = styled.div`
@@ -114,7 +118,7 @@ const QuantityControls = styled.div`
 
 const QuantityButton = styled.button`
   padding: 5px 10px;
-  background-color: #00B5E2;
+  background-color: #008DD5;
   color: white;
   border: none;
   border-radius: 5px;
@@ -138,24 +142,7 @@ const ProductCard = ({ product }) => {
   const currencySymbol = getCurrencySymbol(location);
   const convertedPrice = convertPrice(product.price, location);
 
-  const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [favorites, setFavorites] = useState([]);
-
-  const handleAddToCart = (e) => {
-    e.preventDefault(); // Prevent default link behavior
-    addToCart({ ...product, uniqueId: product.id, quantity: 1 });
-    setIsAddedToCart(true);
-    setTimeout(() => {
-      setIsAddedToCart(false);
-    }, 2000);
-  };
-
-  const handleUpdateQuantity = (quantity) => {
-    if (quantity <= 0) {
-      quantity = 1;
-    }
-    updateQuantity({ ...product, uniqueId: product.id }, quantity);
-  };
 
   const getItemQuantity = () => {
     const cartItem = cart.find((item) => item.uniqueId === product.id);
@@ -197,18 +184,9 @@ const ProductCard = ({ product }) => {
             <FaStar />
             <RatingValue>{averageRating.toFixed(1)} ({product.reviews.length} reviews)</RatingValue>
           </Rating>
-          {quantity > 0 ? (
-            <QuantityControls>
-              <QuantityButton onClick={(e) => { e.preventDefault(); handleUpdateQuantity(quantity - 1); }}>-</QuantityButton>
-              <QuantityDisplay>{quantity}</QuantityDisplay>
-              <QuantityButton onClick={(e) => { e.preventDefault(); handleUpdateQuantity(quantity + 1); }}>+</QuantityButton>
-            </QuantityControls>
-          ) : (
-            <AddToCartButton onClick={handleAddToCart}>
-              {isAddedToCart ? <FaCheck style={{ marginRight: '8px' }} /> : null}
-              {isAddedToCart ? 'Added to Cart' : 'Add to Cart'}
-            </AddToCartButton>
-          )}
+          <AddToCartButton disabled>
+            Add to Cart
+          </AddToCartButton>
         </Content>
       </Card>
     </StyledLink>

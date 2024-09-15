@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome, FaBed } from 'react-icons/fa';
+import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill,FaShoppingCart, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome, FaBed } from 'react-icons/fa';
 import { useAuth } from '../hooks/Context';
 
 interface OverlayProps {
@@ -57,12 +57,12 @@ const MenuItem = styled(Link)`
   transition: color 0.3s;
 
   &:hover {
-    color: #00B5E2;
+    color: #008DD5;
   }
 
   svg {
     margin-right: 10px;
-    color: #00B5E2; /* Change the icon color here */
+    color: #008DD5; /* Change the icon color here */
   }
 `;
 
@@ -79,12 +79,12 @@ const LogoutButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    color: #00B5E2;
+    color: #008DD5;
   }
 
   svg {
     margin-right: 10px;
-    color: #00B5E2; /* Change the icon color here */
+    color: #008DD5; /* Change the icon color here */
   }
 `;
 
@@ -119,6 +119,16 @@ const SlideMenu = () => {
               <FaUser /> Profile
             </MenuItem>
           </li>
+          <li>
+            <MenuItem to="/invite-friends">
+              <FaUserFriends /> Invite Friends
+            </MenuItem>
+          </li>
+          <li>
+            <MenuItem to="/purchases-history">
+              <FaShoppingCart /> Payment History
+            </MenuItem>
+          </li>
           {/* <li>
             <MenuItem to="/my-deals">
               <FaTags /> My Deals
@@ -144,11 +154,7 @@ const SlideMenu = () => {
               <FaHeart /> My Faves
             </MenuItem>
           </li> */}
-          <li>
-            <MenuItem to="/invite-friends">
-              <FaUserFriends /> Invite Friends
-            </MenuItem>
-          </li>
+          
           <li>
             <MenuItem to="/travel-bookings">
               <FaBed /> Rentals
@@ -156,7 +162,7 @@ const SlideMenu = () => {
           </li>
           <li>
             <MenuItem to="/deliveries">
-              <FaUtensils /> Orders
+              <FaUtensils /> Deliveries
             </MenuItem>
           </li>
           <li>

@@ -5,6 +5,9 @@ import { LocationType } from '../redux/types';
 import { useDispatch } from 'react-redux';
 import { setLocation } from '../redux/slices/app';
 import { CountryData } from '../pages/airtime/types';
+import { IoLocationSharp } from 'react-icons/io5';
+import { MdLocationOn } from 'react-icons/md';
+import { FaLocationArrow } from 'react-icons/fa';
 
 const Button = styled.button`
   display: flex;
@@ -20,7 +23,7 @@ const Button = styled.button`
 
   &:hover {
     background-color: #f0f0f0;
-    border-color: blue;
+    border-color: #008DD5;
   }
 
   &:active {
@@ -28,22 +31,24 @@ const Button = styled.button`
   }
 `;
 
-const Icon = styled(FiMapPin)`
+const Icon = styled(IoLocationSharp)`
   width: 24px;
   height: 24px;
   margin-right: 10px;
-  fill: #00B5E2; /* Set the fill color to 00B5E2 */
+  fill: #008DD5; /* Set the fill color to 008DD5 */
 `;
 
 const LocationText = styled.span`
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: black;
   margin-right: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px; /* Ensure text doesn't make the button too wide */
+  max-width: 150px;
+  font-family: 'Poppins', sans-serif; /* Apply Poppins */
 `;
+
 
 const LocationButton = () => {
   const dispatch = useDispatch();

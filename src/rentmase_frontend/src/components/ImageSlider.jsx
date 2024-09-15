@@ -5,31 +5,40 @@ import slider2 from '/images/SLIDER/SLIDER2.jpg';
 import slider3 from '/images/SLIDER/SLIDER3.jpg';
 
 const OuterContainer = styled.div`
-  width: 80%;
-  padding: 20px;
+  width: 100%;
+  max-width: 1000px;
+  padding: 0;  /* Removed padding */
   box-sizing: border-box;
   position: relative;
 `;
 
 const SliderContainer = styled.div`
-  width: calc(100% - 40px);
+  width: 100%;
   margin: auto;
   overflow: hidden;
   position: relative;
+  
+  background-color: transparent;
   border-radius: ${({ $isCurved }) => ($isCurved ? '15px' : '0')};
   transition: border-radius 0.5s ease-in-out;
+  
+  /* Add box-shadow for soft effect */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.35); /* Customize the shadow */
 `;
+
 
 const SliderWrapper = styled.div`
   display: flex;
+  width: 100%;
   transform: ${({ $activeIndex }) => `translateX(-${$activeIndex * 100}%)`};
   transition: ${({ $isTransitioning }) => ($isTransitioning ? 'transform 0.5s ease-in-out' : 'none')};
 `;
 
 const Slide = styled.div`
   min-width: 100%;
-  height: 500px;
-  background: center/cover no-repeat;
+  height: 0;
+  padding-bottom: 50%; /* Maintain aspect ratio */
+  background: center/contain no-repeat;
   border-radius: ${({ $isCurved }) => ($isCurved ? '15px' : '0')};
   transition: border-radius 0.5s ease-in-out;
   background-image: url(${props => props.image});
@@ -38,14 +47,14 @@ const Slide = styled.div`
 const DotsContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 40px;
 `;
 
 const Dot = styled.div`
   width: 10px;
   height: 10px;
   margin: 0 5px;
-  background-color: ${props => (props.$active ? '#00B5E2' : 'gray')};
+  background-color: ${props => (props.$active ? '#008DD5' : 'gray')};
   border-radius: 50%;
   cursor: pointer;
 `;
@@ -73,7 +82,7 @@ const ImageSlider = ({ images }) => {
       setTimeout(() => {
         setIsTransitioning(true);
         setActiveIndex((prevIndex) => prevIndex + 1);
-      }, 300); // Slight delay to ensure border-radius is removed before transition starts
+      }, 300);
     }, 3000);
     return () => clearInterval(interval);
   }, [totalSlides]);
@@ -92,7 +101,7 @@ const ImageSlider = ({ images }) => {
     setTimeout(() => {
       setIsTransitioning(true);
       setActiveIndex(index + 1);
-    }, 100); // Slight delay to ensure border-radius is removed before transition starts
+    }, 100);
   };
 
   const slides = [images[totalSlides - 1], ...images, images[0]];

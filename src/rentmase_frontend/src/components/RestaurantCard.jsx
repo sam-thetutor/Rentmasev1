@@ -21,14 +21,18 @@ const Card = styled.div`
 `;
 
 const ImageContainer = styled.div`
-  position: relative;
+   position: relative;
+  background-color: white; /* Add this line for a white background */
+  padding: 10px; /* Optional: Add padding to create some space around the image */
+  border-radius: 8px; /* Optional: Round the corners */
 `;
 
 const Image = styled.img`
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  object-fit: contain; /* Change from cover to contain */
 `;
+
 
 const FavoriteButton = styled.button`
   position: absolute;

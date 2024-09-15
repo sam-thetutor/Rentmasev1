@@ -1,55 +1,103 @@
-// src/pages/ManageAddresses.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const ManageAddressesContainer = styled.div`
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  padding-left: 250px;
-  padding-right: 250px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-family: 'Poppins', sans-serif;
+  margin-top: 100px;
+`;
 
-  @media (max-width: 768px) {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
+const Title = styled.h1`
+  text-align: center;
+  color: #008DD5;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 30px;
 `;
 
 const AddressForm = styled.form`
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
 `;
 
 const Input = styled.input`
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+  transition: border 0.2s ease-in-out;
+
+  &:focus {
+    border-color: #008DD5;
+  }
 `;
 
 const Button = styled.button`
-  padding: 10px;
-  background-color: #00B5E2;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 12px 20px;
+  background-color: ${props => props.secondary ? "transparent" : "#008DD5"};
+  color: ${props => props.secondary ? "#008DD5" : "white"};
+  border: ${props => props.secondary ? "2px solid #008DD5" : "none"};
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  margin-bottom: 10px;
-  margin-right: 5px;
+  font-weight: 500;
+  margin-right: ${props => props.secondary ? "10px" : "0"};
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+  &:hover {
+    background-color: ${props => props.secondary ? "#008DD5" : "#006bb3"};
+    color: white;
+    transform: scale(1.05);
+  }
 `;
 
 const AddressList = styled.div`
-  margin-top: 20px;
+  margin-top: 30px;
 `;
 
 const AddressItem = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const AddressDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const AddressField = styled.p`
+  margin: 5px 0;
+  font-size: 16px;
+  color: #333;
+
+  strong {
+    color: #555;
+    margin-right: 5px;
+  }
 `;
 
 const ManageAddresses = () => {
@@ -116,7 +164,7 @@ const ManageAddresses = () => {
 
   return (
     <ManageAddressesContainer>
-      <h1>Manage Addresses</h1>
+      <Title>Manage Addresses</Title>
       <AddressForm>
         <Input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
         <Input type="text" placeholder="Street Name" value={street} onChange={(e) => setStreet(e.target.value)} />
@@ -132,17 +180,17 @@ const ManageAddresses = () => {
         ) : (
           addresses.map((address, index) => (
             <AddressItem key={index}>
+              <AddressDetails>
+                <AddressField><strong>Name:</strong> {address.name}</AddressField>
+                <AddressField><strong>Street:</strong> {address.street}</AddressField>
+                <AddressField><strong>Building:</strong> {address.building}</AddressField>
+                <AddressField><strong>Phone:</strong> {address.phone}</AddressField>
+                <AddressField><strong>Pincode:</strong> {address.pincode}</AddressField>
+                <AddressField><strong>Nickname:</strong> {address.nickname}</AddressField>
+              </AddressDetails>
               <div>
-                <p><strong>Name:</strong> {address.name}</p>
-                <p><strong>Street:</strong> {address.street}</p>
-                <p><strong>Building:</strong> {address.building}</p>
-                <p><strong>Phone:</strong> {address.phone}</p>
-                <p><strong>Pincode:</strong> {address.pincode}</p>
-                <p><strong>Nickname:</strong> {address.nickname}</p>
-              </div>
-              <div>
-                <Button onClick={() => handleEditAddress(address.nickname)}>Edit</Button>
-                <Button onClick={() => handleDeleteAddress(address.nickname)}>Delete</Button>
+                <Button secondary onClick={() => handleEditAddress(address.nickname)}>Edit</Button>
+                <Button secondary onClick={() => handleDeleteAddress(address.nickname)}>Delete</Button>
               </div>
             </AddressItem>
           ))
