@@ -15,7 +15,7 @@ actor class Rentmase() = this {
     type TxnPayload = Types.TxnPayload;
 
     var rewardAmount = 100;
-    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+    let tokenCanister = "bw4dl-smaaa-aaaaa-qaacq-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();

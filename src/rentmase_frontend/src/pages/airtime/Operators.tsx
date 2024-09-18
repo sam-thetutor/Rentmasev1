@@ -83,7 +83,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
     const [operator, setOperator] = useState<any | null>(null);
     const [selectedOperator, setSelectedOperator] = useState<any | null>(null);
     const [noOperator, setNoOperator] = useState(false);
-    const [buy] = useTopUpAirtimeMutation();
+    const [topUp] = useTopUpAirtimeMutation();
     const [buyingAirtime, setBuyingAirtime] = useState(false);
 
 
@@ -132,6 +132,8 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             return;
         }
 
+        setBuyingAirtime(true);
+
         const arg: ApproveArgs = {
             fee: [BigInt(10_000)],
             memo: [],
@@ -168,8 +170,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                     countryCode: selectedCountry.isoName,
                     phoneNumber: phoneNumber,
                 }
-                setBuyingAirtime(true);
-                buy(data).then((res) => {
+                topUp(data).then((res) => {
                     setBuyingAirtime(false);
                     if (res.data) {
                         console.log(res.data);

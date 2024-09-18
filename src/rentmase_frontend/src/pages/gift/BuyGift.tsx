@@ -5,6 +5,13 @@ import styled from 'styled-components';
 import { CountryData } from '../airtime/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { toast } from 'react-toastify';
+import { useBuyGiftCardMutation } from '../../redux/api/servicesSlice';
+import { useAuth } from '../../hooks/Context';
+import { backendCanisterId, tokenDecimas, tokenFee } from '../../constants';
+import { Principal } from '@dfinity/principal';
+import { ApproveArgs } from '../../../../declarations/token/token.did';
+import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
 const Container = styled.div`
   background-color: white;
   padding: 20px;
@@ -188,28 +195,77 @@ const CountryCodeInput = styled.div`
   }
 `;
 
+const QuantityControl = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const QuantityButton = styled.button`
+  padding: 10px;
+  font-size: 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 0 5px;
+  &:hover {
+    background-color: #e0e0e0;
+  }
+`;
+
+const QuantityInput = styled.input`
+  width: 50px;
+  text-align: center;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+`;
+
 
 const BuyGift = ({ card, setOpenModal }) => {
+  const [buyCard] = useBuyGiftCardMutation();
+  const { isAuthenticated, user, identity, tokenCanister, backendActor } = useAuth();
   const handleClose = () => setOpenModal(false);
   const navigate = useNavigate();
   const [amount, setAmount] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
-  const { location , countries } = useSelector((state: RootState) => state.app);
+  const { location, countries } = useSelector((state: RootState) => state.app);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [toEmail, setToEmail] = useState('');
   const [fromnName, setFromName] = useState('');
-  
+  const [loading, setLoading] = useState(false);
+
+  const handleIncrease = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  const handleDecrease = () => {
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1);
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      setQuantity(value);
+    }
+  };
+
+
 
   useEffect(() => {
     if (countries) {
-        const country = countries.find((country: CountryData) => country.name === location.country);
-        if (country) {
-            setSelectedCountry(country);
-        } else {
-            setSelectedCountry(countries[0]);
-        }
+      const country = countries.find((country: CountryData) => country.name === location.country);
+      if (country) {
+        setSelectedCountry(country);
+      } else {
+        setSelectedCountry(countries[0]);
+      }
     }
-}, [countries]);
+  }, [countries]);
 
   const hasFixedDenominations = card.fixedRecipientDenominations.length > 0;
 
@@ -224,12 +280,95 @@ const BuyGift = ({ card, setOpenModal }) => {
     const selectedCode = e.target.value;
     const country = countries.find((country) => country.callingCodes[0] === selectedCode);
     setSelectedCountry(country);
-};
+  };
 
+  const handleBuy = async () => {
+    if (!toEmail || !phoneNumber || !fromnName) {
+      toast("Please fill in all fields");
+      return;
+    }
 
+    if (!isAuthenticated && !identity) {
+      toast.error('Please login to continue');
+      return;
+    }
+    if (isAuthenticated && !user) {
+      toast.error("Please sign up to continue");
+      return;
+    }
 
+    setLoading(true);
 
-  console.log("Card: ", card);
+    const arg: ApproveArgs = {
+      fee: [BigInt(10_000)],
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [],
+      amount: BigInt(amount * tokenDecimas + tokenFee),
+      expected_allowance: [],
+      expires_at: [],
+      spender: {
+        owner: Principal.fromText(backendCanisterId),
+        subaccount: []
+      },
+    }
+
+    const res = await tokenCanister.icrc2_approve(arg);
+
+    console.log("Approve", res);
+
+    if ("Ok" in res) {
+      const arg2: TxnPayload = {
+        userEmail: user.email,
+        transferAmount: BigInt(amount * tokenDecimas),
+        txnType: {
+          'GiftCardPurchase': {
+            productId: card.productId,
+            countryCode: selectedCountry?.isoName,
+            quantity: BigInt(quantity),
+            phoneNumber: phoneNumber,
+            amount: amount.toString(),
+            recipientEmail: toEmail
+          }
+        }
+      }
+
+      const res2 = await backendActor.intiateTxn(arg2);
+
+      if ("ok" in res2) {
+        const data = {
+          txnId: res2.ok.id.toString(),
+          amount: amount,
+          useLocalAmount: false,
+          customIdentifier: "Giftcard Purchase",
+          recipientEmail: user.email,
+          countryCode: selectedCountry.isoName,
+          phoneNumber: phoneNumber,
+        }
+        buyCard(data).then((res) => {
+          setLoading(false);
+          if (res.data) {
+            console.log(res.data);
+            toast.success('Giftcard bought successfully');
+          } else {
+            console.log(res.error);
+            toast.error('Failed to buy giftcard');
+          }
+        });
+      } else {
+        setLoading(false)
+        console.log("Error", res2);
+        toast.error('Failed to buy giftcard');
+        return
+      }
+    } else {
+      setLoading(false)
+      console.log("Error", res);
+      toast.error('Failed to buy giftcard');
+      return
+    }
+
+  };
 
   return (
     <ModalBackdrop onClick={handleClose}>
@@ -254,68 +393,85 @@ const BuyGift = ({ card, setOpenModal }) => {
               </AmountWrapper>
               :
               <InputGroup>
-              {card.minRecipientDenomination && card.maxRecipientDenomination && <Label htmlFor="amount">
-                Select an amount between ${card.minRecipientDenomination} and ${card.maxRecipientDenomination}
+                {card.minRecipientDenomination && card.maxRecipientDenomination && <Label htmlFor="amount">
+                  Select an amount between ${card.minRecipientDenomination} and ${card.maxRecipientDenomination}
                 </Label>}
-              <Label htmlFor="amount">Amount</Label>
-              <Input 
-                type="number" 
-                value={amount} 
-                onChange={(e) => setAmount(Number(e.target.value))} 
-                id="amount" 
-                placeholder="Amount" 
-              />
-            </InputGroup>
+                <Label htmlFor="amount">Amount</Label>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  id="amount"
+                  placeholder="Amount"
+                />
+              </InputGroup>
             }
             <InputGroup>
               <Label htmlFor="email">To</Label>
-              <Input type="email" id="email" placeholder="Recipient email" />
+              <Input type="email"
+                value={toEmail}
+                onChange={(e) => setToEmail(e.target.value)}
+                id="email" placeholder="Recipient email" />
             </InputGroup>
 
             <InputGroup>
               <Label htmlFor="phone">Phone</Label>
               <CountryCodeInput>
-                    <img src={selectedCountry?.flag} alt="Flag" />
-                    <select
-                        value={selectedCountry?.callingCodes[0] || ''}
-                        onChange={handleCountryChange}
-                    >
-                        {countries.map((country, index) => (
-                            <option key={index} value={country.callingCodes[0]}>
-                                {country.isoName} ({country.callingCodes[0]})
-                            </option>
-                        ))}
-                    </select>
+                <img src={selectedCountry?.flag} alt="Flag" />
+                <select
+                  value={selectedCountry?.callingCodes[0] || ''}
+                  onChange={handleCountryChange}
+                >
+                  {countries.map((country, index) => (
+                    <option key={index} value={country.callingCodes[0]}>
+                      {country.isoName} ({country.callingCodes[0]})
+                    </option>
+                  ))}
+                </select>
 
-                    <Input
-                        type="tel"
-                        id="phone"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="Enter phone number"
-                    />
-                </CountryCodeInput>
+                <Input
+                  type="tel"
+                  id="phone"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter phone number"
+                />
+              </CountryCodeInput>
             </InputGroup>
 
             <InputGroup>
               <Label htmlFor="from">From</Label>
-              <Input type="text" id="from" placeholder="Your name" />
+              <Input type="text"
+                id="from"
+                value={fromnName}
+                onChange={(e) => setFromName(e.target.value)}
+                placeholder="Your name" />
             </InputGroup>
 
             <InputGroup>
               <Label htmlFor="quantity">Quantity</Label>
-              <QuantitySelect id="quantity">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-              </QuantitySelect>
+              <QuantityControl>
+                <Button onClick={handleDecrease}>-</Button>
+                <QuantityInput
+                  id="quantity"
+                  type="number"
+                  value={quantity}
+                  onChange={handleInputChange}
+                  min={1}
+                />
+                <QuantityButton onClick={handleIncrease}>+</QuantityButton>
+              </QuantityControl>
             </InputGroup>
 
             <CheckboxLabel>
               <Input type="checkbox" /> By clicking the 'Buy Now' button, you agree to our Terms and conditions.
             </CheckboxLabel>
 
-            <Button type="submit">Buy Now</Button>
+            <Button
+              onClick={handleBuy}
+            >
+              {loading ? 'Loading...' : 'Buy Now'}
+            </Button>
           </Form>
 
           <RedeemLink href="#">See Redeem Instructions</RedeemLink>

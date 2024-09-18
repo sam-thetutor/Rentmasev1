@@ -44,6 +44,13 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         params: {countryCode}, 
       }),
     }),
+    buyGiftCard : builder.mutation({
+      query: (data) => ({
+        url: "/buy-giftcard",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -55,4 +62,5 @@ export const {
   useLazyGetCountryOperatersQuery,
   useLazyGetNumberOperatorsQuery,
   useLazyGetCouuntryGiftCardsQuery,
+  useBuyGiftCardMutation,
 } = usersApiSlice;
