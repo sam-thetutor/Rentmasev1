@@ -21,6 +21,7 @@
     "@infu/icblast": "^2.0.46",
     "@nfid/embed": "^0.10.3",
     "@reduxjs/toolkit": "^2.2.7",
+    "js-cookie": "^3.0.5",
     "libphonenumber-js": "^1.11.7",
     "react-redux": "^9.1.2",
     "react-select": "^5.8.0",

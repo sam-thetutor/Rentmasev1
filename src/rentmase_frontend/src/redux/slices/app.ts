@@ -30,6 +30,6 @@ export const appSlice = createSlice({
   },
 });
 
-export const { setLocation, setAudience , setCountries} = appSlice.actions;
+export const { setLocation, setAudience , setCountries } = appSlice.actions;
 
 export default appSlice.reducer;

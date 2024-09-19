@@ -17,6 +17,7 @@ import { canisterId, idlFactory } from "../../../declarations/rentmase_backend";
 import { _SERVICE, User } from "../../../declarations/rentmase_backend/rentmase_backend.did";
 import { _SERVICE as TOKENSERVICE } from "../../../declarations/token/token.did";
 import { tokenCanisterId, tokenIDL } from "../constants";
+import { useAuthenticateMutation } from "../redux/api/servicesSlice";
 
 const network = process.env.DFX_NETWORK || "local";
 const localhost = "http://localhost:4943";
@@ -63,6 +64,9 @@ export const useAuthClient = (options = defaultOptions) => {
   const [tokenCanister, setTokenCanister] = useState<ActorSubclass<TOKENSERVICE> | null>(null);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [
+    authenticate
+  ] = useAuthenticateMutation();
 
   useEffect(() => {
     AuthClient.create(options.createOptions).then(async (client) => {

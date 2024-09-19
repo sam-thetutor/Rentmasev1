@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FaUtensils, FaShoppingCart, FaMoneyBillWave, FaTags, FaBed } from 'react-icons/fa';
+import { GiBuyCard } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 
 const GridContainer = styled.div`
@@ -95,6 +96,7 @@ const categories = [
   { id: 3, icon: <FaUtensils />, title: 'Eat', link: '/food-delivery' },
   { id: 4, icon: <FaShoppingCart />, title: 'Retail', link: '/shop' },
   { id: 5, icon: <FaBed />, title: 'Stay', link: '/stay-booking' },
+  { id: 6, icon: <GiBuyCard />, title: 'Buy', link: '/payments' },
 ];
 
 const CategoryGrid = () => {

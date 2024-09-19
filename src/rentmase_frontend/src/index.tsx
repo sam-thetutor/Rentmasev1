@@ -13,10 +13,10 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <Provider store={store}>
-    <AuthProvider>
-      <App />
-      <ToastContainer />
-    </AuthProvider>
+      <AuthProvider>
+        <App />
+        <ToastContainer />
+      </AuthProvider>
     </Provider>
   );
 } else {

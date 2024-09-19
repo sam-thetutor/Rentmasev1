@@ -31,19 +31,12 @@ import Payments from './pages/payments/Payments';
 import Bills from './pages/bills/Bills';
 import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
-import { useAuthenticateMutation } from './redux/api/servicesSlice';
-import { fetchTokens } from './hooks/tokens/tokens';
 import PurchasesHistory from './components/PurchasesHistory';
-import { useSelector } from 'react-redux';
-import { RootState } from './redux/store';
 
 
 function App() {
-  const [
-    authenticate
-  ] = useAuthenticateMutation();
   const { backendActor, isAuthenticated, setUser } = useAuth();
-  const {audience} = useSelector((state : RootState) => state.app);
+
 
   // const getTokens = async () => {
   //   const tokens = await fetchTokens();
@@ -54,12 +47,8 @@ function App() {
   //   getTokens();
   // }, []);
 
+  
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      authenticate({audience: audience})
-    }
-  }, [isAuthenticated, authenticate, audience]);
 
   useEffect(() => {
     if (isAuthenticated && backendActor) {

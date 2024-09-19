@@ -231,10 +231,10 @@ const BuyGift = ({ card, setOpenModal }) => {
   const [amount, setAmount] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
   const { location, countries } = useSelector((state: RootState) => state.app);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [toEmail, setToEmail] = useState('');
-  const [fromnName, setFromName] = useState('');
+  const [toEmail, setToEmail] = useState<string | null>(null);
+  const [fromnName, setFromName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleIncrease = () => {
@@ -283,7 +283,7 @@ const BuyGift = ({ card, setOpenModal }) => {
   };
 
   const handleBuy = async () => {
-    if (!toEmail || !phoneNumber || !fromnName) {
+    if (!toEmail || !phoneNumber || !fromnName || !amount || !quantity || !card) {
       toast("Please fill in all fields");
       return;
     }
@@ -313,9 +313,8 @@ const BuyGift = ({ card, setOpenModal }) => {
       },
     }
 
-    const res = await tokenCanister.icrc2_approve(arg);
-
-    console.log("Approve", res);
+    try {
+      const res = await tokenCanister.icrc2_approve(arg);
 
     if ("Ok" in res) {
       const arg2: TxnPayload = {
@@ -323,7 +322,7 @@ const BuyGift = ({ card, setOpenModal }) => {
         transferAmount: BigInt(amount * tokenDecimas),
         txnType: {
           'GiftCardPurchase': {
-            productId: card.productId,
+            productId: String(card.productId),
             countryCode: selectedCountry?.isoName,
             quantity: BigInt(quantity),
             phoneNumber: phoneNumber,
@@ -341,6 +340,11 @@ const BuyGift = ({ card, setOpenModal }) => {
           amount: amount,
           useLocalAmount: false,
           customIdentifier: "Giftcard Purchase",
+          productId: card.productId,
+          quantity: quantity,
+          unitPrice : amount,
+          recipientPhone: phoneNumber,
+          senderName: fromnName,
           recipientEmail: user.email,
           countryCode: selectedCountry.isoName,
           phoneNumber: phoneNumber,
@@ -366,6 +370,11 @@ const BuyGift = ({ card, setOpenModal }) => {
       console.log("Error", res);
       toast.error('Failed to buy giftcard');
       return
+    }
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong");
+      console.log("Error", error);
     }
 
   };
