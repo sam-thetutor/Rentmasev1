@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { PublicUser } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import { useAuth } from '../hooks/Context';
 import { tokensPerReward } from '../constants';
+import { Rewards } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 
 const LeaderboardContainer = styled.div`
   max-width: 1200px;
@@ -89,8 +89,8 @@ const Trophy = styled.span`
 
 const Leaderboard = () => {
   const { backendActor, user } = useAuth();
-  const [users, setUsers] = useState<PublicUser[]>([]);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [rewards, setRewards] = useState<Rewards[]>([]);
+  const [currentReward, setCurrentReward] = useState<Rewards | null>(null);
 
   useEffect(() => {
     if (backendActor) {
@@ -100,13 +100,13 @@ const Leaderboard = () => {
 
   const getUsers = async () => {
     if (backendActor) {
-      const publicUsers = await backendActor.getPublicUsers();
-      publicUsers.sort((a, b) => b.rewards.length - a.rewards.length);
-      setUsers(publicUsers);
+      const _rewards = await backendActor.getRewards();
+      _rewards.sort((a, b) => b.rewards.length - a.rewards.length);
+      setRewards(_rewards);
 
       // If the current user exists, find their rank
-      const currentUserData = publicUsers.find((u) => u.firstName === user?.firstName);
-      setCurrentUser(currentUserData);
+      const currentUserData = _rewards.find((u) => u.user.toString() === user?.id.toString());
+      setCurrentReward(currentUserData);
     }
   };
 
@@ -118,13 +118,13 @@ const Leaderboard = () => {
   };
 
   const renderRows = () => {
-    const top10Users = users.slice(0, 10);
-    const userRank = users.findIndex((u) => u.firstName === currentUser?.firstName) + 1;
+    const top10Users = rewards.slice(0, 10);
+    const userRank = rewards.findIndex((u) => u.user.toString() === user?.id.toString()) + 1;
 
     return (
       <>
-        {/* Display Top 10 users */}
-        {top10Users.map((user, index) => (
+        {/* Display Top 10 rewards */}
+        {top10Users.map((userReward, index) => (
           <TableRow key={index}>
             <TableData>
               <TrophyWrapper>
@@ -132,14 +132,14 @@ const Leaderboard = () => {
                 {index + 1}
               </TrophyWrapper>
             </TableData>
-            <TableData>{user.firstName}</TableData>
-            <TableData>{user.rewards.length * tokensPerReward}</TableData>
-            <TableData>{user.referrals.length}</TableData>
+            <TableData>{userReward.userName}</TableData>
+            <TableData>{Number(userReward.totalAmount)}</TableData>
+            <TableData>{userReward.rewards.length}</TableData>
           </TableRow>
         ))}
 
-        {/* Add ellipses row if there are more than 10 users */}
-        {users.length > 10 && (
+        {/* Add ellipses row if there are more than 10 rewards */}
+        {rewards.length > 10 && (
           <TableRow>
             <TableData colSpan={4} style={{ textAlign: 'center', fontSize: '18px' }}>
               ...
@@ -148,7 +148,7 @@ const Leaderboard = () => {
         )}
 
         {/* Display current user row if not in top 10 */}
-        {userRank > 10 && currentUser && (
+        {userRank > 10 && currentReward && (
           <TableRow>
             <TableData>
               <TrophyWrapper>
@@ -156,9 +156,9 @@ const Leaderboard = () => {
                 {userRank}
               </TrophyWrapper>
             </TableData>
-            <TableData>{currentUser.firstName}</TableData>
-            <TableData>{currentUser.rewards.length * tokensPerReward}</TableData>
-            <TableData>{currentUser.referrals.length}</TableData>
+            <TableData>{currentReward.userName}</TableData>
+            <TableData>{Number(currentReward.totalAmount)}</TableData>
+            <TableData>{currentReward.rewards.length}</TableData>
           </TableRow>
         )}
       </>
@@ -168,7 +168,7 @@ const Leaderboard = () => {
   return (
     <LeaderboardContainer>
       <LeaderboardTitle>Leaderboard</LeaderboardTitle>
-      <TotalUsersText>Total Users: {users.length}</TotalUsersText>
+      <TotalUsersText>Total Users: {rewards.length}</TotalUsersText>
       <LeaderboardTable>
         <TableHead>
           <tr>

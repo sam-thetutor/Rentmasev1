@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaFacebookF, FaTwitter, FaWhatsapp, FaEnvelope, FaLink } from 'react-icons/fa';
 import { useAuth } from '../hooks/Context';
-import { tokensPerReward } from '../constants';
-import { Reward, UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import {  Rewards, UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import RedeemTokens from '../components/RedeemTokens';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -261,7 +260,7 @@ const InviteFriends = () => {
   const navigate = useNavigate();
   const { user, setUser, isAuthenticated, backendActor } = useAuth();
   const [openModal, setOpenModal] = useState(false);
-  const [unclaimedRewards, setUnclaimedRewards] = useState<Reward[]>([]);
+  const [rewards, setRewards] = useState<Rewards | null>(null);
   const [customCode, setCustomCode] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [copyStatus, setCopyStatus] = useState('Copy'); // State to track the copy status
@@ -271,9 +270,9 @@ const InviteFriends = () => {
   useEffect(() => {
     if (isAuthenticated && backendActor) {
       (async () => {
-        const rewards = await backendActor.getUnclaimedRewards();
+        const rewards = await backendActor.getUserRewards();
         if ("ok" in rewards) {
-          setUnclaimedRewards(rewards.ok);
+          setRewards(rewards.ok);
         }
       })();
     }
@@ -370,14 +369,14 @@ const InviteFriends = () => {
         </StatItem>
         <StatItem>
           <StatTitle>Total $RENT Earned</StatTitle>
-          <StatValue>{user?.rewards.length}</StatValue>
+          <StatValue>{rewards?.rewards.length}</StatValue>
           <p>Worth: *** $REM</p>
           <p>The $Rent earned will be converted to $REM at SNS at a yet to be determined ratio</p>
         </StatItem>
         <StatItem>
           <StatTitle>Available $RENT</StatTitle>
-          <StatValue>{unclaimedRewards.length}</StatValue>
-          <p>Worth: {unclaimedRewards.length * tokensPerReward} REM</p>
+          <StatValue>{rewards?.rewards.length}</StatValue>
+          <p>Worth: {Number(rewards?.totalAmount)} REM</p>
           <RedeemButton onClick={() => setOpenModal(true)} disabled>Redeem</RedeemButton>
         </StatItem>
       </StatsSection>
@@ -408,7 +407,7 @@ const InviteFriends = () => {
         </TaskTable>
       </TaskSection>
 
-      {openModal && <RedeemTokens {...{ openModal, setOpenModal, unclaimedRewards }} />}
+      {openModal && <RedeemTokens {...{ openModal, setOpenModal, rewards }} />}
     </InviteContainer>
   );
 };

@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLazyGetCouuntryGiftCardsQuery } from "../../redux/api/servicesSlice";
 import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
-import { setAudience, setAuthenticated } from "../../redux/slices/app";
 import styled from 'styled-components';
 import GiftCard from "./Card";
 import { useAuth } from "../../hooks/Context";

@@ -1,5 +1,11 @@
 {
   "frontend": {
     "ic": "zmxq6-uqaaa-aaaal-qjhba-cai"
+  },
+  "rentmase_backend": {
+    "ic": "tmy4n-2aaaa-aaaal-qmtaq-cai"
+  },
+  "rentmase_frontend": {
+    "ic": "tf3xr-miaaa-aaaal-qmtba-cai"
   }
 }

@@ -25,7 +25,6 @@ module {
         firstName : Text;
         lastName : Text;
         referrals : [Principal];
-        rewards : [Reward];
     };
     public type User = {
         id : Principal;
@@ -33,7 +32,6 @@ module {
         lastName : Text;
         referralCode : Text;
         referrals : [Principal];
-        rewards : [Reward];
         email : Text;
         dob : ?Time.Time;
         gender : ?Text;
@@ -41,10 +39,48 @@ module {
         createdAt : Time.Time;
     };
 
-    public type Reward = {
+    public type Rewards = {
+        user : Principal;
+        userName : Text;
+        rewards : [RewardType];
+        totalAmount : Nat;
+        created : Time.Time;
+    };
+
+    public type RewardType = {
+        #Referral : ReferralReward;
+        #SocialShare : SocialShareReward;
+        #ReviewReward : ReviewReward;
+    };
+
+    public type ReferralReward = {
+        referred : Principal;
+        referralCode : Text;
         amount : Nat;
-        claimed : Bool;
-        claimedAt : ?Time.Time;
+        timestamp : Time.Time;
+    };
+
+    public type SocialShareReward = {
+        amount : Nat;
+        timestamp : Time.Time;
+    };
+
+    public type ReviewReward = {
+        amount : Nat;
+        timestamp : Time.Time;
+    };
+
+    public type SocialShareRewardRequest = {
+        user : Principal;
+        postUrl : Text;
+        approved : Bool;    
+        timestamp : Time.Time;
+    };
+
+public type Review = {
+        user : Principal;
+        review : Text;
+        rating : Nat;
         timestamp : Time.Time;
     };
 

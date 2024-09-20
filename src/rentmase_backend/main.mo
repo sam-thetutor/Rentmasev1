@@ -14,21 +14,29 @@ actor class Rentmase() = this {
     type InternalTxn = Types.InternalTxn;
     type TxnPayload = Types.TxnPayload;
 
-    var rewardAmount = 100;
+    var referralRewardAmnt = 100;
+    var reviewReward = 30;
+    var socialShareReward = 50;
     let tokenCanister = "bw4dl-smaaa-aaaaa-qaacq-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
     stable var transactions = List.nil<InternalTxn>();
+    stable var reviews = List.nil<Types.Review>();
+    stable var rewards = List.nil<Types.Rewards>();
+    stable var socialShareRequests = List.nil<Types.SocialShareRewardRequest>();
 
     public shared ({ caller }) func registerUser(payload : Types.UserPayload) : async Result.Result<User, Text> {
         assert (not Principal.isAnonymous(caller));
+        // Does the payload have a referral code?
         switch (payload.referrerCode) {
             case (null) {
+                // No referral code, create user
                 let user = _createUser(payload, caller);
                 return #ok(user);
             };
             case (?code) {
+                // Referral code exists, find the user with the code
                 let referralUser = List.find<User>(
                     users,
                     func(user : User) : Bool {
@@ -37,33 +45,57 @@ actor class Rentmase() = this {
                 );
                 switch (referralUser) {
                     case (null) {
+                        // Referral code owner not found, create user
                         let user = _createUser(payload, caller);
                         return #ok(user);
                     };
                     case (?_user) {
-                        var userRewards = List.fromArray<Types.Reward>(_user.rewards);
-                        var userReferrals = List.fromArray<Principal>(_user.referrals);
-                        let reward : Types.Reward = {
-                            amount = rewardAmount;
-                            claimed = false;
-                            claimedAt = null;
+                        // Referral code owner found, create user and reward the owner
+                        var userRewards = List.find<Types.Rewards>(
+                            rewards,
+                            func(reward : Types.Rewards) : Bool {
+                                return reward.user == _user.id;
+                            },
+                        );
+                        let referralReward : Types.ReferralReward = {
+                            referred = caller;
+                            referralCode = payload.referralCode;
+                            amount = referralRewardAmnt;
                             timestamp = Time.now();
                         };
-                        userRewards := List.push<Types.Reward>(reward, userRewards);
-                        userReferrals := List.push<Principal>(caller, userReferrals);
-                        let updatedUser : User = {
-                            _user with
-                            rewards = List.toArray<Types.Reward>(userRewards);
-                            referrals = List.toArray<Principal>(userReferrals);
-                        };
-                        func updateUser(u : User) : User {
-                            if (u.id == _user.id) {
-                                return updatedUser;
-                            } else {
-                                return u;
+                        switch (userRewards) {
+                            case (null) {
+                                // User has no rewards, create their first reward
+                                let reward : Types.Rewards = {
+                                    user = _user.id;
+                                    userName = _user.firstName # " " # _user.lastName;
+                                    userReferralCode = _user.referralCode;
+                                    rewards = [#Referral(referralReward)];
+                                    totalAmount = referralRewardAmnt;
+                                    created = Time.now();
+                                };
+                                rewards := List.push<Types.Rewards>(reward, rewards);
+                            };
+                            case (?_rewards) {
+                                // User has rewards, add the referral reward
+                                var rewardsList = List.fromArray<Types.RewardType>(_rewards.rewards);
+                                rewardsList := List.push<Types.RewardType>(#Referral(referralReward), rewardsList);
+                                let updatedRewards : Types.Rewards = {
+                                    _rewards with
+                                    rewards = List.toArray<Types.RewardType>(rewardsList);
+                                    totalAmount = _rewards.totalAmount + referralRewardAmnt;
+                                };
+                                func updateRewards(r : Types.Rewards) : Types.Rewards {
+                                    if (r.user == _rewards.user) {
+                                        return updatedRewards;
+                                    } else {
+                                        return r;
+                                    };
+                                };
+                                rewards := List.map(rewards, updateRewards);
                             };
                         };
-                        users := List.map(users, updateUser);
+                        // Create the user
                         let user = _createUser(payload, caller);
                         return #ok(user);
                     };
@@ -72,14 +104,14 @@ actor class Rentmase() = this {
         };
     };
 
+
     func _createUser(payload : Types.UserPayload, id : Principal) : User {
-        let user : User = {
+        let user : Types.User = {
             id = id;
             firstName = payload.firstName;
             lastName = payload.lastName;
             referralCode = payload.referralCode;
             referrals = [];
-            rewards = [];
             dob = payload.dob;
             gender = payload.gender;
             lastupdated = Time.now();
@@ -164,110 +196,131 @@ actor class Rentmase() = this {
         return List.toArray<User>(users);
     };
 
-    public shared query func getPublicUsers() : async [Types.PublicUser] {
-        return List.toArray(
-            List.map<User, Types.PublicUser>(
-                users,
-                func(user : User) : Types.PublicUser {
-                    return {
-                        id = user.id;
-                        firstName = user.firstName;
-                        lastName = user.lastName;
-                        referrals = user.referrals;
-                        rewards = user.rewards;
-                    };
-                },
-            )
-        );
+    // public shared query func getPublicUsers() : async [Types.PublicUser] {
+    //     return List.toArray(
+    //         List.map<User, Types.PublicUser>(
+    //             users,
+    //             func(user : User) : Types.PublicUser {
+    //                 return {
+    //                     id = user.id;
+    //                     firstName = user.firstName;
+    //                     lastName = user.lastName;
+    //                     referrals = user.referrals;
+    //                     rewards = user.rewards;
+    //                 };
+    //             },
+    //         )
+    //     );
+    // };
+
+    // public shared ({ caller }) func redeemRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
+    //     let user = List.find<User>(
+    //         users,
+    //         func(user : User) : Bool {
+    //             return user.id == caller;
+    //         },
+    //     );
+    //     switch (user) {
+    //         case (null) {
+    //             return #err("User not found");
+    //         };
+    //         case (?_user) {
+    //             let rewardslist = List.fromArray<Types.Reward>(_user.rewards);
+    //             let _claimedRewards = List.filter<Types.Reward>(
+    //                 rewardslist,
+    //                 func(reward : Types.Reward) : Bool {
+    //                     return reward.claimed == true;
+    //                 },
+    //             );
+    //             let unclaimedRewards = List.filter<Types.Reward>(
+    //                 rewardslist,
+    //                 func(reward : Types.Reward) : Bool {
+    //                     return reward.claimed == false;
+    //                 },
+    //             );
+    //             let unclaimedSize = List.size<Types.Reward>(unclaimedRewards);
+    //             if (unclaimedSize < amount) {
+    //                 return #err("Insufficient rewards, " # Nat.toText(unclaimedSize) # " rewards available");
+    //             };
+    //             let tobeClaimedRewards = List.take<Types.Reward>(unclaimedRewards, amount);
+    //             switch (await transferRewards(wallet, amount * referralReward)) {
+    //                 case (#err(err)) {
+    //                     return #err(err);
+    //                 };
+    //                 case (#ok(_)) {
+    //                     let claimedRewards = List.map<Types.Reward, Types.Reward>(
+    //                         tobeClaimedRewards,
+    //                         func(reward : Types.Reward) : Types.Reward {
+    //                             return {
+    //                                 reward with claimed = true;
+    //                                 claimedAt = ?Time.now();
+    //                             };
+    //                         },
+    //                     );
+    //                     let remainingRewards = List.drop<Types.Reward>(unclaimedRewards, amount);
+    //                     let combinedRewards = List.append<Types.Reward>(claimedRewards, remainingRewards);
+    //                     let updatedRewards = List.append<Types.Reward>(combinedRewards, _claimedRewards);
+    //                     let updatedUser : User = {
+    //                         _user with
+    //                         rewards = List.toArray<Types.Reward>(updatedRewards);
+    //                     };
+    //                     func updateUser(u : User) : User {
+    //                         if (u.id == _user.id) {
+    //                             return updatedUser;
+    //                         } else {
+    //                             return u;
+    //                         };
+    //                     };
+    //                     users := List.map(users, updateUser);
+    //                     return #ok(());
+    //                 };
+    //             };
+    //             return #ok(());
+    //         };
+    //     };
+    // };
+
+    // public shared query ({ caller }) func getUnclaimedRewards() : async Result.Result<[Types.Reward], Text> {
+    //     let user = List.find<User>(
+    //         users,
+    //         func(user : User) : Bool {
+    //             return user.id == caller;
+    //         },
+    //     );
+    //     switch (user) {
+    //         case (null) {
+    //             return #err("User not found");
+    //         };
+    //         case (?_user) {
+    //             let rewardslist = List.fromArray<Types.Reward>(_user.rewards);
+    //             let unclaimedRewards = List.filter<Types.Reward>(
+    //                 rewardslist,
+    //                 func(reward : Types.Reward) : Bool {
+    //                     return reward.claimed == false;
+    //                 },
+    //             );
+    //             return #ok(List.toArray<Types.Reward>(unclaimedRewards));
+    //         };
+    //     };
+    // };
+
+    public shared query func getRewards() : async [Types.Rewards] {
+        return List.toArray<Types.Rewards>(rewards);
     };
 
-    public shared ({ caller }) func redeemRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
-        let user = List.find<User>(
-            users,
-            func(user : User) : Bool {
-                return user.id == caller;
+    public shared query ({caller}) func  getUserRewards() : async Result.Result<Types.Rewards, Text> {
+        let userRewards = List.find<Types.Rewards>(
+            rewards,
+            func(reward : Types.Rewards) : Bool {
+                return reward.user == caller;
             },
         );
-        switch (user) {
+        switch (userRewards) {
             case (null) {
-                return #err("User not found");
+                return #err("User has no rewards");
             };
-            case (?_user) {
-                let rewardslist = List.fromArray<Types.Reward>(_user.rewards);
-                let _claimedRewards = List.filter<Types.Reward>(
-                    rewardslist,
-                    func(reward : Types.Reward) : Bool {
-                        return reward.claimed == true;
-                    },
-                );
-                let unclaimedRewards = List.filter<Types.Reward>(
-                    rewardslist,
-                    func(reward : Types.Reward) : Bool {
-                        return reward.claimed == false;
-                    },
-                );
-                let unclaimedSize = List.size<Types.Reward>(unclaimedRewards);
-                if (unclaimedSize < amount) {
-                    return #err("Insufficient rewards, " # Nat.toText(unclaimedSize) # " rewards available");
-                };
-                let tobeClaimedRewards = List.take<Types.Reward>(unclaimedRewards, amount);
-                switch (await transferRewards(wallet, amount * rewardAmount)) {
-                    case (#err(err)) {
-                        return #err(err);
-                    };
-                    case (#ok(_)) {
-                        let claimedRewards = List.map<Types.Reward, Types.Reward>(
-                            tobeClaimedRewards,
-                            func(reward : Types.Reward) : Types.Reward {
-                                return {
-                                    reward with claimed = true;
-                                    claimedAt = ?Time.now();
-                                };
-                            },
-                        );
-                        let remainingRewards = List.drop<Types.Reward>(unclaimedRewards, amount);
-                        let combinedRewards = List.append<Types.Reward>(claimedRewards, remainingRewards);
-                        let updatedRewards = List.append<Types.Reward>(combinedRewards, _claimedRewards);
-                        let updatedUser : User = {
-                            _user with
-                            rewards = List.toArray<Types.Reward>(updatedRewards);
-                        };
-                        func updateUser(u : User) : User {
-                            if (u.id == _user.id) {
-                                return updatedUser;
-                            } else {
-                                return u;
-                            };
-                        };
-                        users := List.map(users, updateUser);
-                        return #ok(());
-                    };
-                };
-                return #ok(());
-            };
-        };
-    };
-
-    public shared query ({ caller }) func getUnclaimedRewards() : async Result.Result<[Types.Reward], Text> {
-        let user = List.find<User>(
-            users,
-            func(user : User) : Bool {
-                return user.id == caller;
-            },
-        );
-        switch (user) {
-            case (null) {
-                return #err("User not found");
-            };
-            case (?_user) {
-                let rewardslist = List.fromArray<Types.Reward>(_user.rewards);
-                let unclaimedRewards = List.filter<Types.Reward>(
-                    rewardslist,
-                    func(reward : Types.Reward) : Bool {
-                        return reward.claimed == false;
-                    },
-                );
-                return #ok(List.toArray<Types.Reward>(unclaimedRewards));
+            case (?_userRewards) {
+                return #ok(_userRewards);
             };
         };
     };
@@ -322,7 +375,7 @@ actor class Rentmase() = this {
         };
     };
 
-/*************************
+    /*************************
     * Internal Transactions
 *************************/
 
@@ -361,7 +414,10 @@ actor class Rentmase() = this {
                     case (#Initiated) {
                         let _actor = actor (tokenCanister) : TokenInterface;
                         let transferArg : Types.TransferFromArgs = {
-                            to = { owner = Principal.fromActor(this); subaccount = null };
+                            to = {
+                                owner = Principal.fromActor(this);
+                                subaccount = null;
+                            };
                             fee = ?10_000;
                             memo = null;
                             from = _txn.transferData.from;
@@ -369,7 +425,7 @@ actor class Rentmase() = this {
                             amount = _txn.transferData.amount;
                             spender_subaccount = null;
                         };
-                        switch (await _actor.icrc2_transfer_from (transferArg)) {
+                        switch (await _actor.icrc2_transfer_from(transferArg)) {
                             case (#Err(err)) {
                                 return #err(handleTransferFromError(err));
                             };
@@ -440,7 +496,7 @@ actor class Rentmase() = this {
         };
     };
 
-    public shared query  ({caller}) func getTxnsByEmail(email : Text) : async [InternalTxn] {
+    public shared query ({ caller }) func getTxnsByEmail(email : Text) : async [InternalTxn] {
         assert (Principal.isController(caller));
         return List.toArray<InternalTxn>(
             List.filter<InternalTxn>(

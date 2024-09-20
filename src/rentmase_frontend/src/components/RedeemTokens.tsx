@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Reward } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import {  Rewards } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import { FC, useEffect, useState } from 'react';
 import { tokensPerReward } from '../constants';
 import { toast } from 'react-toastify';
@@ -79,11 +79,11 @@ const Button = styled.button`
 type Props = {
     openModal: boolean;
     setOpenModal: (open: boolean) => void;
-    unclaimedRewards: Reward[];
+    rewards: Rewards | null;
 }
 
 
-const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, unclaimedRewards }) => {
+const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
     const handleClose = () => setOpenModal(false);
     const { backendActor, isAuthenticated } = useAuth();
     const [rewardAmount, setRewardAmount] = useState("")
@@ -97,7 +97,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, unclaimedRewards }) 
             toast.error("Please fill all fields");
             return;
         }
-        if (parseInt(rewardAmount) > unclaimedRewards.length) {
+        if (parseInt(rewardAmount) > rewards.rewards.length) {
             toast.error("You don't have enough rewards to redeem, Please enter a valid amount");
             return;
         }
@@ -110,17 +110,17 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, unclaimedRewards }) 
         }
         try {
             setRedeemLoading(true);
-            const result = await backendActor.redeemRewards(principal, BigInt(rewardAmount));
-            if ("ok" in result) {
-                toast.success("Tokens Redeemed Successfully");
-                setRedeemLoading(false);
-                handleClose();
-                return;
-            } else {
-                toast.error("Error Redeeming Tokens");
-                setRedeemLoading(false);
-                return;
-            }
+            // const result = await backendActor.redeemRewards(principal, BigInt(rewardAmount));
+            // if ("ok" in result) {
+            //     toast.success("Tokens Redeemed Successfully");
+            //     setRedeemLoading(false);
+            //     handleClose();
+            //     return;
+            // } else {
+            //     toast.error("Error Redeeming Tokens");
+            //     setRedeemLoading(false);
+            //     return;
+            // }
         } catch (error) {
             toast.error("Error Redeeming Tokens");
             setRedeemLoading(false);
@@ -141,7 +141,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, unclaimedRewards }) 
                 <div className="">
                     <h2>Redeem Tokens</h2>
                     <h4>
-                        Available Rewards : {unclaimedRewards.length}, Worth {unclaimedRewards.length * tokensPerReward} REM Tokens
+                        Rewards Worth {Number(rewards.totalAmount)} REM Tokens
                     </h4>
                     <RewardAmountInput type="number"
                         value={rewardAmount}
