@@ -283,12 +283,7 @@ const BuyGift = ({ card, setOpenModal }) => {
   };
 
   const handleBuy = async () => {
-    if (!toEmail || !phoneNumber || !fromnName || !amount || !quantity || !card) {
-      toast("Please fill in all fields");
-      return;
-    }
-
-    if (!isAuthenticated && !identity) {
+    if (!isAuthenticated) {
       toast.error('Please login to continue');
       return;
     }
@@ -296,6 +291,13 @@ const BuyGift = ({ card, setOpenModal }) => {
       toast.error("Please sign up to continue");
       return;
     }
+    
+    if (!toEmail || !phoneNumber || !fromnName || !amount || !quantity || !card) {
+      toast("Please fill in all fields");
+      return;
+    }
+
+  
 
     setLoading(true);
 

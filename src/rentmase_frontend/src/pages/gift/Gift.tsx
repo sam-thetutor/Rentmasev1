@@ -25,16 +25,16 @@ const Gift = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-   (async () => {
-    setLoading(true);
-    const res = await getAccessToken("giftcards-sandbox");
-    if (res) {
-      getCards();
-    } else {
-      setLoading(false);
-    }
-   })();
-  }, [dispatch]);
+    (async () => {
+      setLoading(true);
+      const res = await getAccessToken("giftcards-sandbox");
+      if (res) {
+        getCards();
+      } else {
+        setLoading(false);
+      }
+    })();
+  }, [dispatch, location]);
 
   const getCards = async () => {
     if (location) {

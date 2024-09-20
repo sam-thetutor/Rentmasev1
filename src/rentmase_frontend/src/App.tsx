@@ -32,6 +32,7 @@ import Bills from './pages/bills/Bills';
 import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
 import PurchasesHistory from './components/PurchasesHistory';
+import PrivateRoutes from './PrivateRoutes';
 
 
 function App() {
@@ -47,7 +48,7 @@ function App() {
   //   getTokens();
   // }, []);
 
-  
+
 
 
   useEffect(() => {
@@ -105,32 +106,36 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route element={<PrivateRoutes />}>
+              <Route path="/invite-friends" element={<InviteFriends />} />
+              <Route path="/order-history" element={<OrderHistoryPage orders={orders} />} />
+              <Route path="/purchases-history" element={<PurchasesHistory />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/checkout" element={<Checkout cartItems={cartItems} onRemove={handleRemoveFromCart} onQuantityChange={handleQuantityChange} onCheckout={handleCheckout} />} />
+              <Route path="/rentals" element={<Rentals />} />
+              <Route path="/manage-addresses" element={<ManageAddresses />} />
+              <Route path="/travel-bookings" element={<TravelBookings />} />
+              <Route path="/deliveries" element={<FoodOrders />} />
+            </Route>
             <Route path="/products" element={<Products />} />
-            <Route path="/rentals" element={<Rentals />} />
             <Route path="/food-delivery" element={<FoodDelivery />} />
             <Route path="/restaurants" element={<Restaurants />} />
             <Route path="/restaurant/:id" element={<RestaurantDetail />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout cartItems={cartItems} onRemove={handleRemoveFromCart} onQuantityChange={handleQuantityChange} onCheckout={handleCheckout} />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
             <Route path="/place/:id" element={<PlaceDetail />} />
             <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-            <Route path="/deliveries" element={<FoodOrders />} />
-            <Route path="/manage-addresses" element={<ManageAddresses />} />
-            <Route path="/travel-bookings" element={<TravelBookings />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/invite-friends" element={<InviteFriends />} />
+      
+       
             <Route path="/stay-booking" element={<StayBooking />} />
             <Route path="/shop" element={<Shop addToCart={handleAddToCart} />} />
             <Route path="/product/:id" element={<ShopProductDetails addToCart={handleAddToCart} />} />
-            <Route path="/order-history" element={<OrderHistoryPage orders={orders} />} />
             <Route path="/signup" element={<Register />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/payments" element={<Payments />} />
             <Route path="/payments/bills" element={<Bills />} />
             <Route path="/payments/airtime" element={<Airtime />} />
             <Route path="/payments/gift-cards" element={<Gift />} />
-            <Route path="/purchases-history" element={<PurchasesHistory />} />
             <Route path="*" element={<h1>Not Found</h1>} />
           </Routes>
           <Footer />

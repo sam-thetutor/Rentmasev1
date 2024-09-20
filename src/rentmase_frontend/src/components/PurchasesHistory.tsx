@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getCurrencySymbol, convertPrice } from '../utils/currency';
+import { useAuth } from '../hooks/Context';
+import { useNavigate } from 'react-router-dom';
 
 const PurchasesContainer = styled.div`
   max-width: 1000px;
@@ -65,9 +67,12 @@ const EmptyPurchasesMessage = styled.p`
 `;
 
 const PurchasesHistory = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [purchases, setPurchases] = useState([]);
   const location = ''; // Set to default or pass as needed
   const currencySymbol = getCurrencySymbol(location);
+
 
   useEffect(() => {
     const fetchedPurchases = JSON.parse(localStorage.getItem('purchases')) || [];

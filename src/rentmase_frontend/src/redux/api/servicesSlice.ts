@@ -51,6 +51,19 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    payBill : builder.mutation({
+      query: (data) => ({
+        url: "/pay-bill",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    getBillers: builder.query({
+      query: ({countryCode}) => ({
+        url: `/billers`, 
+        params: {countryCode}, 
+      }),
+    }),
   }),
 });
 
@@ -63,4 +76,6 @@ export const {
   useLazyGetNumberOperatorsQuery,
   useLazyGetCouuntryGiftCardsQuery,
   useBuyGiftCardMutation,
+  usePayBillMutation,
+  useLazyGetBillersQuery,
 } = usersApiSlice;

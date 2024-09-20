@@ -6,6 +6,7 @@ import { tokensPerReward } from '../constants';
 import { Reward, UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import RedeemTokens from '../components/RedeemTokens';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 // Invite Container Styles
 const InviteContainer = styled.div`
@@ -257,6 +258,7 @@ const ModalButton = styled.button`
   }
 `;
 const InviteFriends = () => {
+  const navigate = useNavigate();
   const { user, setUser, isAuthenticated, backendActor } = useAuth();
   const [openModal, setOpenModal] = useState(false);
   const [unclaimedRewards, setUnclaimedRewards] = useState<Reward[]>([]);

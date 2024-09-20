@@ -79,14 +79,14 @@ const services = [
     image: "https://via.placeholder.com/150",
     price: 0,
   },
-  {
-    id: 7,
-    name: "Gift Cards",
-    link: "/gift-cards",
-    description: "Buy gift cards",
-    image: "https://via.placeholder.com/150",
-    price: 0,
-  }
+  // {
+  //   id: 7,
+  //   name: "Bills",
+  //   link: "/bills",
+  //   description: "Pay bills",
+  //   image: "https://via.placeholder.com/150",
+  //   price: 0,
+  // }
 ];
 
 
