@@ -6,6 +6,7 @@ import {  Rewards, UserUpdatePayload } from '../../../declarations/rentmase_back
 import RedeemTokens from '../components/RedeemTokens';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { frontendUrl } from '../constants';
 
 // Invite Container Styles
 const InviteContainer = styled.div`
@@ -341,7 +342,7 @@ const InviteFriends = () => {
 
         <ReferralTitle>Your referral link</ReferralTitle>
         <ReferralCode>https://rentmase.com/signup?invite={user?.referralCode}</ReferralCode>
-        <CopyButton onClick={() => handleCopy(`https://rentmase.com/signup?invite=${user?.referralCode}`, setCopyLinkStatus)}>
+        <CopyButton onClick={() => handleCopy(`${frontendUrl}/signup?invite=${user?.referralCode}`, setCopyLinkStatus)}>
           {copyLinkStatus}
         </CopyButton>
 

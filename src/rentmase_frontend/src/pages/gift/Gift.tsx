@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import styled from 'styled-components';
 import GiftCard from "./Card";
 import { useAuth } from "../../hooks/Context";
-import { getAccessToken } from "../../hooks/requests";
+import { getAccessToken, getCountryGiftCards } from "../../hooks/requests";
 
 const CardsContainer = styled.div`
   display: flex;
@@ -36,16 +36,19 @@ const Gift = () => {
   }, [dispatch, location]);
 
   const getCards = async () => {
-    if (location) {
-      fetchCards({ countryCode: location.isoName }).unwrap().then((res) => {
-        setCards(res);
-        setLoading(false);
-      })
-        .catch((error) => {
-          setLoading(false);
-          console.error("Error fetching gift cards: ", error);
-        });
-    }
+    // if (location) {
+    //   fetchCards({ countryCode: location.isoName }).unwrap().then((res) => {
+    //     setCards(res);
+    //     setLoading(false);
+    //   })
+    //     .catch((error) => {
+    //       setLoading(false);
+    //       console.error("Error fetching gift cards: ", error);
+    //     });
+    // }
+    if (!location) { return }
+    const res = await getCountryGiftCards(location.isoName)
+    console.log("gift cards", res)
   }
 
   return (
