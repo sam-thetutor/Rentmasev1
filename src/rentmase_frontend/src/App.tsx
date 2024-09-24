@@ -125,8 +125,6 @@ function App() {
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
             <Route path="/place/:id" element={<PlaceDetail />} />
             <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-      
-       
             <Route path="/stay-booking" element={<StayBooking />} />
             <Route path="/shop" element={<Shop addToCart={handleAddToCart} />} />
             <Route path="/product/:id" element={<ShopProductDetails addToCart={handleAddToCart} />} />
