@@ -25,8 +25,8 @@ const List = styled.div`
   display: flex;
   justify-content: flex-start;
   gap: 20px;
-  padding-left: 60px;
-  padding-right: 60px;
+  padding-left: 25px;
+  padding-right: 25px;
   scroll-behavior: smooth;
   overflow-x: auto;
 
@@ -36,8 +36,10 @@ const List = styled.div`
 `;
 
 const InspirationItemWrapper = styled.div`
-  min-width: 220px; /* Adjust this to control the item width */
-  flex-shrink: 0;
+   /* Adjust this to control the item width */
+  
+  max-width: 270px;
+   flex-shrink: 0;
    font-size: 18px;
   font-family: 'Poppins', sans-serif;
 `;
@@ -232,11 +234,11 @@ const InspirationComponent = () => {
   };
 
   const scrollLeft = () => {
-    listRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    listRef.current.scrollBy({ left: -290, behavior: 'smooth' });
   };
 
   const scrollRight = () => {
-    listRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    listRef.current.scrollBy({ left: 290, behavior: 'smooth' });
   };
 
   const toggleFavorite = (item) => {

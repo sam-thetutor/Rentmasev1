@@ -21,15 +21,15 @@ const GridContainer = styled.div`
   @media (max-width: 768px) {
     flex-wrap: nowrap; /* Prevent wrapping on small screens */
     justify-content: space-between; /* Distribute space equally */
-    padding: 5px; /* Adjust padding for smaller screens */
-    gap: 3px; /* Reduce gap between elements */
+    padding: 1px; /* Adjust padding for smaller screens */
+    gap: 0px; /* Reduce gap between elements */
   }
 `;
 
 const CategoryCard = styled(Link)`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
   background-color: transparent;
   border-radius: 30px;
   padding: 10px 20px;
@@ -49,7 +49,7 @@ const CategoryCard = styled(Link)`
 
   @media (max-width: 768px) {
     padding: 5px 8px; /* Smaller padding on small screens */
-    gap: 5px; /* Reduce gap between icon and text */
+    gap: px; /* Reduce gap between icon and text */
   }
 `;
 
@@ -63,18 +63,18 @@ const IconContainer = styled.div`
   background-color: #008DD5;
 
   @media (max-width: 768px) {
-    width: 20px; /* Even smaller on small screens */
-    height: 20px;
+    width: 16px; /* Even smaller on small screens */
+    height: 16px;
   }
 `;
 
 const StyledIcon = styled.div`
   color: white;
-  font-size: 14px;
+  font-size: 12px;
   MARGIN-TOP:1PX;
 
   @media (max-width: 768px) {
-    font-size: 12px; /* Smaller icon size on small screens */
+    font-size: 10px; /* Smaller icon size on small screens */
   }
 `;
 
@@ -85,18 +85,18 @@ const CategoryTitle = styled.h3`
   font-family: 'Poppins', sans-serif;
 
   @media (max-width: 768px) {
-    font-size: 0.65rem; /* Further reduce font size on small screens */
+    font-size: 0.6rem; /* Further reduce font size on small screens */
   }
 `;
 
 // Define the categories data
 const categories = [
-  { id: 1, icon: <FaMoneyBillWave />, title: 'Cashbacks', link: '/' },
+  { id: 1, icon: <FaMoneyBillWave />, title: 'Cashbacks', link: '/payments/gift-cards' },
   { id: 2, icon: <FaTags />, title: 'Discounts', link: '/payments' },
   { id: 3, icon: <FaUtensils />, title: 'Eat', link: '/food-delivery' },
   { id: 4, icon: <FaShoppingCart />, title: 'Retail', link: '/shop' },
   { id: 5, icon: <FaBed />, title: 'Stay', link: '/stay-booking' },
-  { id: 6, icon: <GiBuyCard />, title: 'Buy', link: '/payments' },
+  // { id: 6, icon: <GiBuyCard />, title: 'Buy', link: '/payments' },
 ];
 
 const CategoryGrid = () => {
