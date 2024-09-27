@@ -5,13 +5,13 @@ import { CountryData } from "../../pages/airtime/types";
 export interface GlobalState {
   location: LocationType | null;
   audience: string;
-  countries: CountryData[];
+  countries: CountryData[] | null;
 }
 
 const initialState: GlobalState = {
   location: null,
   audience: "topups-sandbox",
-  countries: [],
+  countries: null,
 };
 
 export const appSlice = createSlice({

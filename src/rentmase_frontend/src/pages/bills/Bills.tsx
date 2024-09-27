@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAccessToken } from '../../hooks/requests';
 import { useLazyGetBillersQuery } from '../../redux/api/servicesSlice';
 import { RootState } from '../../redux/store';
+import { utilities_audience } from '../../constants';
 
 const Bills = () => {
   const dispatch = useDispatch();
@@ -14,7 +15,7 @@ const Bills = () => {
   useEffect(() => {
     (async () => {
      setLoading(true);
-     const res = await getAccessToken("utilities-sandbox");
+     const res = await getAccessToken(utilities_audience);
      if (res && location) {
        getBillers();
      } else {

@@ -264,10 +264,10 @@ const InviteFriends = () => {
   const [rewards, setRewards] = useState<Rewards | null>(null);
   const [customCode, setCustomCode] = useState<string>("");
   const [saving, setSaving] = useState(false);
-  const [copyStatus, setCopyStatus] = useState('Copy'); // State to track the copy status
-  const [copyLinkStatus, setCopyLinkStatus] = useState('Copy'); // State for the referral link copy
-  const [modalTask, setModalTask] = useState(""); // Track the task for which the link is submitted
-  const [link, setLink] = useState(""); // Input field for link submission
+  const [copyStatus, setCopyStatus] = useState('Copy'); 
+  const [copyLinkStatus, setCopyLinkStatus] = useState('Copy'); 
+  const [modalTask, setModalTask] = useState(""); 
+  const [link, setLink] = useState("");
   useEffect(() => {
     if (isAuthenticated && backendActor) {
       (async () => {
@@ -341,7 +341,7 @@ const InviteFriends = () => {
         </CopyButton>
 
         <ReferralTitle>Your referral link</ReferralTitle>
-        <ReferralCode>https://rentmase.com/signup?invite={user?.referralCode}</ReferralCode>
+        <ReferralCode>{frontendUrl}/signup?invite={user?.referralCode}</ReferralCode>
         <CopyButton onClick={() => handleCopy(`${frontendUrl}/signup?invite=${user?.referralCode}`, setCopyLinkStatus)}>
           {copyLinkStatus}
         </CopyButton>
@@ -377,7 +377,7 @@ const InviteFriends = () => {
         <StatItem>
           <StatTitle>Available $RENT</StatTitle>
           <StatValue>{rewards?.rewards.length}</StatValue>
-          <p>Worth: {Number(rewards?.totalAmount)} REM</p>
+          <p>Worth: {Number(rewards?.balance)} REM</p>
           <RedeemButton onClick={() => setOpenModal(true)} disabled>Redeem</RedeemButton>
         </StatItem>
       </StatsSection>

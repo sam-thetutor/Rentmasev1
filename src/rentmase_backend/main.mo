@@ -14,10 +14,11 @@ actor class Rentmase() = this {
     type InternalTxn = Types.InternalTxn;
     type TxnPayload = Types.TxnPayload;
 
-    var referralRewardAmnt = 100;
+    var signupRewardAmnt = 100;
+    var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "bw4dl-smaaa-aaaaa-qaacq-cai";
+    let tokenCanister = "a4tbr-q4aaa-aaaaa-qaafq-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
@@ -71,7 +72,8 @@ actor class Rentmase() = this {
                                     userName = _user.firstName # " " # _user.lastName;
                                     userReferralCode = _user.referralCode;
                                     rewards = [#Referral(referralReward)];
-                                    totalAmount = referralRewardAmnt;
+                                    totalAmountEarned = referralRewardAmnt;
+                                    balance = referralRewardAmnt;
                                     created = Time.now();
                                 };
                                 rewards := List.push<Types.Rewards>(reward, rewards);
@@ -83,7 +85,8 @@ actor class Rentmase() = this {
                                 let updatedRewards : Types.Rewards = {
                                     _rewards with
                                     rewards = List.toArray<Types.RewardType>(rewardsList);
-                                    totalAmount = _rewards.totalAmount + referralRewardAmnt;
+                                    totalAmountEarned = _rewards.totalAmountEarned + referralRewardAmnt;
+                                    balance = _rewards.balance + referralRewardAmnt;
                                 };
                                 func updateRewards(r : Types.Rewards) : Types.Rewards {
                                     if (r.user == _rewards.user) {
@@ -118,6 +121,22 @@ actor class Rentmase() = this {
             email = payload.email;
             createdAt = Time.now();
         };
+
+        let _signupReward : Types.SignupReward = {
+            amount = signupRewardAmnt;
+            timestamp = Time.now();
+        };
+
+        let reward : Types.Rewards = {
+            user = id;
+            userName = payload.firstName # " " # payload.lastName;
+            userReferralCode = payload.referralCode;
+            rewards = [#Signup(_signupReward)];
+            totalAmountEarned = signupRewardAmnt;
+            balance = signupRewardAmnt;
+            created = Time.now();
+        };
+        rewards := List.push<Types.Rewards>(reward, rewards);
         users := List.push<User>(user, users);
         return user;
     };

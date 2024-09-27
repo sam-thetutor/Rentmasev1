@@ -7,6 +7,7 @@ import LocationButton from './LocationButton';
 import SlideMenu from './SlideMenu';
 import LoginModal from './LoginModal';
 import { useAuth } from '../hooks/Context';
+import { ConnectWallet } from "@nfid/identitykit/react"
 
 const NavbarContainer = styled.nav`
   display: flex;
@@ -126,6 +127,33 @@ const Button = styled.button`
   }
 `;
 
+const ButtonLink = styled(Link)`
+  background-color: #008DD5;
+  border: none;
+  color: white;
+  padding: 10px 25px;
+  margin-left: 10px;
+  cursor: pointer;
+  border: 2px solid #008DD5;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: white;
+    color: #008DD5;
+    border-color: #008DD5;
+  }
+
+  @media (max-width: 768px) {
+    width: 20%;
+    text-align: center;
+  }
+`;
+
+
 const LearderBorderLink = styled(Link)`
   padding: 10px 20px;
   margin-left: 10px;
@@ -155,10 +183,11 @@ const LearderBorderLink = styled(Link)`
 
 const Navbar = () => {
   const [openModal, setOpenModal] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <NavbarContainer>
+         <ConnectWallet />;
       <LeftContainer>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'black' }}>
           <Logo src="/images/logoB.svg" alt="Logo" />
@@ -170,10 +199,13 @@ const Navbar = () => {
       <CenterContainer>
         <RentmaseText>rentmase</RentmaseText>
       </CenterContainer>
+   
       <RightContainer>
         <LearderBorderLink to="leaderboard">Leaderboard</LearderBorderLink>
         {isAuthenticated ? (
-          <SlideMenu />
+          <>
+          {user ? <SlideMenu /> : <ButtonLink to="/signup">Sign Up</ButtonLink>}
+          </>
         ) : (
           <Button onClick={() => setOpenModal(true)}>Login</Button>
         )}

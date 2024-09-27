@@ -99,7 +99,7 @@ const PhoneNumberForm: FC<Props> = ({ setComponent, selectedCountry, setPhoneNum
     const { location , countries } = useSelector((state: RootState) => state.app);
     
     useEffect(() => {
-        if (countries) {
+        if (countries && location) {
             const country = countries.find((country: CountryData) => country.name === location.country);
             if (country) {
                 setSelectedCountry(country);
@@ -107,7 +107,7 @@ const PhoneNumberForm: FC<Props> = ({ setComponent, selectedCountry, setPhoneNum
                 setSelectedCountry(countries[0]);
             }
         }
-    }, [countries]);
+    }, [countries, location, setSelectedCountry]);
 
 
 
@@ -140,7 +140,7 @@ const PhoneNumberForm: FC<Props> = ({ setComponent, selectedCountry, setPhoneNum
                         value={selectedCountry?.callingCodes[0] || ''}
                         onChange={handleCountryChange}
                     >
-                        {countries.map((country, index) => (
+                        {countries?.map((country, index) => (
                             <option key={index} value={country.callingCodes[0]}>
                                 {country.isoName} ({country.callingCodes[0]})
                             </option>

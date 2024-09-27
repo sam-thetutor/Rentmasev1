@@ -69,6 +69,14 @@ const Button = styled.button`
   }
 `;
 
+
+const Label = styled.label`
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 4px;
+`;
+
+
 type Props = {
     phoneNumber: string;
     selectedCountry: CountryData | null;
@@ -131,6 +139,10 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             toast.error("Please sign up to continue");
             return;
         }
+        if (amount < operator.minAmount || amount > operator.maxAmount) {
+            toast.error(`Please enter an amount between ${operator.minAmount} and ${operator.maxAmount}`);
+            return;
+        }
 
         setBuyingAirtime(true);
 
@@ -186,6 +198,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                 return
             }
         } else {
+            setBuyingAirtime(false);
             console.log("Error", res);
             toast.error('Airtime top up failed');
             return
@@ -213,6 +226,11 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             </OperatorSection>
 
             {showOperators ? null : <Button onClick={handleCheckOtherOperators}>Check other operators</Button>}
+            
+            
+            {operator?.minAmount && operator?.maxAmount && <Label htmlFor="amount">
+                  Select an amount between {operator.destinationCurrencyCode} {operator.minAmount} and {operator.destinationCurrencyCode} {operator.maxAmount}
+                </Label>}
 
             <AirtimeInput
                 type="number"

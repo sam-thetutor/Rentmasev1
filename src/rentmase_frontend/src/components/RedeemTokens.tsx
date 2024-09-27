@@ -141,7 +141,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
                 <div className="">
                     <h2>Redeem Tokens</h2>
                     <h4>
-                        Rewards Worth {Number(rewards.totalAmount)} REM Tokens
+                        Rewards Worth {Number(rewards.balance)} REM Tokens
                     </h4>
                     <RewardAmountInput type="number"
                         value={rewardAmount}

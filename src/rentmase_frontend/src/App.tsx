@@ -33,10 +33,24 @@ import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
 import PurchasesHistory from './components/PurchasesHistory';
 import PrivateRoutes from './PrivateRoutes';
+import { setCountries } from './redux/slices/app';
+import { useDispatch } from 'react-redux';
 
 
 function App() {
   const { backendActor, isAuthenticated, setUser } = useAuth();
+  const dispatch = useDispatch();
+
+    useEffect(() => {
+        getCountries();
+    }, []);
+
+
+    const getCountries = async () => {
+        const response = await fetch(`https://topups.reloadly.com/countries`);
+        const data = await response.json();
+        dispatch(setCountries(data));
+    };
 
 
   // const getTokens = async () => {

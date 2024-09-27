@@ -5,6 +5,7 @@ import Operators from "./Operators";
 import { CountryData } from "./types";
 import { useDispatch } from "react-redux";
 import { getAccessToken } from "../../hooks/requests";
+import { topus_audience } from "../../constants";
 
 
 
@@ -13,7 +14,7 @@ const Airtime = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    (async () => { await getAccessToken("topups-sandbox"); })();
+    (async () => { await getAccessToken(topus_audience); })();
   }, [dispatch]);
 
   const [phoneNumber, setPhoneNumber] = useState("");

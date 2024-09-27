@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../hooks/Context';
 import { tokensPerReward } from '../constants';
-import { Rewards } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { Rewards, RewardType } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 
 const LeaderboardContainer = styled.div`
   max-width: 1200px;
@@ -121,6 +121,16 @@ const Leaderboard = () => {
     const top10Users = rewards.slice(0, 10);
     const userRank = rewards.findIndex((u) => u.user.toString() === user?.id.toString()) + 1;
 
+    const calcultateUsersReferred = (_rewards: RewardType[]) => {
+      let referredUsers = 0;
+      _rewards.forEach((reward) => {
+        if ('Referral' in reward) {
+          referredUsers += 1;
+        }
+      });
+      return referredUsers;
+    };
+
     return (
       <>
         {/* Display Top 10 rewards */}
@@ -133,8 +143,8 @@ const Leaderboard = () => {
               </TrophyWrapper>
             </TableData>
             <TableData>{userReward.userName}</TableData>
-            <TableData>{Number(userReward.totalAmount)}</TableData>
-            <TableData>{userReward.rewards.length}</TableData>
+            <TableData>{Number(userReward.totalAmountEarned)}</TableData>
+            <TableData>{calcultateUsersReferred(userReward.rewards)}</TableData>
           </TableRow>
         ))}
 
@@ -157,7 +167,7 @@ const Leaderboard = () => {
               </TrophyWrapper>
             </TableData>
             <TableData>{currentReward.userName}</TableData>
-            <TableData>{Number(currentReward.totalAmount)}</TableData>
+            <TableData>{Number(currentReward.totalAmountEarned)}</TableData>
             <TableData>{currentReward.rewards.length}</TableData>
           </TableRow>
         )}

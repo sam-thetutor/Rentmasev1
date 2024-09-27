@@ -67,10 +67,8 @@ const EmptyPurchasesMessage = styled.p`
 `;
 
 const PurchasesHistory = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
   const [purchases, setPurchases] = useState([]);
-  const location = ''; // Set to default or pass as needed
+  const location = ''; 
   const currencySymbol = getCurrencySymbol(location);
 
 

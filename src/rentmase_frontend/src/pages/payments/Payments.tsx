@@ -91,21 +91,6 @@ const services = [
 
 
 const Payments = () => {
-  const { location } = useSelector((state: RootState) => state.app);
-  const dispatch = useDispatch();
-
-    useEffect(() => {
-        if (location) {
-            getCountries();
-        }
-    }, [location]);
-
-    const getCountries = async () => {
-        const response = await fetch("https://topups.reloadly.com/countries");
-        const data = await response.json();
-        dispatch(setCountries(data));
-    };
-
   return (
     <div><Title>
       Top up airtime and data, pay bills, and buy gift cards

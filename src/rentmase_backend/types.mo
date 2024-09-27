@@ -43,14 +43,21 @@ module {
         user : Principal;
         userName : Text;
         rewards : [RewardType];
-        totalAmount : Nat;
+        totalAmountEarned : Nat;
+        balance : Nat;
         created : Time.Time;
     };
 
     public type RewardType = {
+        #Signup : SignupReward;
         #Referral : ReferralReward;
         #SocialShare : SocialShareReward;
         #ReviewReward : ReviewReward;
+    };
+
+    public type SignupReward = {
+        amount : Nat;
+        timestamp : Time.Time;
     };
 
     public type ReferralReward = {

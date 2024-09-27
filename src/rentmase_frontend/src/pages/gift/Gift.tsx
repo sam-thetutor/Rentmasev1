@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import styled from 'styled-components';
 import GiftCard from "./Card";
 import { getAccessToken } from "../../hooks/requests";
+import { giftcards_audience } from "../../constants";
 
 const CardsContainer = styled.div`
   display: flex;
@@ -25,7 +26,7 @@ const Gift = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const res = await getAccessToken("giftcards-sandbox");
+      const res = await getAccessToken(giftcards_audience);
       if (res) {
         getCards();
       } else {
