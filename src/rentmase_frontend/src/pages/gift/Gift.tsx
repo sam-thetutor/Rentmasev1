@@ -11,8 +11,15 @@ const CardsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  background-color: white;
-  padding: 20px;
+  background-color: transparent;
+  padding: 40px;
+  gap: 20px; /* Spacing between cards */
+`;
+
+const LoadingMessage = styled.div`
+  font-size: 18px;
+  color: #008DD5;
+  margin: 20px;
 `;
 
 const Gift = () => {
@@ -49,13 +56,14 @@ const Gift = () => {
   }
 
   return (
-
     <CardsContainer>
-      {loading ? <div>Loading...</div> : <>{cards?.map((card, index) => (
-        <GiftCard key={index} {...card} />
-      ))}</>}
+      {loading ? <LoadingMessage>Loading...</LoadingMessage> : 
+        cards?.map((card, index) => (
+          <GiftCard key={index} {...card} />
+        ))
+      }
     </CardsContainer>
   )
 }
 
-export default Gift
+export default Gift;

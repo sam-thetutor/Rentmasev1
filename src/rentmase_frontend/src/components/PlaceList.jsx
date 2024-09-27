@@ -14,8 +14,8 @@ const List = styled.div`
   display: flex;
   justify-content: flex-start; /* Ensure that items are properly aligned */
   gap: 20px; /* Add a gap between the items */
-  padding-left: 60px; /* Adjust left padding to show the first item */
-  padding-right: 60px; /* Adjust right padding to show the last item */
+  padding-left: 10px; /* Adjust left padding to show the first item */
+  padding-right: 10px; /* Adjust right padding to show the last item */
   scroll-behavior: smooth;
   overflow-x: auto;
 

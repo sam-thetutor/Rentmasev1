@@ -8,6 +8,8 @@ import placesData from '../data/places';
 import InspirationComponent from '../components/InspirationComponent';
 import RestaurantCarousel from './RestaurantCarousel';
 import ProductCarousel from '../components/ProductCarousel';
+import GiftList from './gift/GiftList';
+import GridPayments from './payments/GridPayments';
 
 const HomeContainer = styled.div`
   padding: 40px 20px;
@@ -58,8 +60,10 @@ const Home = () => {
         Welcome to RentMase.
       </HomeDescription>
       <HomeTitle>World's First Fully Decentralized SuperApp</HomeTitle>
-      
-      
+      <SectionTitle>Buy Gift Cards and EARN Cashbacks!!!</SectionTitle>
+      <GiftList />
+
+      <GridPayments />
       {/* Optionally enable the search form */}
       {/* <SearchForm onSearch={handleSearch} /> */}
       

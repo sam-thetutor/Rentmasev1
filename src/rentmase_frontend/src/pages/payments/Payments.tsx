@@ -1,65 +1,28 @@
 import styled from "styled-components";
-import { useAuth } from "../../hooks/Context";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import ProductCard from "../../components/ProductCard";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import BuyProductCard from "./BuyProductCard";
-import { link } from "fs";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setCountries } from "../../redux/slices/app";
-import { CountryData } from "../airtime/types";
 
+// Styled components
 const Title = styled.h1`
-    font-family: Arial, sans-serif;
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-    align-self: center;
-    `;
-
-const CarouselContainer = styled.div`
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  padding: 20px 0;
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  align-self: center;
 `;
 
-const List = styled.div`
-  display: flex;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-`;
-
-const ArrowButton = styled.button`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  padding: 10px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.7);
-    outline: 2px solid #00B5E2;
-  }
-
-  &:first-of-type {
-    left: 10px;
-  }
-
-  &:last-of-type {
-    right: 10px;
-  }
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 330px)); /* Responsive grid */
+  gap: 40px; /* Space between grid items */
+  padding: 20px;
+  justify-content: center; /* Center the grid horizontally */
+  align-items: center; /* Center the content vertically */
+  max-width: 1000px; /* Limit the width */
+  margin: 0 auto; /* Center the grid on the page */
 `;
 
 const services = [
@@ -68,55 +31,45 @@ const services = [
     name: "Airtime Top Up",
     link: "/airtime",
     description: "Top up your airtime",
-    image: "https://via.placeholder.com/150",
+    image: "/images/topup.jpg", // Public folder path
     price: 0,
   },
   {
-    id: 6,
+    id: 2,
     name: "Gift Cards",
     link: "/gift-cards",
     description: "Buy gift cards",
-    image: "https://via.placeholder.com/150",
+    image: "/images/gift-cards.jpg", // Public folder path
     price: 0,
   },
-  // {
-  //   id: 7,
-  //   name: "Bills",
-  //   link: "/bills",
-  //   description: "Pay bills",
-  //   image: "https://via.placeholder.com/150",
-  //   price: 0,
-  // }
 ];
 
-
 const Payments = () => {
-  return (
-    <div><Title>
-      Top up airtime and data, pay bills, and buy gift cards
-    </Title>
-      <CarouselContainer>
-        <ArrowButton
-        //  onClick={scrollLeft } 
-        >
-          <FaChevronLeft />
-        </ArrowButton>
-        <List >
-          {services.map((product) => (
-            <BuyProductCard
-              key={product.id}
-              product={product}
-            />
-          ))}
-        </List>
-        <ArrowButton
-        //   onClick={scrollRight}
-        >
-          <FaChevronRight />
-        </ArrowButton>
-      </CarouselContainer>
-    </div>
-  )
-}
+  const { location } = useSelector((state: RootState) => state.app);
+  const dispatch = useDispatch();
 
-export default Payments
+  useEffect(() => {
+    if (location) {
+      getCountries();
+    }
+  }, [location]);
+
+  const getCountries = async () => {
+    const response = await fetch("https://topups.reloadly.com/countries");
+    const data = await response.json();
+    dispatch(setCountries(data));
+  };
+
+  return (
+    <div>
+      <Title>Top up airtime and data at discounted prices and buy gift cards and earn cashbacks</Title>
+      <GridContainer>
+        {services.map((product) => (
+          <BuyProductCard key={product.id} product={product} />
+        ))}
+      </GridContainer>
+    </div>
+  );
+};
+
+export default Payments;

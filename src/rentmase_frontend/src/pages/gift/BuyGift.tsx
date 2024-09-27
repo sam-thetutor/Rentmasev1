@@ -66,12 +66,12 @@ const AmountButton = styled.button<AmountProps>`
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: ${props => props.active ? '#00FF00' : 'white'};
+  background-color: ${props => props.active ? '#008DD5' : 'white'};
   color: ${props => props.active ? 'white' : '#333'};
   cursor: pointer;
   
   &:hover {
-    background-color: #00FF00;
+    background-color: #008DD5;
     color: white;
   }
 `;
@@ -97,12 +97,12 @@ const Button = styled.button`
   font-size: 16px;
   border: none;
   border-radius: 4px;
-  background-color: #6200ea;
+  background-color: #008DD5;
   color: white;
   cursor: pointer;
 
   &:hover {
-    background-color: #5300d1;
+    background-color: #0072B0;
   }
 `;
 
@@ -118,7 +118,7 @@ const BackButton = styled(Button)`
 
 const RedeemLink = styled.a`
   font-size: 14px;
-  color: #6200ea;
+  color: #008DD5;
   cursor: pointer;
 
   &:hover {
@@ -386,7 +386,7 @@ const BuyGift = ({ card, setOpenModal }) => {
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={handleClose}>&times;</CloseButton>
         <Container>
-          <BackButton onClick={() => navigate(-1)}>Back</BackButton>
+          {/* <BackButton onClick={() => navigate(-1)}>Back</BackButton> */}
           <ImageContainer>
             <Image src={card.logoUrls[0]} alt={card.productName} />
           </ImageContainer>
@@ -485,7 +485,7 @@ const BuyGift = ({ card, setOpenModal }) => {
             </Button>
           </Form>
 
-          <RedeemLink href="#">See Redeem Instructions</RedeemLink>
+          {/* <RedeemLink href="#">See Redeem Instructions</RedeemLink> */}
         </Container>
       </ModalContent>
     </ModalBackdrop>

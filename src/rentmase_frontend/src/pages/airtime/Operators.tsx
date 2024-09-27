@@ -57,7 +57,7 @@ const AirtimeInput = styled.input`
 const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #4caf50;
+  background-color: #008DD5;
   color: white;
   border: none;
   border-radius: 8px;
@@ -240,7 +240,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             />
 
             <div>
-                <Button onClick={handleBack} style={{ backgroundColor: '#f44336' }}>Back</Button>
+                <Button onClick={handleBack} style={{ backgroundColor: '#D50000' }}>Cancel</Button>
                 <Button onClick={handleTopUp}>
                     {buyingAirtime ? 'Processing...' : 'Top up'}
                 </Button>
