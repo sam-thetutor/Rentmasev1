@@ -100,12 +100,19 @@ const Title = styled.h1`
   margin-bottom: 30px;
 `;
 
+const WalletBalanceDiv = styled.div`
+  font-size: 18px;
+  color: #008DD5;
+  margin: 20px;
+`;
+
 const Profile = () => {
-  const { user, isAuthenticated, backendActor } = useAuth();
+  const { user, isAuthenticated, backendActor, tokenCanister } = useAuth();
   const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState( '');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [saving , setSaving] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   const [gender, setGender] = useState('');
   const [birthday, setBirthday] = useState('');
@@ -113,29 +120,45 @@ const Profile = () => {
 
   useEffect(() => {
     if (isAuthenticated && !user) {
-        navigate('/signup');
+      navigate('/signup');
     }
-}, [user, isAuthenticated]);
+  }, [user, isAuthenticated]);
+
+  useEffect(() => {
+    if (user && tokenCanister) {
+      getBalance();
+    }
+  }, [user, tokenCanister]);
+
+  const getBalance = async () => {
+    const balance = await tokenCanister.icrc1_balance_of({
+      owner: user.id,
+      subaccount: []
+    });
+    console.log("Balance: ", balance);
+    setWalletBalance(Number(balance));
+  }
 
   useEffect(() => {
     if (user) {
       setFirstName(user.firstName);
       setLastName(user.lastName);
       setEmail(user.email);
-      setGender(user.gender[0]);  }
+      setGender(user.gender[0]);
+    }
   }, [user]);
 
   const dobInNanoSeconds = new Date(birthday).getTime() * 1000000;
 
   const handleUpdate = async () => {
     setSaving(true);
-    const userPayload : UserUpdatePayload = {
+    const userPayload: UserUpdatePayload = {
       firstName,
       lastName,
       email,
       dob: birthday ? [BigInt(dobInNanoSeconds)] : user.dob,
       refferalCode: user.referralCode,
-      gender :gender ? [gender] : user.gender,
+      gender: gender ? [gender] : user.gender,
     };
     await backendActor.updateProfile(userPayload);
     toast.success('Profile updated successfully');
@@ -188,7 +211,18 @@ const Profile = () => {
         <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
         <NavigationButton onClick={() => navigate('/travel-bookings')}>Bookings</NavigationButton>
         <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
+        <div className="">
+          <WalletBalanceDiv>Wallet Balance: { }
+            {walletBalance / 100_000_000} RENT
+          </WalletBalanceDiv>
+          <h5>
+            Principal  : {user?.id.toString()}
+          </h5>
+        </div>
+
+
       </ProfileContainer>
+
     </div>
   );
 };

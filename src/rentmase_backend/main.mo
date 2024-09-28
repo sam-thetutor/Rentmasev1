@@ -6,6 +6,9 @@ import Bool "mo:base/Bool";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Int "mo:base/Int";
+import Float "mo:base/Float";
+import Int64 "mo:base/Int64";
+import Debug "mo:base/Debug";
 import Types "types";
 
 actor class Rentmase() = this {
@@ -18,7 +21,7 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "a4tbr-q4aaa-aaaaa-qaafq-cai";
+    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
@@ -215,113 +218,128 @@ actor class Rentmase() = this {
         return List.toArray<User>(users);
     };
 
-    // public shared query func getPublicUsers() : async [Types.PublicUser] {
-    //     return List.toArray(
-    //         List.map<User, Types.PublicUser>(
-    //             users,
-    //             func(user : User) : Types.PublicUser {
-    //                 return {
-    //                     id = user.id;
-    //                     firstName = user.firstName;
-    //                     lastName = user.lastName;
-    //                     referrals = user.referrals;
-    //                     rewards = user.rewards;
-    //                 };
-    //             },
-    //         )
-    //     );
-    // };
+    public shared query func getPublicUsers() : async [Types.PublicUser] {
+        return List.toArray(
+            List.map<User, Types.PublicUser>(
+                users,
+                func(user : User) : Types.PublicUser {
+                    return {
+                        id = user.id;
+                        firstName = user.firstName;
+                        lastName = user.lastName;
+                        referrals = user.referrals;
+                    };
+                },
+            )
+        );
+    };
 
-    // public shared ({ caller }) func redeemRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
-    //     let user = List.find<User>(
-    //         users,
-    //         func(user : User) : Bool {
-    //             return user.id == caller;
-    //         },
-    //     );
-    //     switch (user) {
-    //         case (null) {
-    //             return #err("User not found");
-    //         };
-    //         case (?_user) {
-    //             let rewardslist = List.fromArray<Types.Reward>(_user.rewards);
-    //             let _claimedRewards = List.filter<Types.Reward>(
-    //                 rewardslist,
-    //                 func(reward : Types.Reward) : Bool {
-    //                     return reward.claimed == true;
-    //                 },
-    //             );
-    //             let unclaimedRewards = List.filter<Types.Reward>(
-    //                 rewardslist,
-    //                 func(reward : Types.Reward) : Bool {
-    //                     return reward.claimed == false;
-    //                 },
-    //             );
-    //             let unclaimedSize = List.size<Types.Reward>(unclaimedRewards);
-    //             if (unclaimedSize < amount) {
-    //                 return #err("Insufficient rewards, " # Nat.toText(unclaimedSize) # " rewards available");
-    //             };
-    //             let tobeClaimedRewards = List.take<Types.Reward>(unclaimedRewards, amount);
-    //             switch (await transferRewards(wallet, amount * referralReward)) {
-    //                 case (#err(err)) {
-    //                     return #err(err);
-    //                 };
-    //                 case (#ok(_)) {
-    //                     let claimedRewards = List.map<Types.Reward, Types.Reward>(
-    //                         tobeClaimedRewards,
-    //                         func(reward : Types.Reward) : Types.Reward {
-    //                             return {
-    //                                 reward with claimed = true;
-    //                                 claimedAt = ?Time.now();
-    //                             };
-    //                         },
-    //                     );
-    //                     let remainingRewards = List.drop<Types.Reward>(unclaimedRewards, amount);
-    //                     let combinedRewards = List.append<Types.Reward>(claimedRewards, remainingRewards);
-    //                     let updatedRewards = List.append<Types.Reward>(combinedRewards, _claimedRewards);
-    //                     let updatedUser : User = {
-    //                         _user with
-    //                         rewards = List.toArray<Types.Reward>(updatedRewards);
-    //                     };
-    //                     func updateUser(u : User) : User {
-    //                         if (u.id == _user.id) {
-    //                             return updatedUser;
-    //                         } else {
-    //                             return u;
-    //                         };
-    //                     };
-    //                     users := List.map(users, updateUser);
-    //                     return #ok(());
-    //                 };
-    //             };
-    //             return #ok(());
-    //         };
-    //     };
-    // };
+    public shared ({ caller }) func redeemRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
+     let userRewards = List.find<Types.Rewards>(
+            rewards,
+            func(reward : Types.Rewards) : Bool {
+                return reward.user == caller;
+            },
+        );
+        switch (userRewards) {
+            case (null) {
+                return #err("User has no rewards");
+            };
+            case (?_userRewards) {
+                if (_userRewards.balance < amount) {
+                    return #err("Insufficient balance");
+                };
+                let _actor = actor (tokenCanister) : TokenInterface;
+                let transferArg : Types.TransferArg = {
+                    to = { owner = wallet; subaccount = null };
+                    fee = null;
+                    memo = null;
+                    from_subaccount = null;
+                    created_at_time = null;
+                    amount = amount * tokenDecimals;
+                };
+                switch (await _actor.icrc1_transfer(transferArg)) {
+                    case (#Err(err)) {
+                        return #err(handleTransferError(err));
+                    };
+                    case (#Ok(_)) {
+                        let updatedRewards : Types.Rewards = {
+                            _userRewards with
+                            balance = _userRewards.balance - amount;
+                        };
+                        func updateRewards(r : Types.Rewards) : Types.Rewards {
+                            if (r.user == _userRewards.user) {
+                                return updatedRewards;
+                            } else {
+                                return r;
+                            };
+                        };
+                        rewards := List.map(rewards, updateRewards);
+                        return #ok(());
+                    };
+                };
+            };
+        };
+    };
 
-    // public shared query ({ caller }) func getUnclaimedRewards() : async Result.Result<[Types.Reward], Text> {
-    //     let user = List.find<User>(
-    //         users,
-    //         func(user : User) : Bool {
-    //             return user.id == caller;
-    //         },
-    //     );
-    //     switch (user) {
-    //         case (null) {
-    //             return #err("User not found");
-    //         };
-    //         case (?_user) {
-    //             let rewardslist = List.fromArray<Types.Reward>(_user.rewards);
-    //             let unclaimedRewards = List.filter<Types.Reward>(
-    //                 rewardslist,
-    //                 func(reward : Types.Reward) : Bool {
-    //                     return reward.claimed == false;
-    //                 },
-    //             );
-    //             return #ok(List.toArray<Types.Reward>(unclaimedRewards));
-    //         };
-    //     };
-    // };
+    public shared func cashbackTxn(txnId : Nat, percentage: Float) : async Result.Result<(), Text> {
+        let txn = List.find<InternalTxn>(
+            transactions,
+            func(txn : InternalTxn) : Bool {
+                return txn.id == txnId;
+            },
+        );
+        switch (txn) {
+            case (null) {
+                return #err("Transaction not found");
+            };
+            case (?_txn) {
+             switch (_txn.status) {
+                    case (#Initiated) {
+                        return #err("Transaction not yet transfered");
+                    };
+                    case (#Completed) {
+                        return #err("Transaction already completed");
+                    };
+                    case (#TokensTransfered) {
+                        let cashbackAmount = (natToFloat(_txn.transferData.amount) * percentage) / 100;
+                        let _actor = actor (tokenCanister) : TokenInterface;
+                        let transferArg : Types.TransferArg = {
+                            to = { owner = _txn.userPrincipal; subaccount = null };
+                            fee = null;
+                            memo = null;
+                            from_subaccount = null;
+                            created_at_time = null;
+                            amount = floatToNat(cashbackAmount) * tokenDecimals;
+                        };
+                        switch (await _actor.icrc1_transfer(transferArg)) {
+                            case (#Err(err)) {
+                                return #err(handleTransferError(err));
+                            };
+                            case (#Ok(_)) {
+                              switch (await completeTxn(txnId)) {
+                                case (#err(err)) {
+                                    return #err(err);
+                                };
+                                case (#ok(_)) {
+                                    return #ok(());
+                                };
+                              };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+    func natToFloat(nat : Nat) : Float {
+        return Float.fromInt64(Int64.fromNat64(Nat64.fromNat(nat)));
+    };  
+
+    func floatToNat(float : Float) : Nat {
+        return Nat64.toNat(Int64.toNat64(Float.toInt64(float)));
+    };
 
     public shared query func getRewards() : async [Types.Rewards] {
         return List.toArray<Types.Rewards>(rewards);
@@ -343,28 +361,7 @@ actor class Rentmase() = this {
             };
         };
     };
-
-    func transferRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
-        let _actor = actor (tokenCanister) : TokenInterface;
-        let transferArg : Types.TransferArg = {
-            to = { owner = wallet; subaccount = null };
-            fee = null;
-            memo = null;
-            from_subaccount = null;
-            created_at_time = null;
-            amount = amount * tokenDecimals;
-        };
-        switch (await _actor.icrc1_transfer(transferArg)) {
-            case (#Err(err)) {
-                return #err(handleTransferError(err));
-            };
-            case (#Ok(_)) {
-                return #ok(());
-            };
-        };
-        return #ok(());
-    };
-
+                      
     func handleTransferError(err : Types.TransferError) : Text {
         return switch (err) {
             case (#GenericError(details)) {
@@ -444,8 +441,11 @@ actor class Rentmase() = this {
                             amount = _txn.transferData.amount;
                             spender_subaccount = null;
                         };
+                        Debug.print("Transfering tokens" # debug_show(transferArg));
                         switch (await _actor.icrc2_transfer_from(transferArg)) {
+                        
                             case (#Err(err)) {
+                                Debug.print("Error: " # debug_show(err));
                                 return #err(handleTransferFromError(err));
                             };
                             case (#Ok(_)) {

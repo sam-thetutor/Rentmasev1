@@ -6,7 +6,7 @@ import { CountryData } from './types';
 import { useAuth } from '../../hooks/Context';
 import { toast } from 'react-toastify';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
-import { backendCanisterId, tokenDecimas, tokenFee } from '../../constants';
+import { backendCanisterId, cashbackPercent, tokenDecimas, tokenFee } from '../../constants';
 import { Principal } from '@dfinity/principal';
 import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
 
@@ -179,12 +179,15 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                     useLocalAmount: false,
                     customIdentifier: "airtime-top-up",
                     recipientEmail: user.email,
+                    cashback: {
+                        percentage: cashbackPercent
+                      },
                     countryCode: selectedCountry.isoName,
                     phoneNumber: phoneNumber,
                 }
                 topUp(data).then((res) => {
                     setBuyingAirtime(false);
-                    if (res.data) {
+                    if (res.data) { 
                         console.log(res.data);
                         toast.success('Airtime top up successful');
                     } else {

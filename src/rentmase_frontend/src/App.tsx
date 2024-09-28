@@ -35,9 +35,39 @@ import PurchasesHistory from './components/PurchasesHistory';
 import PrivateRoutes from './PrivateRoutes';
 import { setCountries } from './redux/slices/app';
 import { useDispatch } from 'react-redux';
+// @ts-ignore
+import { useIdentityKit } from "@nfid/identitykit/react"
+import { Actor } from '@dfinity/agent';
+import { idlFactory } from '../../declarations/rentmase_backend';
+import { backendCanisterId } from './constants';
+
 
 
 function App() {
+  // const { agent, identity, delegationType } = useIdentityKit()
+
+
+  // const targetActor =
+  // agent &&
+  // Actor.createActor(idlFactory, {
+  //   agent,
+  //   canisterId: backendCanisterId,
+  // })
+
+
+  // console.log("Agent: ", agent);
+  // console.log("Identity: ", identity);
+  // console.log("Target Actor: ", targetActor);
+
+ 
+
+
+
+
+
+
+
+
   const { backendActor, isAuthenticated, setUser } = useAuth();
   const dispatch = useDispatch();
 

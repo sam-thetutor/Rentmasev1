@@ -5,6 +5,7 @@ import { AuthProvider } from './hooks/Context';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "@nfid/identitykit/react/styles.css"
+// @ts-ignore
 import { IdentityKitProvider } from "@nfid/identitykit/react"
 import { Provider } from 'react-redux';
 import { store } from './redux/store';

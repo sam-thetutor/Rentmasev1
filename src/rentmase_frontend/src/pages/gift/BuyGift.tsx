@@ -8,7 +8,7 @@ import { RootState } from '../../redux/store';
 import { toast } from 'react-toastify';
 import { useBuyGiftCardMutation } from '../../redux/api/servicesSlice';
 import { useAuth } from '../../hooks/Context';
-import { backendCanisterId, tokenDecimas, tokenFee } from '../../constants';
+import { backendCanisterId, cashbackPercent, tokenDecimas, tokenFee } from '../../constants';
 import { Principal } from '@dfinity/principal';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
 import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
@@ -297,8 +297,6 @@ const BuyGift = ({ card, setOpenModal }) => {
       return;
     }
 
-  
-
     setLoading(true);
 
     const arg: ApproveArgs = {
@@ -341,13 +339,16 @@ const BuyGift = ({ card, setOpenModal }) => {
           txnId: res2.ok.id.toString(),
           amount: amount,
           useLocalAmount: false,
-          customIdentifier: "Giftcard Purchase",
           productId: card.productId,
           quantity: quantity,
           unitPrice : amount,
+          customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()}`,
           recipientPhone: phoneNumber,
           senderName: fromnName,
           recipientEmail: user.email,
+          cashback: {
+            percentage: cashbackPercent
+          },
           countryCode: selectedCountry.isoName,
           phoneNumber: phoneNumber,
         }

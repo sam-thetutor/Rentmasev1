@@ -100,19 +100,16 @@ const LoginModal = ({ openModal, setOpenModal }) => {
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={handleClose}>&times;</CloseButton>
 
-        {/* Internet Identity Option */}
+        <WalletOption onClick={nfidlogin} ref={cancelButtonRef}>
+          <img src={nfidIcon} alt="NFID" />
+          <span>Email</span>
+        </WalletOption>
+
         <WalletOption onClick={login}>
           <img src={internetIdentityIcon} alt="Internet Identity" />
           <span>Internet Identity</span>
         </WalletOption>
 
-        {/* NFID Option */}
-        <WalletOption onClick={nfidlogin} ref={cancelButtonRef}>
-          <img src={nfidIcon} alt="NFID" />
-          <span>NFID</span>
-        </WalletOption>
-
-        {/* Add more wallet options as needed */}
       </ModalContent>
     </ModalBackdrop>
   );

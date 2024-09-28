@@ -7,6 +7,7 @@ import LocationButton from './LocationButton';
 import SlideMenu from './SlideMenu';
 import LoginModal from './LoginModal';
 import { useAuth } from '../hooks/Context';
+//@ts-ignore
 import { ConnectWallet } from "@nfid/identitykit/react"
 
 const NavbarContainer = styled.nav`
@@ -187,7 +188,7 @@ const Navbar = () => {
 
   return (
     <NavbarContainer>
-         <ConnectWallet />;
+         {/* <ConnectWallet />; */}
       <LeftContainer>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'black' }}>
           <Logo src="/images/logoB.svg" alt="Logo" />
