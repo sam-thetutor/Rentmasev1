@@ -35,11 +35,11 @@ import PurchasesHistory from './components/PurchasesHistory';
 import PrivateRoutes from './PrivateRoutes';
 import { setCountries } from './redux/slices/app';
 import { useDispatch } from 'react-redux';
+import { backendCanisterId } from './constants';
 // @ts-ignore
 import { useIdentityKit } from "@nfid/identitykit/react"
 import { Actor } from '@dfinity/agent';
 import { idlFactory } from '../../declarations/rentmase_backend';
-import { backendCanisterId } from './constants';
 
 
 
@@ -53,7 +53,6 @@ function App() {
   //   agent,
   //   canisterId: backendCanisterId,
   // })
-
 
   // console.log("Agent: ", agent);
   // console.log("Identity: ", identity);

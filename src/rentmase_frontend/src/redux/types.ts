@@ -3,4 +3,5 @@ export interface LocationType {
     country: string;
     fullLocation: string;
     isoName: string;
+    currencyCode: string;
   }

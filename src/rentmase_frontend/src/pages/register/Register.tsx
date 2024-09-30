@@ -1,7 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/Context';
-import RegisterLoginModal from './RegisterLoginModal';
 import { toast } from 'react-toastify';
 import { UserPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
 import styled from 'styled-components';
@@ -111,6 +110,7 @@ const Register = () => {
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastname] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
@@ -131,11 +131,17 @@ const Register = () => {
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !email) {
+    if (!firstName || !lastName || !email || !username) {
       toast.error('Please fill in all fields');
       return;
     }
     setSaving(true);
+    const isUNameUnique = await backendActor.isUserNameUnique(username);
+    if (!isUNameUnique) {
+      setSaving(false);
+      toast.error('Username already taken, please choose another');
+      return;
+    }
     let referralCode: string;
     let isUnique = false;
 
@@ -147,6 +153,7 @@ const Register = () => {
     const dobInNanoSeconds = new Date(dob).getTime() * 1000000;
 
     const user: UserPayload = {
+      username,
       firstName,
       lastName,
       email,
@@ -197,6 +204,7 @@ const Register = () => {
           <Title>Sign Up</Title>
         </h1>
         <RegisterForm>
+          <Input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
           <Input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
           <Input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastname(e.target.value)} required />
           <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -220,7 +228,6 @@ const Register = () => {
                 <NavigationButton onClick={() => navigate('/travel-bookings')}>Bookings</NavigationButton>
                 <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton> */}
       </RegisterContainer>
-      <RegisterLoginModal {...{ openModal, setOpenModal }} />
     </div>
   )
 }

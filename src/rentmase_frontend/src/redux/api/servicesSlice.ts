@@ -64,6 +64,12 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         params: {countryCode}, 
       }),
     }),
+    getPairEchangeRate: builder.query({
+      query: ({curr1, curr2}) => ({
+        url: `/pair-exchange-rate`, 
+        params: {curr1, curr2}, 
+      }),
+    }),
   }),
 });
 
@@ -78,4 +84,5 @@ export const {
   useBuyGiftCardMutation,
   usePayBillMutation,
   useLazyGetBillersQuery,
+  useLazyGetPairEchangeRateQuery,
 } = usersApiSlice;

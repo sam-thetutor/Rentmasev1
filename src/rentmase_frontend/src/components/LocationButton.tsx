@@ -87,6 +87,7 @@ const LocationButton = () => {
 
 
   const processLocations = async (city : string, cntry : string, location : string) => {
+    console.log("")
     const response = await fetch("https://topups.reloadly.com/countries");
     const data = await response.json();
     const _country = data.find((country: CountryData) => country.name === cntry);
@@ -96,13 +97,13 @@ const LocationButton = () => {
         country: cntry,
         fullLocation: location,
         isoName: _country.isoName,
+        currencyCode: _country.currencyCode,
       }
       dispatch(setLocation(_location));
       setCurrentLocation(location);
     } else {
       setCurrentLocation(location);
     }
-   
   }
 
   return (

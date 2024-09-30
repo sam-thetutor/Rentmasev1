@@ -1,14 +1,17 @@
 import React, { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import CheckOperators from './CheckOperators';
-import { useLazyGetNumberOperatorsQuery, useTopUpAirtimeMutation } from '../../redux/api/servicesSlice';
+import { useLazyGetNumberOperatorsQuery, useLazyGetPairEchangeRateQuery, useTopUpAirtimeMutation } from '../../redux/api/servicesSlice';
 import { CountryData } from './types';
 import { useAuth } from '../../hooks/Context';
 import { toast } from 'react-toastify';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
-import { backendCanisterId, cashbackPercent, tokenDecimas, tokenFee } from '../../constants';
+import { backendCanisterId, cashback, tokenDecimas, tokenFee } from '../../constants';
 import { Principal } from '@dfinity/principal';
 import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import ClipLoader from 'react-spinners/ClipLoader';
 
 // Styled components
 const Container = styled.div`
@@ -76,6 +79,37 @@ const Label = styled.label`
   margin-bottom: 4px;
 `;
 
+const AmountWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  
+  gap: 10px;
+`;
+
+type AmountProps = {
+    active: boolean;
+}
+
+const AmountButton = styled.button<AmountProps>`
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: ${props => props.active ? '#008DD5' : 'white'};
+  color: ${props => props.active ? 'white' : '#333'};
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #008DD5;
+    color: white;
+  }
+`;
+
+const PriceSpan = styled.span`
+  font-weight: bold;
+  color: #333;
+`;
+
+
 
 type Props = {
     phoneNumber: string;
@@ -84,15 +118,22 @@ type Props = {
 };
 
 const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) => {
+    const { tokenLiveData } = useSelector((state: RootState) => state.app);
     const { user, isAuthenticated, tokenCanister, identity, backendActor } = useAuth();
     const [fetchNumberOperators] = useLazyGetNumberOperatorsQuery();
-    const [amount, setAmount] = useState('');
+    const [amount, setAmount] = useState(0);
     const [showOperators, setShowOperators] = useState(false);
     const [operator, setOperator] = useState<any | null>(null);
     const [selectedOperator, setSelectedOperator] = useState<any | null>(null);
     const [noOperator, setNoOperator] = useState(false);
     const [topUp] = useTopUpAirtimeMutation();
     const [buyingAirtime, setBuyingAirtime] = useState(false);
+    const [getpair] = useLazyGetPairEchangeRateQuery();
+    const [sCountrySenderPairRate, setSenderCountryPairRate] = useState<any>(null);
+    const [calcutatingPrice, setCalculatingPrice] = useState(true);
+    const [senderUsdPairRate, setPairRate] = useState<any>(null);
+    const [minAmount, setMinAmount] = useState(0);
+    const [maxAmount, setMaxAmount] = useState(0);
 
 
     useEffect(() => {
@@ -103,7 +144,10 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                 } else {
                     setNoOperator(true);
                 }
-            });
+            }).catch((error) => {
+                console.error("Error fetching operators: ", error);
+                setNoOperator(true);
+            })
 
         }
     }, [selectedCountry, phoneNumber]);
@@ -112,6 +156,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         if (selectedOperator) {
             setOperator(selectedOperator);
             setShowOperators(false);
+            setNoOperator(false);
             setSelectedOperator(null);
         }
     }, [selectedOperator]);
@@ -139,19 +184,33 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             toast.error("Please sign up to continue");
             return;
         }
-        if (amount < operator.minAmount || amount > operator.maxAmount) {
-            toast.error(`Please enter an amount between ${operator.minAmount} and ${operator.maxAmount}`);
-            return;
+
+        let _amount = amount;
+
+        if (!operator || !sCountrySenderPairRate) {
+            toast.error('Please select an operator');
+        }
+
+        if (operator.denominationType === "RANGE") {
+            const rate = sCountrySenderPairRate.conversion_rate;
+            _amount = amount * rate;
+            if (_amount < operator.minAmount || _amount > operator.maxAmount) {
+                toast.error(`Please enter an amount between ${minAmount} and ${maxAmount}`);
+                return;
+            }
+
         }
 
         setBuyingAirtime(true);
+
+        const tokenAmnt = BigInt(1000000);
 
         const arg: ApproveArgs = {
             fee: [BigInt(10_000)],
             memo: [],
             from_subaccount: [],
             created_at_time: [],
-            amount: BigInt(parseFloat(amount) * tokenDecimas + tokenFee),
+            amount: tokenAmnt,
             expected_allowance: [],
             expires_at: [],
             spender: {
@@ -165,29 +224,27 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         if ("Ok" in res) {
             const arg2: TxnPayload = {
                 userEmail: user.email,
-                transferAmount: BigInt((parseFloat(amount))  * tokenDecimas),
-                txnType: { 'AirtimeTopup': { operator: operator.name, countryCode: selectedCountry.isoName, operaterId: String(operator.id), phoneNumber, amount } }
+                transferAmount: tokenAmnt,
+                txnType: { 'AirtimeTopup': { operator: operator.name, countryCode: selectedCountry.isoName, operaterId: String(operator.id), phoneNumber, amount: String(_amount) } }
             }
 
             const res2 = await backendActor.intiateTxn(arg2);
 
             if ("ok" in res2) {
                 const data = {
-                    txnId : res2.ok.id.toString(),
+                    txnId: res2.ok.id.toString(),
                     operatorId: operator.id,
-                    amount: amount,
+                    amount: _amount,
                     useLocalAmount: false,
                     customIdentifier: "airtime-top-up",
                     recipientEmail: user.email,
-                    cashback: {
-                        percentage: cashbackPercent
-                      },
+                    cashback,
                     countryCode: selectedCountry.isoName,
                     phoneNumber: phoneNumber,
                 }
                 topUp(data).then((res) => {
                     setBuyingAirtime(false);
-                    if (res.data) { 
+                    if (res.data) {
                         console.log(res.data);
                         toast.success('Airtime top up successful');
                     } else {
@@ -208,6 +265,64 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         }
     };
 
+    useEffect(() => {
+        if (sCountrySenderPairRate && sCountrySenderPairRate.conversion_rate && operator) {
+            const rate = sCountrySenderPairRate.conversion_rate;
+            if (operator.minAmount && operator.maxAmount) {
+                const _minAmount = operator.minAmount / rate;
+                const _maxAmount = operator.maxAmount / rate;
+
+
+                setMinAmount(parseFloat(_minAmount.toFixed(2)));
+                setMaxAmount(parseFloat(_maxAmount.toFixed(2)));
+                setAmount(parseFloat(_minAmount.toFixed(2)));
+            }
+        }
+    }, [sCountrySenderPairRate, operator]);
+
+    useEffect(() => {
+        if (tokenLiveData && selectedCountry && operator) {
+            getpair({ curr1: `${selectedCountry?.currencyCode}`, curr2: "USD" }).then((res) => {
+                if (res.data) {
+                    setPairRate(res.data);
+                } else {
+                    console.error(res.error);
+                }
+            }).catch((err) => {
+                console.log(err);
+            });
+            getpair({ curr1: `${selectedCountry.currencyCode}`, curr2: `${operator.senderCurrencyCode}` }).then((res) => {
+                if (res.data) {
+                    setSenderCountryPairRate(res.data);
+                    setCalculatingPrice(false);
+                } else {
+                    console.log(res.error);
+                }
+            }).catch((err) => {
+                console.error(err);
+            });
+        }
+    }, [tokenLiveData, getpair, selectedCountry, operator]);
+
+    const getCountryCountryCurrency = (denomination) => {
+        if (!sCountrySenderPairRate || !sCountrySenderPairRate.conversion_rate) {
+            return denomination;
+        }
+
+        const rate = sCountrySenderPairRate.conversion_rate;
+        const localAmount = denomination / rate;
+        return parseFloat(localAmount.toFixed(2));
+    };
+
+
+    const calculateTokenPriceEquivalent = (zarAmount: number): number => {
+        if (!senderUsdPairRate || !tokenLiveData) {
+            return 0;
+        }
+        const usdAmount = zarAmount * senderUsdPairRate.conversion_rate;
+        const tokenAmount = usdAmount / tokenLiveData.pair.priceUsd;
+        return tokenAmount;
+    };
     return (
         <Container>
             <h3>
@@ -229,18 +344,38 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             </OperatorSection>
 
             {showOperators ? null : <Button onClick={handleCheckOtherOperators}>Check other operators</Button>}
-            
-            
-            {operator?.minAmount && operator?.maxAmount && <Label htmlFor="amount">
-                  Select an amount between {operator.destinationCurrencyCode} {operator.minAmount} and {operator.destinationCurrencyCode} {operator.maxAmount}
+
+            {operator && tokenLiveData && operator.denominationType === "FIXED" && <AmountWrapper>
+                {operator.fixedAmounts.map((denomination, index) => (
+                    <AmountButton
+                        key={index}
+                        active={amount === denomination}
+                        onClick={() => setAmount(denomination)}
+                    >
+                        <>{calcutatingPrice ?
+                            <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
+                            : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
+                        }</>
+                        {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> REM
+                    </AmountButton>
+                ))}
+            </AmountWrapper>}
+
+            {
+                operator && tokenLiveData && operator.denominationType === "RANGE" && <>  {operator?.minAmount && operator?.maxAmount && <Label htmlFor="amount">
+                    Select an amount between <PriceSpan>{selectedCountry?.currencyCode} {minAmount} </PriceSpan> and <PriceSpan>{selectedCountry?.currencyCode} {maxAmount}</PriceSpan>
+                    {" "} || {" "}
+                    {calculateTokenPriceEquivalent(operator.minAmount).toFixed(2)} and {calculateTokenPriceEquivalent(operator.maxAmount).toFixed(2)}
+                    {" "} REM
                 </Label>}
 
-            <AirtimeInput
-                type="number"
-                placeholder="Enter airtime amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-            />
+                    <AirtimeInput
+                        type="number"
+                        placeholder="Enter airtime amount"
+                        value={amount}
+                        onChange={(e) => setAmount(parseFloat(e.target.value))}
+                    /></>
+            }
 
             <div>
                 <Button onClick={handleBack} style={{ backgroundColor: '#D50000' }}>Cancel</Button>

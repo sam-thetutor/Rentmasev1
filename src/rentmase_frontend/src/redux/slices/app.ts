@@ -6,12 +6,14 @@ export interface GlobalState {
   location: LocationType | null;
   audience: string;
   countries: CountryData[] | null;
+  tokenLiveData: any;
 }
 
 const initialState: GlobalState = {
   location: null,
   audience: "topups-sandbox",
   countries: null,
+  tokenLiveData: null,
 };
 
 export const appSlice = createSlice({
@@ -27,9 +29,12 @@ export const appSlice = createSlice({
     setCountries: (state, action: PayloadAction<CountryData[]>) => {
       state.countries = action.payload;
     },
+    setTokenLiveData: (state, action: PayloadAction<any>) => {
+      state.tokenLiveData = action.payload;
+    }
   },
 });
 
-export const { setLocation, setAudience , setCountries } = appSlice.actions;
+export const { setLocation, setAudience , setCountries, setTokenLiveData } = appSlice.actions;
 
 export default appSlice.reducer;

@@ -21,7 +21,7 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+    let tokenCanister = "b77ix-eeaaa-aaaaa-qaada-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
@@ -72,7 +72,7 @@ actor class Rentmase() = this {
                                 // User has no rewards, create their first reward
                                 let reward : Types.Rewards = {
                                     user = _user.id;
-                                    userName = _user.firstName # " " # _user.lastName;
+                                    username = _user.username;
                                     userReferralCode = _user.referralCode;
                                     rewards = [#Referral(referralReward)];
                                     totalAmountEarned = referralRewardAmnt;
@@ -116,6 +116,7 @@ actor class Rentmase() = this {
             id = id;
             firstName = payload.firstName;
             lastName = payload.lastName;
+            username = payload.username;
             referralCode = payload.referralCode;
             referrals = [];
             dob = payload.dob;
@@ -132,7 +133,7 @@ actor class Rentmase() = this {
 
         let reward : Types.Rewards = {
             user = id;
-            userName = payload.firstName # " " # payload.lastName;
+            username = payload.username;
             userReferralCode = payload.referralCode;
             rewards = [#Signup(_signupReward)];
             totalAmountEarned = signupRewardAmnt;
@@ -184,6 +185,23 @@ actor class Rentmase() = this {
             users,
             func(user : User) : Bool {
                 return user.referralCode == referralCode;
+            },
+        );
+        return switch (user) {
+            case (null) {
+                true;
+            };
+            case (?_) {
+                false;
+            };
+        };
+    };
+
+    public shared query func isUserNameUnique(username : Text) : async Bool {
+        let user = List.find<User>(
+            users,
+            func(user : User) : Bool {
+                return user.username == username;
             },
         );
         return switch (user) {
@@ -310,7 +328,7 @@ actor class Rentmase() = this {
                             memo = null;
                             from_subaccount = null;
                             created_at_time = null;
-                            amount = floatToNat(cashbackAmount) * tokenDecimals;
+                            amount = floatToNat(cashbackAmount);
                         };
                         switch (await _actor.icrc1_transfer(transferArg)) {
                             case (#Err(err)) {
@@ -441,11 +459,10 @@ actor class Rentmase() = this {
                             amount = _txn.transferData.amount;
                             spender_subaccount = null;
                         };
-                        Debug.print("Transfering tokens" # debug_show(transferArg));
+                        Debug.print("Transfering tokens : " # debug_show(transferArg));
                         switch (await _actor.icrc2_transfer_from(transferArg)) {
-                        
                             case (#Err(err)) {
-                                Debug.print("Error: " # debug_show(err));
+                                Debug.print("Error transfering tokens : " # debug_show(err));
                                 return #err(handleTransferFromError(err));
                             };
                             case (#Ok(_)) {

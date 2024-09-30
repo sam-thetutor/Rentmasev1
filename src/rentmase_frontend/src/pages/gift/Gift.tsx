@@ -52,6 +52,9 @@ const Gift = () => {
           setLoading(false);
           console.error("Error fetching gift cards: ", error);
         });
+    } else  {
+      setLoading(false);
+      console.log("Location not set");
     }
   }
 

@@ -98,7 +98,7 @@ export const useAuthClient = (options = defaultOptions) => {
     await nfidLogin(authClient!);
   };
 
-  const APPLICATION_NAME = "Mzansi web3";
+  const APPLICATION_NAME = "Rentmase";
   const APPLICATION_LOGO_URL =
     "https://dev.nfid.one/static/media/id.300eb72f3335b50f5653a7d6ad5467b3.svg";
   const AUTH_PATH =

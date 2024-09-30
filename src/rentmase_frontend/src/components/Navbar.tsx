@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import CartButton from './CartButton';
@@ -9,6 +9,9 @@ import LoginModal from './LoginModal';
 import { useAuth } from '../hooks/Context';
 //@ts-ignore
 import { ConnectWallet } from "@nfid/identitykit/react"
+import { useDispatch, useSelector } from 'react-redux';
+import { setTokenLiveData } from '../redux/slices/app';
+import { RootState } from '../redux/store';
 
 const NavbarContainer = styled.nav`
   display: flex;
@@ -183,8 +186,25 @@ const LearderBorderLink = styled(Link)`
 `;
 
 const Navbar = () => {
+  const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
   const { isAuthenticated, user } = useAuth();
+  const { location } = useSelector((state: RootState) => state.app);
+
+  useEffect(() => {
+    if (location) {
+      fethTokenPrice();
+    }
+  }, [location]);
+
+
+  const fethTokenPrice = async () => {
+    const response = await fetch("https://api.dexscreener.com/latest/dex/pairs/icp/mnbr7-uiaaa-aaaam-adaaq-cai:ryjl3-tyaaa-aaaaa-aaaba-cai");
+    const data = await response.json();
+    console.log("Data from token price", data);
+    dispatch(setTokenLiveData(data));
+  }
+
 
   return (
     <NavbarContainer>
