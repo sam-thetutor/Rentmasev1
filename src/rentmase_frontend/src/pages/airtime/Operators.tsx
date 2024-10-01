@@ -161,8 +161,6 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         }
     }, [selectedOperator]);
 
-
-
     const handleCheckOtherOperators = () => {
         setShowOperators(true);
     };
@@ -172,6 +170,10 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
     };
 
     const handleTopUp = async () => {
+        if (!tokenLiveData || tokenLiveData.pair === null) {
+            toast.error('Token data not available, please try again later');
+            return;
+        }
         if (!amount) {
             toast.error('Please enter an amount');
             return;
@@ -203,15 +205,15 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
 
         setBuyingAirtime(true);
 
-        // const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
-        const tokenAmnt = BigInt(1000000 + tokenFee);
+        const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
+        const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
 
         const arg: ApproveArgs = {
-            fee: [BigInt(10_000)],
+            fee: [],
             memo: [],
             from_subaccount: [],
             created_at_time: [],
-            amount: tokenAmnt,
+            amount: approveAmount,
             expected_allowance: [],
             expires_at: [],
             spender: {
@@ -317,13 +319,14 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
 
 
     const calculateTokenPriceEquivalent = (zarAmount: number): number => {
-        if (!senderUsdPairRate || !tokenLiveData) {
+        if (!senderUsdPairRate || !tokenLiveData || tokenLiveData.pair === null) {
             return 0;
         }
         const usdAmount = zarAmount * senderUsdPairRate.conversion_rate;
         const tokenAmount = usdAmount / tokenLiveData.pair.priceUsd;
         return tokenAmount;
     };
+
     return (
         <Container>
             <h3>

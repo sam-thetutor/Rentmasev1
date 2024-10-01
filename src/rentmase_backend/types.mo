@@ -103,6 +103,7 @@ public type Review = {
     public type InternalTxn = {
         id : Nat;
         txnType : TxnType;
+        reloadlyTxnId : ?Text;
         userEmail : Text;
         transferData : TransferData;
         userPrincipal : Principal;

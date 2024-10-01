@@ -8,7 +8,7 @@ import { RootState } from '../../redux/store';
 import { toast } from 'react-toastify';
 import { useBuyGiftCardMutation, useLazyGetPairEchangeRateQuery } from '../../redux/api/servicesSlice';
 import { useAuth } from '../../hooks/Context';
-import { backendCanisterId, cashback, tokenDecimas } from '../../constants';
+import { backendCanisterId, cashback, tokenDecimas, tokenFee } from '../../constants';
 import { Principal } from '@dfinity/principal';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
 import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
@@ -230,7 +230,7 @@ const BuyGift = ({ card, setOpenModal }) => {
 
 
   const calculateTokenPriceEquivalent = (zarAmount: number): number => {
-    if (!senderUsdPairRate || !tokenLiveData) {
+    if (!senderUsdPairRate || !tokenLiveData || tokenLiveData.pair === null) {
       return 0;
     }
     const usdAmount = zarAmount * senderUsdPairRate.conversion_rate;
@@ -311,6 +311,11 @@ const BuyGift = ({ card, setOpenModal }) => {
   };
 
   const handleBuy = async () => {
+    if (!tokenLiveData || tokenLiveData.pair === null) {
+      toast.error('Token data not available, please try again later');
+      return;
+    }
+
     if (!isAuthenticated) {
       toast.error('Please login to continue');
       return;
@@ -327,14 +332,31 @@ const BuyGift = ({ card, setOpenModal }) => {
 
     setLoading(true);
 
-    const tokenAmnt = BigInt(calculateTokenPriceEquivalent(amount) * tokenDecimas);
+    let _amount = amount;
+
+    if (!card || !sCountrySenderPairRate) {
+        toast.error('Please select an card');
+    }
+
+    if (card.denominationType === "RANGE") {
+        const rate = sCountrySenderPairRate.conversion_rate;
+        _amount = amount * rate;
+        if (_amount < card.minSenderDenomination || _amount > card.minSenderDenomination) {
+            toast.error(`Please enter an amount between ${minAmount} and ${maxAmount}`);
+            return;
+        }
+
+    }
+
+    const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
+    const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
 
     const arg: ApproveArgs = {
-      fee: [BigInt(10_000)],
+      fee: [],
       memo: [],
       from_subaccount: [],
       created_at_time: [],
-      amount: tokenAmnt,
+      amount: approveAmount,
       expected_allowance: [],
       expires_at: [],
       spender: {
@@ -413,10 +435,10 @@ const BuyGift = ({ card, setOpenModal }) => {
     if (!sCountrySenderPairRate || !sCountrySenderPairRate.conversion_rate) {
       return denomination;
     }
-  
+
     const rate = sCountrySenderPairRate.conversion_rate;
     const localAmount = denomination / rate;
-    return parseFloat(localAmount.toFixed(2)); 
+    return parseFloat(localAmount.toFixed(2));
   };
 
   return (
@@ -433,28 +455,28 @@ const BuyGift = ({ card, setOpenModal }) => {
           </Title>
           <Form>
             {hasFixedDenominations ?
-            <AmountWrapper>
-            {card && tokenLiveData && card.fixedSenderDenominations.map((denomination, index) => (
-              <AmountButton
-                key={index}
-                active={amount === denomination}
-                onClick={() => setAmount(denomination)}
-              >
-               <>{calcutatingPrice ? 
-                <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
-                : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
-               }</>
-                {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> REM
-              </AmountButton>
-            ))}
-          </AmountWrapper>
+              <AmountWrapper>
+                {card && tokenLiveData && card.fixedSenderDenominations.map((denomination, index) => (
+                  <AmountButton
+                    key={index}
+                    active={amount === denomination}
+                    onClick={() => setAmount(denomination)}
+                  >
+                    <>{calcutatingPrice ?
+                      <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
+                      : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
+                    }</>
+                    {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> REM
+                  </AmountButton>
+                ))}
+              </AmountWrapper>
               :
               <InputGroup>
                 {card.minSenderDenomination && card.maxSenderDenomination && senderUsdPairRate && (
                   <Label htmlFor="amount">
-                    Select an amount between {selectedCountry?.currencyCode} <PriceSpan> {minAmount} </PriceSpan> and <PriceSpan> {selectedCountry?.currencyCode} {maxAmount}</PriceSpan> 
+                    Select an amount between {selectedCountry?.currencyCode} <PriceSpan> {minAmount} </PriceSpan> and <PriceSpan> {selectedCountry?.currencyCode} {maxAmount}</PriceSpan>
                     {" "} || {" "}
-                   {calculateTokenPriceEquivalent(card.minSenderDenomination).toFixed(2)}and {calculateTokenPriceEquivalent(card.maxSenderDenomination).toFixed(2)}
+                    {calculateTokenPriceEquivalent(card.minSenderDenomination).toFixed(2)}and {calculateTokenPriceEquivalent(card.maxSenderDenomination).toFixed(2)}
                     {" "} REM
                   </Label>
                 )}

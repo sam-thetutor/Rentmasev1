@@ -21,7 +21,7 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "b77ix-eeaaa-aaaaa-qaada-cai";
+    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
     let tokenDecimals = 100_000_000;
 
     stable var users = List.nil<User>();
@@ -300,7 +300,7 @@ actor class Rentmase() = this {
         };
     };
 
-    public shared func cashbackTxn(txnId : Nat, percentage: Float) : async Result.Result<(), Text> {
+    public shared func cashbackTxn(txnId : Nat, percentage: Float, reloadlyTxnId : Text) : async Result.Result<(), Text> {
         let txn = List.find<InternalTxn>(
             transactions,
             func(txn : InternalTxn) : Bool {
@@ -335,7 +335,7 @@ actor class Rentmase() = this {
                                 return #err(handleTransferError(err));
                             };
                             case (#Ok(_)) {
-                              switch (await completeTxn(txnId)) {
+                              switch (await completeTxn(txnId, reloadlyTxnId)) {
                                 case (#err(err)) {
                                     return #err(err);
                                 };
@@ -419,6 +419,7 @@ actor class Rentmase() = this {
             id;
             userEmail = payload.userEmail;
             status = #Initiated;
+            reloadlyTxnId = null;
             transferAmount = payload.transferAmount;
             transferData = {
                 from = { owner = caller; subaccount = null };
@@ -493,7 +494,7 @@ actor class Rentmase() = this {
         };
     };
 
-    public shared func completeTxn(txnId : Int) : async Result.Result<InternalTxn, Text> {
+    public shared func completeTxn(txnId : Int, reloadlyTxnId : Text) : async Result.Result<InternalTxn, Text> {
         let txn = List.find<InternalTxn>(
             transactions,
             func(txn : InternalTxn) : Bool {
@@ -515,6 +516,7 @@ actor class Rentmase() = this {
                     case (#TokensTransfered) {
                         let updatedTxn : InternalTxn = {
                             _txn with
+                            reloadlyTxnId = ?reloadlyTxnId;
                             status = #Completed;
                         };
                         func updateTxn(t : InternalTxn) : InternalTxn {
