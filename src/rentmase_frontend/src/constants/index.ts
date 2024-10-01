@@ -1,8 +1,8 @@
 export { idlFactory as tokenIDL } from "../../../declarations/token/token.did.js";
-// export const backendCanisterId = "tmy4n-2aaaa-aaaal-qmtaq-cai"
+// export const backendCanisterId = "hqdel-diaaa-aaaai-actvq-cai"
 // export const tokenCanisterId = "iern5-biaaa-aaaal-qmwmq-cai"
 // export const API_BASE_URL = "https://rentmasebe-production.up.railway.app/api"
-// export const frontendUrl = "https://tf3xr-miaaa-aaaal-qmtba-cai.icp0.io"
+// export const frontendUrl = "https://55e7x-xyaaa-aaaal-qmzsq-cai.icp0.io"
 // export const defaultAudience = "topups"
 // export const tokensPerReward = 100
 // export const tokenDecimas = 100_000_000
