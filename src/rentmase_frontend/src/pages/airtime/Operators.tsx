@@ -203,7 +203,8 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
 
         setBuyingAirtime(true);
 
-        const tokenAmnt = BigInt(1000000);
+        // const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
+        const tokenAmnt = BigInt(1000000 + tokenFee);
 
         const arg: ApproveArgs = {
             fee: [BigInt(10_000)],
