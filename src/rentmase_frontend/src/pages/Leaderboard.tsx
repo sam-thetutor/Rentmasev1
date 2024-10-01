@@ -142,7 +142,7 @@ const Leaderboard = () => {
                 {index + 1}
               </TrophyWrapper>
             </TableData>
-            <TableData>{userReward.userName}</TableData>
+            <TableData>{userReward.username}</TableData>
             <TableData>{Number(userReward.totalAmountEarned)}</TableData>
             <TableData>{calcultateUsersReferred(userReward.rewards)}</TableData>
           </TableRow>
@@ -166,7 +166,7 @@ const Leaderboard = () => {
                 {userRank}
               </TrophyWrapper>
             </TableData>
-            <TableData>{currentReward.userName}</TableData>
+            <TableData>{currentReward.username}</TableData>
             <TableData>{Number(currentReward.totalAmountEarned)}</TableData>
             <TableData>{currentReward.rewards.length}</TableData>
           </TableRow>

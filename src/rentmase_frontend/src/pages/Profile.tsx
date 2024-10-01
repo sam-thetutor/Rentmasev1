@@ -110,6 +110,7 @@ const Profile = () => {
   const { user, isAuthenticated, backendActor, tokenCanister } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [saving, setSaving] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
@@ -143,6 +144,7 @@ const Profile = () => {
     if (user) {
       setFirstName(user.firstName);
       setLastName(user.lastName);
+      setUsername(user.username);
       setEmail(user.email);
       setGender(user.gender[0]);
     }
@@ -152,9 +154,18 @@ const Profile = () => {
 
   const handleUpdate = async () => {
     setSaving(true);
+
+    const isUNameUnique = await backendActor.isUserNameUnique(username);
+    if (!isUNameUnique) {
+      setSaving(false);
+      toast.error('Username already taken, please choose another');
+      return;
+    }
+    
     const userPayload: UserUpdatePayload = {
       firstName,
       lastName,
+      username,
       email,
       dob: birthday ? [BigInt(dobInNanoSeconds)] : user.dob,
       refferalCode: user.referralCode,
@@ -170,6 +181,13 @@ const Profile = () => {
       <ProfileContainer>
         <Title>My Profile</Title>
         <ProfileForm>
+          <Input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
           <Input
             type="text"
             placeholder="First Name"

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import BuyProductCard from "./BuyProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { setCountries } from "../../redux/slices/app";
+import { setCountries} from "../../redux/slices/app";
 
 // Styled components
 const Title = styled.h1`

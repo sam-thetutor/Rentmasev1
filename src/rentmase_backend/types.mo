@@ -4,6 +4,7 @@ module {
     public type UserPayload = {
         firstName : Text;
         lastName : Text;
+        username: Text;
         dob : ?Time.Time;
         gender : ?Text;
         referrerCode : ?Text;
@@ -14,6 +15,7 @@ module {
     public type UserUpdatePayload = {
         firstName : Text;
         lastName : Text;
+        username: Text;
         dob : ?Time.Time;
         gender : ?Text;
         email : Text;
@@ -30,6 +32,7 @@ module {
         id : Principal;
         firstName : Text;
         lastName : Text;
+        username: Text;
         referralCode : Text;
         referrals : [Principal];
         email : Text;
@@ -41,7 +44,7 @@ module {
 
     public type Rewards = {
         user : Principal;
-        userName : Text;
+        username : Text;
         rewards : [RewardType];
         totalAmountEarned : Nat;
         balance : Nat;

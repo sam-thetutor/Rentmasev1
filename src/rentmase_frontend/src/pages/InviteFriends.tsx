@@ -310,6 +310,7 @@ const InviteFriends = () => {
       const updatedUser: UserUpdatePayload = {
         firstName: user.firstName,
         lastName: user.lastName,
+        username: user.username,
         dob: user.dob,
         gender: user.gender,
         email: user.email,

@@ -6,12 +6,13 @@ import { CountryData } from '../airtime/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { toast } from 'react-toastify';
-import { useBuyGiftCardMutation } from '../../redux/api/servicesSlice';
+import { useBuyGiftCardMutation, useLazyGetPairEchangeRateQuery } from '../../redux/api/servicesSlice';
 import { useAuth } from '../../hooks/Context';
-import { backendCanisterId, cashbackPercent, tokenDecimas, tokenFee } from '../../constants';
+import { backendCanisterId, cashback, tokenDecimas } from '../../constants';
 import { Principal } from '@dfinity/principal';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
 import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
+import ClipLoader from "react-spinners/ClipLoader";
 const Container = styled.div`
   background-color: white;
   padding: 20px;
@@ -53,7 +54,7 @@ const Input = styled.input`
 
 const AmountWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);  // Creates 3 columns
+  grid-template-columns: repeat(2, 1fr);  
   gap: 10px;
 `;
 
@@ -104,37 +105,6 @@ const Button = styled.button`
   &:hover {
     background-color: #0072B0;
   }
-`;
-
-const BackButton = styled(Button)`
-  background-color: #ddd;
-  color: #333;
-  margin-bottom: 20px;
-
-  &:hover {
-    background-color: #ccc;
-  }
-`;
-
-const RedeemLink = styled.a`
-  font-size: 14px;
-  color: #008DD5;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const QuantitySelect = styled.select`
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-`;
-
-const PreOrderCheckbox = styled.input`
-  margin-right: 8px;
 `;
 
 const ModalBackdrop = styled.div`
@@ -222,20 +192,31 @@ const QuantityInput = styled.input`
   border: 1px solid #ccc;
 `;
 
+const PriceSpan = styled.span`
+  font-weight: bold;
+  color: #333;
+`;
+
 
 const BuyGift = ({ card, setOpenModal }) => {
   const [buyCard] = useBuyGiftCardMutation();
-  const { isAuthenticated, user, identity, tokenCanister, backendActor } = useAuth();
+  const [getpair] = useLazyGetPairEchangeRateQuery();
+  const { isAuthenticated, user, tokenCanister, backendActor } = useAuth();
   const handleClose = () => setOpenModal(false);
   const navigate = useNavigate();
   const [amount, setAmount] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
-  const { location, countries } = useSelector((state: RootState) => state.app);
+  const { location, countries, tokenLiveData } = useSelector((state: RootState) => state.app);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [toEmail, setToEmail] = useState<string | null>(null);
   const [fromnName, setFromName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [senderUsdPairRate, setPairRate] = useState<any>(null);
+  const [sCountrySenderPairRate, setSenderCountryPairRate] = useState<any>(null);
+  const [minAmount, setMinAmount] = useState(0);
+  const [maxAmount, setMaxAmount] = useState(0);
+  const [calcutatingPrice, setCalculatingPrice] = useState(true);
 
   const handleIncrease = () => {
     setQuantity((prev) => prev + 1);
@@ -247,14 +228,22 @@ const BuyGift = ({ card, setOpenModal }) => {
     }
   }
 
+
+  const calculateTokenPriceEquivalent = (zarAmount: number): number => {
+    if (!senderUsdPairRate || !tokenLiveData) {
+      return 0;
+    }
+    const usdAmount = zarAmount * senderUsdPairRate.conversion_rate;
+    const tokenAmount = usdAmount / tokenLiveData.pair.priceUsd;
+    return tokenAmount;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value > 0) {
       setQuantity(value);
     }
   };
-
-
 
   useEffect(() => {
     if (countries) {
@@ -270,11 +259,50 @@ const BuyGift = ({ card, setOpenModal }) => {
   const hasFixedDenominations = card.fixedRecipientDenominations.length > 0;
 
   useEffect(() => {
-    if (card.minRecipientDenomination) {
-      setAmount(card.minRecipientDenomination);
+    if (card.minSenderDenomination) {
+      setAmount(card.minSenderDenomination);
     }
 
   }, [card]);
+
+  useEffect(() => {
+    if (tokenLiveData && card && selectedCountry) {
+      getpair({ curr1: `${selectedCountry?.currencyCode}`, curr2: "USD" }).then((res) => {
+        if (res.data) {
+          setPairRate(res.data);
+        } else {
+          console.log(res.error);
+        }
+      }).catch((err) => {
+        console.log(err);
+      });
+      getpair({ curr1: `${selectedCountry.currencyCode}`, curr2: `${card.senderCurrencyCode}` }).then((res) => {
+        if (res.data) {
+          setSenderCountryPairRate(res.data);
+          setCalculatingPrice(false);
+        } else {
+          console.log(res.error);
+        }
+      }).catch((err) => {
+        console.error(err);
+      });
+    }
+  }, [tokenLiveData, card, getpair, selectedCountry]);
+
+  useEffect(() => {
+    if (sCountrySenderPairRate && sCountrySenderPairRate.conversion_rate) {
+      const rate = sCountrySenderPairRate.conversion_rate;
+      if (card.minSenderDenomination && card.maxSenderDenomination) {
+        const _minAmount = card.minSenderDenomination / rate;
+        const _maxAmount = card.maxSenderDenomination / rate;
+
+
+        setMinAmount(parseFloat(_minAmount.toFixed(2)));
+        setMaxAmount(parseFloat(_maxAmount.toFixed(2)));
+        setAmount(parseFloat(_minAmount.toFixed(2)));
+      }
+    }
+  }, [sCountrySenderPairRate, card.minSenderDenomination, card.maxSenderDenomination]);
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCode = e.target.value;
@@ -291,7 +319,7 @@ const BuyGift = ({ card, setOpenModal }) => {
       toast.error("Please sign up to continue");
       return;
     }
-    
+
     if (!toEmail || !phoneNumber || !fromnName || !amount || !quantity || !card) {
       toast("Please fill in all fields");
       return;
@@ -299,12 +327,14 @@ const BuyGift = ({ card, setOpenModal }) => {
 
     setLoading(true);
 
+    const tokenAmnt = BigInt(calculateTokenPriceEquivalent(amount) * tokenDecimas);
+
     const arg: ApproveArgs = {
       fee: [BigInt(10_000)],
       memo: [],
       from_subaccount: [],
       created_at_time: [],
-      amount: BigInt(amount * tokenDecimas + tokenFee),
+      amount: tokenAmnt,
       expected_allowance: [],
       expires_at: [],
       spender: {
@@ -316,70 +346,77 @@ const BuyGift = ({ card, setOpenModal }) => {
     try {
       const res = await tokenCanister.icrc2_approve(arg);
 
-    if ("Ok" in res) {
-      const arg2: TxnPayload = {
-        userEmail: user.email,
-        transferAmount: BigInt(amount * tokenDecimas),
-        txnType: {
-          'GiftCardPurchase': {
-            productId: String(card.productId),
-            countryCode: selectedCountry?.isoName,
-            quantity: BigInt(quantity),
+      if ("Ok" in res) {
+        const arg2: TxnPayload = {
+          userEmail: user.email,
+          transferAmount: tokenAmnt,
+          txnType: {
+            'GiftCardPurchase': {
+              productId: String(card.productId),
+              countryCode: selectedCountry?.isoName,
+              quantity: BigInt(quantity),
+              phoneNumber: phoneNumber,
+              amount: amount.toString(),
+              recipientEmail: toEmail
+            }
+          }
+        }
+
+        const res2 = await backendActor.intiateTxn(arg2);
+
+        if ("ok" in res2) {
+          const data = {
+            txnId: res2.ok.id.toString(),
+            amount: amount,
+            useLocalAmount: false,
+            productId: card.productId,
+            quantity: quantity,
+            unitPrice: amount,
+            customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()}`,
+            recipientPhone: phoneNumber,
+            senderName: fromnName,
+            recipientEmail: user.email,
+            cashback,
+            countryCode: selectedCountry.isoName,
             phoneNumber: phoneNumber,
-            amount: amount.toString(),
-            recipientEmail: toEmail
           }
+          buyCard(data).then((res) => {
+            setLoading(false);
+            if (res.data) {
+              console.log(res.data);
+              toast.success('Giftcard bought successfully');
+            } else {
+              console.log(res.error);
+              toast.error('Failed to buy giftcard');
+            }
+          });
+        } else {
+          setLoading(false)
+          console.log("Error", res2);
+          toast.error('Failed to buy giftcard');
+          return
         }
-      }
-
-      const res2 = await backendActor.intiateTxn(arg2);
-
-      if ("ok" in res2) {
-        const data = {
-          txnId: res2.ok.id.toString(),
-          amount: amount,
-          useLocalAmount: false,
-          productId: card.productId,
-          quantity: quantity,
-          unitPrice : amount,
-          customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()}`,
-          recipientPhone: phoneNumber,
-          senderName: fromnName,
-          recipientEmail: user.email,
-          cashback: {
-            percentage: cashbackPercent
-          },
-          countryCode: selectedCountry.isoName,
-          phoneNumber: phoneNumber,
-        }
-        buyCard(data).then((res) => {
-          setLoading(false);
-          if (res.data) {
-            console.log(res.data);
-            toast.success('Giftcard bought successfully');
-          } else {
-            console.log(res.error);
-            toast.error('Failed to buy giftcard');
-          }
-        });
       } else {
         setLoading(false)
-        console.log("Error", res2);
+        console.log("Error", res);
         toast.error('Failed to buy giftcard');
         return
       }
-    } else {
-      setLoading(false)
-      console.log("Error", res);
-      toast.error('Failed to buy giftcard');
-      return
-    }
     } catch (error) {
       setLoading(false);
       toast.error("Something went wrong");
       console.log("Error", error);
     }
+  };
 
+  const getCountryCountryCurrency = (denomination) => {
+    if (!sCountrySenderPairRate || !sCountrySenderPairRate.conversion_rate) {
+      return denomination;
+    }
+  
+    const rate = sCountrySenderPairRate.conversion_rate;
+    const localAmount = denomination / rate;
+    return parseFloat(localAmount.toFixed(2)); 
   };
 
   return (
@@ -394,20 +431,33 @@ const BuyGift = ({ card, setOpenModal }) => {
           <Title>
             {card.productName}
           </Title>
-
           <Form>
             {hasFixedDenominations ?
-              <AmountWrapper>
-                {card.fixedRecipientDenominations.map((denomination, index) => (
-                  <AmountButton key={index} active={amount === denomination} onClick={() => setAmount(denomination)}>${denomination.toFixed(2)}</AmountButton>
-                ))
-                }
-              </AmountWrapper>
+            <AmountWrapper>
+            {card && tokenLiveData && card.fixedSenderDenominations.map((denomination, index) => (
+              <AmountButton
+                key={index}
+                active={amount === denomination}
+                onClick={() => setAmount(denomination)}
+              >
+               <>{calcutatingPrice ? 
+                <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
+                : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
+               }</>
+                {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> REM
+              </AmountButton>
+            ))}
+          </AmountWrapper>
               :
               <InputGroup>
-                {card.minRecipientDenomination && card.maxRecipientDenomination && <Label htmlFor="amount">
-                  Select an amount between ${card.minRecipientDenomination} and ${card.maxRecipientDenomination}
-                </Label>}
+                {card.minSenderDenomination && card.maxSenderDenomination && senderUsdPairRate && (
+                  <Label htmlFor="amount">
+                    Select an amount between {selectedCountry?.currencyCode} <PriceSpan> {minAmount} </PriceSpan> and <PriceSpan> {selectedCountry?.currencyCode} {maxAmount}</PriceSpan> 
+                    {" "} || {" "}
+                   {calculateTokenPriceEquivalent(card.minSenderDenomination).toFixed(2)}and {calculateTokenPriceEquivalent(card.maxSenderDenomination).toFixed(2)}
+                    {" "} REM
+                  </Label>
+                )}
                 <Label htmlFor="amount">Amount</Label>
                 <Input
                   type="number"
