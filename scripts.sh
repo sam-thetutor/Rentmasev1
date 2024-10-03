@@ -26,7 +26,7 @@ dfx deploy token --argument '
       };
     }
   })
-' --network ic
+'
 
 
 dfx canister call token icrc1_transfer "(record { 
