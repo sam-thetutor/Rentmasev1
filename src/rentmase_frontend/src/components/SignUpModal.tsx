@@ -168,14 +168,6 @@ const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
         }
     }, [isAuthenticated]);
 
-    const cancelButtonRef = useRef(null);
-
-    useEffect(() => {
-        if (isAuthenticated && user) {
-            navigate('/profile');
-        }
-    }, [user, isAuthenticated]);
-
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const invite = params.get('invite');
@@ -222,6 +214,7 @@ const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
             toast.success('Registered successfully');
             setSaving(false);
             setUser(result.ok);
+            setOpenSignUpModal(false);
             navigate('/profile');
         } else {
             setSaving(false);
@@ -238,8 +231,6 @@ const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
             const randomIndex = Math.floor(Math.random() * characters.length);
             randomPart += characters[randomIndex];
         }
-
-
         return randomPart;
     }
 

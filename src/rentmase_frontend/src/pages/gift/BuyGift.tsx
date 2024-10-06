@@ -400,7 +400,7 @@ const BuyGift = ({ card, setOpenModal }) => {
             productId: card.productId,
             quantity: quantity,
             unitPrice: amount,
-            customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()}`,
+            customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()} ${card.productId}`,
             recipientPhone: phoneNumber,
             senderName: fromnName,
             recipientEmail: user.email,

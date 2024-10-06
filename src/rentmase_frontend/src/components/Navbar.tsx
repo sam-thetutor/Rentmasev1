@@ -196,7 +196,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
   const [openSignUpModal, setOpenSignUpModal] = useState(false);
-  const { isAuthenticated, user, tokenCanister } = useAuth();
+  const { isAuthenticated, backendActor, user, tokenCanister, identity } = useAuth();
   const { location } = useSelector((state: RootState) => state.app);
 
   useEffect(() => {
@@ -206,10 +206,21 @@ const Navbar = () => {
   }, [user, tokenCanister]);
 
   useEffect(() => {
-    if (isAuthenticated && !user) {
+    if (isAuthenticated && !user && backendActor) {
+      getUser()
+    } else {
+      setOpenSignUpModal(false);
+    }
+  }, [user, isAuthenticated, backendActor]);
+
+  const getUser = async () => {
+    const res = await backendActor.getUser()
+    if ("ok" in res) {
+      setOpenSignUpModal(false);
+    } else {
       setOpenSignUpModal(true);
     }
-  }, [user, isAuthenticated]);
+  }
 
   const getBalance = async () => {
     const balance = await tokenCanister.icrc1_balance_of({
@@ -272,7 +283,6 @@ const Navbar = () => {
 
 
   const processLocations = async (city: string, cntry: string, location: string) => {
-    console.log("")
     const response = await fetch("https://topups.reloadly.com/countries");
     const data = await response.json();
     const _country = data.find((country: CountryData) => country.name === cntry);
@@ -311,7 +321,7 @@ const Navbar = () => {
         <LearderBorderLink to="leaderboard">Leaderboard</LearderBorderLink>
         {isAuthenticated ? (
           <>
-            {user ? <SlideMenu /> : <ButtonLink 
+            {user ? <SlideMenu /> : <ButtonLink
               onClick={() => setOpenSignUpModal(true)}
             >Sign Up</ButtonLink>}
           </>
@@ -320,7 +330,7 @@ const Navbar = () => {
         )}
       </RightContainer>
       {openModal && <LoginModal {...{ openModal, setOpenModal }} />}
-      {openSignUpModal && <SignUpModal {...{openSignUpModal, setOpenSignUpModal }} />}
+      {openSignUpModal && <SignUpModal {...{ openSignUpModal, setOpenSignUpModal }} />}
     </NavbarContainer>
   );
 };
