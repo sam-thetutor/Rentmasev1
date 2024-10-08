@@ -41,12 +41,8 @@ import { useIdentityKit } from "@nfid/identitykit/react"
 import { Actor } from '@dfinity/agent';
 import { idlFactory } from '../../declarations/rentmase_backend';
 
-
-
 function App() {
   // const { agent, identity, delegationType } = useIdentityKit()
-
-
   // const targetActor =
   // agent &&
   // Actor.createActor(idlFactory, {
@@ -58,29 +54,18 @@ function App() {
   // console.log("Identity: ", identity);
   // console.log("Target Actor: ", targetActor);
 
- 
-
-
-
-
-
-
-
-
   const { backendActor, isAuthenticated, setUser } = useAuth();
   const dispatch = useDispatch();
 
-    useEffect(() => {
-        getCountries();
-    }, []);
+  useEffect(() => {
+    getCountries();
+  }, []);
 
-
-    const getCountries = async () => {
-        const response = await fetch(`https://topups.reloadly.com/countries`);
-        const data = await response.json();
-        dispatch(setCountries(data));
-    };
-
+  const getCountries = async () => {
+    const response = await fetch(`https://topups.reloadly.com/countries`);
+    const data = await response.json();
+    dispatch(setCountries(data));
+  };
 
   // const getTokens = async () => {
   //   const tokens = await fetchTokens();
@@ -90,9 +75,6 @@ function App() {
   // useEffect(() => {
   //   getTokens();
   // }, []);
-
-
-
 
   useEffect(() => {
     if (isAuthenticated && backendActor) {

@@ -305,7 +305,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             getpair({ curr1: `${selectedCountry.currencyCode}`, curr2: `${operator.senderCurrencyCode}` }).then((res) => {
                 if (res.data) {
                     setSenderCountryPairRate(res.data);
-                    setCalculatingPrice(false);
+                    setCalculatingPrice(false); 
                 } else {
                     console.log(res.error);
                 }
@@ -324,7 +324,6 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         const localAmount = denomination / rate;
         return parseFloat(localAmount.toFixed(2));
     };
-
 
     const calculateTokenPriceEquivalent = (zarAmount: number): number => {
         if (!senderUsdPairRate || !tokenLiveData || tokenLiveData.pair === null) {
