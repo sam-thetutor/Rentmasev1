@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Await, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import CartButton from './CartButton';
 import SignInButton from './SignInButton';
@@ -7,7 +7,7 @@ import { FiMapPin } from 'react-icons/fi'; // Import the location icon from reac
 import { MdLocationOn } from 'react-icons/md';
 import { FaLocationArrow } from 'react-icons/fa';
 import { LocationType } from '../redux/types';
-import { setLocation, setLocationStatus, setTokenBalance } from '../redux/slices/app';
+import { setCashback, setLocation, setLocationStatus, setTokenBalance } from '../redux/slices/app';
 import { CountryData } from '../pages/airtime/types';
 import LocationButton from './LocationButton';
 import SlideMenu from './SlideMenu';
@@ -238,6 +238,15 @@ const Navbar = () => {
       fethTokenPrice();
     }
   }, [location]);
+
+  useEffect(() => {
+   (async () => {
+    if (backendActor) {
+      const _cashback = await backendActor.getCashback();
+      dispatch(setCashback(_cashback));
+    }
+   })();
+  }, [backendActor]);
 
 
   const fethTokenPrice = async () => {

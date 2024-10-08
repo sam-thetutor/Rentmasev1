@@ -4,7 +4,7 @@ module {
     public type UserPayload = {
         firstName : Text;
         lastName : Text;
-        username: Text;
+        username : Text;
         dob : ?Time.Time;
         gender : ?Text;
         referrerCode : ?Text;
@@ -15,7 +15,7 @@ module {
     public type UserUpdatePayload = {
         firstName : Text;
         lastName : Text;
-        username: Text;
+        username : Text;
         dob : ?Time.Time;
         gender : ?Text;
         email : Text;
@@ -32,7 +32,7 @@ module {
         id : Principal;
         firstName : Text;
         lastName : Text;
-        username: Text;
+        username : Text;
         referralCode : Text;
         referrals : [Principal];
         email : Text;
@@ -83,11 +83,11 @@ module {
     public type SocialShareRewardRequest = {
         user : Principal;
         postUrl : Text;
-        approved : Bool;    
+        approved : Bool;
         timestamp : Time.Time;
     };
 
-public type Review = {
+    public type Review = {
         user : Principal;
         review : Text;
         rating : Nat;
@@ -97,6 +97,7 @@ public type Review = {
     public type TxnPayload = {
         txnType : TxnType;
         transferAmount : Nat;
+        cashback : ?Cashback;
         userEmail : Text;
     };
 
@@ -108,13 +109,31 @@ public type Review = {
         transferData : TransferData;
         userPrincipal : Principal;
         status : TxnStatus;
+        cashback : ?Cashback;
         timestamp : Time.Time;
+    };
+
+    public type CashbackType = ?{
+        percentage : Float;
+        products : [Product];
+    };
+
+    type Product = {
+        #AirtimeTopup;
+        #DataTopup;
+        #BillsPayment;
+        #GiftCardPurchase;
+    };
+
+    type Cashback = {
+        percentage : Float;
+        amount : Nat;
     };
 
     public type TransferData = {
         from : Account;
         amount : Nat;
-    };  
+    };
 
     type TxnType = {
         #AirtimeTopup : AirtimeTopup;

@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
 import { backendCanisterId, cashback, tokenDecimas, tokenFee } from '../../constants';
 import { Principal } from '@dfinity/principal';
-import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
+import { Cashback, TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import ClipLoader from 'react-spinners/ClipLoader';
@@ -118,7 +118,7 @@ type Props = {
 };
 
 const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) => {
-    const { tokenLiveData, tokenBalance } = useSelector((state: RootState) => state.app);
+    const { tokenLiveData, tokenBalance, cashback } = useSelector((state: RootState) => state.app);
     const { user, isAuthenticated, tokenCanister, identity, backendActor } = useAuth();
     const [fetchNumberOperators] = useLazyGetNumberOperatorsQuery();
     const [amount, setAmount] = useState(0);
@@ -186,8 +186,25 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             toast.error("Please sign up to continue");
             return;
         }
-
         let _amount = amount;
+        let _cashback = null;
+        let percentage = 0;
+        let isCashback = false;
+    
+        if (cashback && cashback.length > 0) {
+          for (const cashbackItem of cashback) {
+            const hasGiftCardPurchase = cashbackItem.products.some(
+              (product) => 'GiftCardPurchase' in product
+            );
+            if (hasGiftCardPurchase) {
+              _cashback = cashbackItem.percentage;
+              percentage = cashbackItem.percentage
+              isCashback = true;
+              break;
+            }
+          }
+        }
+    
 
         if (!operator || !sCountrySenderPairRate) {
             toast.error('Please select an operator');
@@ -232,11 +249,19 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
 
         const res = await tokenCanister.icrc2_approve(arg);
 
+        const cashbackAmount = (Number(tokenAmnt) * percentage) / 100;
+
+      const txncashback : Cashback = {
+        amount: BigInt(cashbackAmount),
+        percentage: percentage
+      }
+
         if ("Ok" in res) {
             const arg2: TxnPayload = {
                 userEmail: user.email,
                 transferAmount: tokenAmnt,
-                txnType: { 'AirtimeTopup': { operator: operator.name, countryCode: selectedCountry.isoName, operaterId: String(operator.id), phoneNumber, amount: String(_amount) } }
+                txnType: { 'AirtimeTopup': { operator: operator.name, countryCode: selectedCountry.isoName, operaterId: String(operator.id), phoneNumber, amount: String(_amount) } },
+                cashback: isCashback ?  [txncashback] :[]
             }
 
             const res2 = await backendActor.intiateTxn(arg2);
@@ -249,7 +274,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                     useLocalAmount: false,
                     customIdentifier: "airtime-top-up",
                     recipientEmail: user.email,
-                    cashback,
+                    cashback : _cashback,
                     countryCode: selectedCountry.isoName,
                     phoneNumber: phoneNumber,
                 }

@@ -8,11 +8,11 @@ import { RootState } from '../../redux/store';
 import { toast } from 'react-toastify';
 import { useBuyGiftCardMutation, useLazyGetPairEchangeRateQuery } from '../../redux/api/servicesSlice';
 import { useAuth } from '../../hooks/Context';
-import { backendCanisterId, cashback, tokenDecimas, tokenFee } from '../../constants';
+import { backendCanisterId, tokenDecimas, tokenFee } from '../../constants';
 import { Principal } from '@dfinity/principal';
 import { ApproveArgs } from '../../../../declarations/token/token.did';
-import { TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
-import ClipLoader from "react-spinners/ClipLoader";
+import { Cashback, TxnPayload } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
+import ClipLoader from "react-spinners/ClipLoader";;
 const Container = styled.div`
   background-color: white;
   padding: 20px;
@@ -205,7 +205,7 @@ const BuyGift = ({ card, setOpenModal }) => {
   const handleClose = () => setOpenModal(false);
   const [amount, setAmount] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
-  const { location, countries, tokenLiveData, tokenBalance } = useSelector((state: RootState) => state.app);
+  const { location, countries, tokenLiveData, tokenBalance, cashback } = useSelector((state: RootState) => state.app);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [toEmail, setToEmail] = useState<string | null>(null);
@@ -332,24 +332,41 @@ const BuyGift = ({ card, setOpenModal }) => {
     setLoading(true);
 
     let _amount = amount;
+    let _cashback = null;
+    let percentage = 0;
+    let isCashback = false;
+
+    if (cashback && cashback.length > 0) {
+      for (const cashbackItem of cashback) {
+        const hasGiftCardPurchase = cashbackItem.products.some(
+          (product) => 'GiftCardPurchase' in product
+        );
+        if (hasGiftCardPurchase) {
+          _cashback = cashbackItem.percentage;
+          percentage = cashbackItem.percentage
+          isCashback = true;
+          break;
+        }
+      }
+    }
 
     if (!card || !sCountrySenderPairRate) {
-        toast.error('Please select an card');
+      toast.error('Please select an card');
     }
 
     if (card.denominationType === "RANGE") {
-        const rate = sCountrySenderPairRate.conversion_rate;
-        _amount = amount * rate;
-        if (_amount < card.minSenderDenomination || _amount > card.minSenderDenomination) {
-            toast.error(`Please enter an amount between ${minAmount} and ${maxAmount}`);
-            return;
-        }
+      const rate = sCountrySenderPairRate.conversion_rate;
+      _amount = amount * rate;
+      if (_amount < card.minSenderDenomination || _amount > card.minSenderDenomination) {
+        toast.error(`Please enter an amount between ${minAmount} and ${maxAmount}`);
+        return;
+      }
 
     }
 
     const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
     const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
-  
+
 
     if (approveAmount > tokenBalance.balance) {
       toast.error('Insufficient balance, please top up');
@@ -374,6 +391,14 @@ const BuyGift = ({ card, setOpenModal }) => {
     try {
       const res = await tokenCanister.icrc2_approve(arg);
 
+      const cashbackAmount = (Number(tokenAmnt) * percentage) / 100;
+
+      const txncashback : Cashback = {
+        amount: BigInt(cashbackAmount),
+        percentage: percentage
+      }
+
+
       if ("Ok" in res) {
         const arg2: TxnPayload = {
           userEmail: user.email,
@@ -387,7 +412,8 @@ const BuyGift = ({ card, setOpenModal }) => {
               amount: amount.toString(),
               recipientEmail: toEmail
             }
-          }
+          },
+          cashback: isCashback ?  [txncashback] :[],
         }
 
         const res2 = await backendActor.intiateTxn(arg2);
@@ -404,7 +430,7 @@ const BuyGift = ({ card, setOpenModal }) => {
             recipientPhone: phoneNumber,
             senderName: fromnName,
             recipientEmail: user.email,
-            cashback,
+            cashback: _cashback,
             countryCode: selectedCountry.isoName,
             phoneNumber: phoneNumber,
           }

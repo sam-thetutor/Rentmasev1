@@ -9,6 +9,7 @@ import Int "mo:base/Int";
 import Float "mo:base/Float";
 import Int64 "mo:base/Int64";
 import Debug "mo:base/Debug";
+import Text "mo:base/Text";
 import Types "types";
 
 actor class Rentmase() = this {
@@ -16,6 +17,7 @@ actor class Rentmase() = this {
     type TokenInterface = Types.TokenInterface;
     type InternalTxn = Types.InternalTxn;
     type TxnPayload = Types.TxnPayload;
+    type CashbackType = Types.CashbackType;
 
     var signupRewardAmnt = 100;
     var referralRewardAmnt = 50;
@@ -24,11 +26,22 @@ actor class Rentmase() = this {
     let tokenCanister = "fr2qs-haaaa-aaaai-actya-cai";
     let tokenDecimals = 100_000_000;
 
+    var cashback : CashbackType = null;
+
     stable var users = List.nil<User>();
     stable var transactions = List.nil<InternalTxn>();
     stable var reviews = List.nil<Types.Review>();
     stable var rewards = List.nil<Types.Rewards>();
     stable var socialShareRequests = List.nil<Types.SocialShareRewardRequest>();
+
+    public shared ({caller}) func setCashback (args: CashbackType) : async () {
+        // assert (Principal.isController(caller)); // TODO: Uncomment this line
+        cashback := args;
+    };
+
+    public shared query func getCashback () : async CashbackType {
+        return cashback;
+    };
 
     public shared ({ caller }) func registerUser(payload : Types.UserPayload) : async Result.Result<User, Text> {
         assert (not Principal.isAnonymous(caller));
@@ -411,7 +424,7 @@ actor class Rentmase() = this {
 
     /*************************
     * Internal Transactions
-*************************/
+    *************************/
 
     public shared ({ caller }) func intiateTxn(payload : Types.TxnPayload) : async Result.Result<InternalTxn, Text> {
         let id = List.size<InternalTxn>(transactions);
@@ -425,6 +438,7 @@ actor class Rentmase() = this {
                 from = { owner = caller; subaccount = null };
                 amount = payload.transferAmount;
             };
+            cashback = payload.cashback;
             txnType = payload.txnType;
             userPrincipal = caller;
             timestamp = Time.now();
