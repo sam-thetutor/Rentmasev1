@@ -23,7 +23,7 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "fr2qs-haaaa-aaaai-actya-cai";
+    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
     let tokenDecimals = 100_000_000;
 
     var cashback : CashbackType = null;
@@ -332,6 +332,9 @@ actor class Rentmase() = this {
                     case (#Completed) {
                         return #err("Transaction already completed");
                     };
+                    case (#FailedNRefunded) {
+                        return #err("Transaction failed and refunded");
+                    };
                     case (#TokensTransfered) {
                         let cashbackAmount = (natToFloat(_txn.transferData.amount) * percentage) / 100;
                         let _actor = actor (tokenCanister) : TokenInterface;
@@ -501,6 +504,9 @@ actor class Rentmase() = this {
                     case (#TokensTransfered) {
                         return #err("Tokens already transfered");
                     };
+                    case (#FailedNRefunded) {
+                        return #err("Transaction failed and refunded");
+                    };
                 };
             };
         };
@@ -525,6 +531,9 @@ actor class Rentmase() = this {
                     case (#Completed) {
                         return #err("Transaction already completed");
                     };
+                    case (#FailedNRefunded) {
+                        return #err("Transaction failed and refunded");
+                    };
                     case (#TokensTransfered) {
                         let updatedTxn : InternalTxn = {
                             _txn with
@@ -540,6 +549,64 @@ actor class Rentmase() = this {
                         };
                         transactions := List.map(transactions, updateTxn);
                         return #ok(updatedTxn);
+                    };
+                };
+            };
+        };
+    };
+
+    public shared func refundFailedTxn(txnId : Int) : async Result.Result<InternalTxn, Text> {
+        let txn = List.find<InternalTxn>(
+            transactions,
+            func(txn : InternalTxn) : Bool {
+                return txn.id == txnId;
+            },
+        );
+        switch (txn) {
+            case (null) {
+                return #err("Transaction not found");
+            };
+            case (?_txn) {
+                switch (_txn.status) {
+                    case (#Initiated) {
+                        return #err("Transaction not yet transfered");
+                    };
+                    case (#Completed) {
+                        return #err("Transaction already completed");
+                    };
+                    case (#FailedNRefunded) {
+                        return #err("Transaction failed and refunded");
+                    };
+                    case (#TokensTransfered) {
+                        let _actor = actor (tokenCanister) : TokenInterface;
+                        let transferArg : Types.TransferArg = {
+                            to = _txn.transferData.from;
+                            fee = null;
+                            memo = null;
+                            from_subaccount = null;
+                            created_at_time = null;
+                            amount = _txn.transferData.amount;
+                        };
+                        switch (await _actor.icrc1_transfer(transferArg)) {
+                            case (#Err(err)) {
+                                return #err(handleTransferError(err));
+                            };
+                            case (#Ok(_)) {
+                                let updatedTxn : InternalTxn = {
+                                    _txn with
+                                    status = #FailedNRefunded;
+                                };
+                                func updateTxn(t : InternalTxn) : InternalTxn {
+                                    if (t.id == _txn.id) {
+                                        return updatedTxn;
+                                    } else {
+                                        return t;
+                                    };
+                                };
+                                transactions := List.map(transactions, updateTxn);
+                                return #ok(updatedTxn);
+                            };
+                        };
                     };
                 };
             };

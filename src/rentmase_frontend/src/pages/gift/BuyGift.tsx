@@ -309,11 +309,27 @@ const BuyGift = ({ card, setOpenModal }) => {
     setSelectedCountry(country);
   };
 
-  const handleBuy = async () => {
-    if (!tokenLiveData || tokenLiveData.pair === null) {
-      toast.error('Token data not available, please try again later');
-      return;
+  const lookUpKeyAmount = (map: { [key: number]: number }, value: number): number | null => {
+    for (const [key, val] of Object.entries(map)) {
+        if (val === value) {
+            return Number(key); 
+        }
     }
+    return null; 
+}
+
+const amountInUSD = (amount: number) => {
+  if (!senderUsdPairRate) {
+    return 0;
+  }
+  return amount * senderUsdPairRate.conversion_rate;
+}
+
+  const handleBuy = async () => {
+    // if (!tokenLiveData || tokenLiveData.pair === null) {
+    //   toast.error('Token data not available, please try again later');
+    //   return;
+    // }
 
     if (!isAuthenticated) {
       toast.error('Please login to continue');
@@ -335,6 +351,7 @@ const BuyGift = ({ card, setOpenModal }) => {
     let _cashback = null;
     let percentage = 0;
     let isCashback = false;
+    const isFixedDenomination = card.denominationType === "FIXED";
 
     if (cashback && cashback.length > 0) {
       for (const cashbackItem of cashback) {
@@ -364,8 +381,11 @@ const BuyGift = ({ card, setOpenModal }) => {
 
     }
 
-    const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
-    const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
+    // const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
+    // const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
+
+    const approveAmount = BigInt(1000 * tokenDecimas + tokenFee);
+    const tokenAmnt = BigInt(1000 * tokenDecimas);
 
 
     if (approveAmount > tokenBalance.balance) {
@@ -421,11 +441,10 @@ const BuyGift = ({ card, setOpenModal }) => {
         if ("ok" in res2) {
           const data = {
             txnId: res2.ok.id.toString(),
-            amount: amount,
             useLocalAmount: false,
             productId: card.productId,
             quantity: quantity,
-            unitPrice: amount,
+            unitPrice: isFixedDenomination ? lookUpKeyAmount(card.fixedRecipientToSenderDenominationsMap, amount) : amountInUSD(_amount),
             customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()} ${card.productId}`,
             recipientPhone: phoneNumber,
             senderName: fromnName,
@@ -434,8 +453,9 @@ const BuyGift = ({ card, setOpenModal }) => {
             countryCode: selectedCountry.isoName,
             phoneNumber: phoneNumber,
           }
-          console.log("Data", data);
           console.log("Card", card);
+          console.log("Data", data);
+
           buyCard(data).then((res) => {
             setLoading(false);
             if (res.data) {

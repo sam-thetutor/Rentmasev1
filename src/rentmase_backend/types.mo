@@ -146,6 +146,7 @@ module {
         #Initiated;
         #TokensTransfered;
         #Completed;
+        #FailedNRefunded;
     };
 
     type AirtimeTopup = {
