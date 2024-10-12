@@ -31,7 +31,7 @@ import Payments from './pages/payments/Payments';
 import Bills from './pages/bills/Bills';
 import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
-import PurchasesHistory from './components/PurchasesHistory';
+import PurchasesHistory from './pages/PurchaseHistory/PurchasesHistory';
 import PrivateRoutes from './PrivateRoutes';
 import { setCountries } from './redux/slices/app';
 import { useDispatch } from 'react-redux';

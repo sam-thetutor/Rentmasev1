@@ -98,6 +98,7 @@ module {
         txnType : TxnType;
         transferAmount : Nat;
         cashback : ?Cashback;
+        quantity : Nat;
         userEmail : Text;
     };
 
@@ -109,6 +110,7 @@ module {
         transferData : TransferData;
         userPrincipal : Principal;
         status : TxnStatus;
+        quantity : Nat;
         cashback : ?Cashback;
         timestamp : Time.Time;
     };
@@ -148,38 +150,39 @@ module {
         #Completed;
         #FailedNRefunded;
     };
-
-    type AirtimeTopup = {
+    type PuerchaseTypeField = {
+        logoUrl : Text;
         amount : Text;
-        operator : Text;
-        operaterId : Text;
+        name : Text;
         phoneNumber : Text;
         countryCode : Text;
+
+    };
+    type AirtimeTopup = {
+        operator : Text;
+        operaterId : Text;
+        more : PuerchaseTypeField;
     };
 
     type DataTopup = {
-        amount : Text;
         operator : Text;
         operaterId : Text;
-        phoneNumber : Text;
-        countryCode : Text;
+        more : PuerchaseTypeField;
     };
 
     type GiftCardPurchase = {
-        productId : Text;
-        amount : Text;
         quantity : Int;
         recipientEmail : Text;
-        countryCode : Text;
-        phoneNumber : Text;
+        productId : Text;
+        more : PuerchaseTypeField;
     };
 
     type BillsPayment = {
-        amount : Text;
         biller : Text;
         billerId : Text;
         subscriberAccount : Text;
         reference : Text;
+        more : PuerchaseTypeField;
     };
 
     /*************************

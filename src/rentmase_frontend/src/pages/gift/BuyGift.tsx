@@ -425,17 +425,22 @@ const amountInUSD = (amount: number) => {
           transferAmount: tokenAmnt,
           txnType: {
             'GiftCardPurchase': {
-              productId: String(card.productId),
-              countryCode: selectedCountry?.isoName,
+              more : {
+                name : card.productName,
+                logoUrl : card.logoUrls[0],
+   
+                countryCode: selectedCountry?.isoName,
+                phoneNumber: phoneNumber,
+                amount: amount.toString(),
+              },
               quantity: BigInt(quantity),
-              phoneNumber: phoneNumber,
-              amount: amount.toString(),
+              productId: String(card.productId),
               recipientEmail: toEmail
             }
           },
+          quantity: BigInt(quantity),
           cashback: isCashback ?  [txncashback] :[],
         }
-
         const res2 = await backendActor.intiateTxn(arg2);
 
         if ("ok" in res2) {
@@ -445,7 +450,7 @@ const amountInUSD = (amount: number) => {
             productId: card.productId,
             quantity: quantity,
             unitPrice: isFixedDenomination ? lookUpKeyAmount(card.fixedRecipientToSenderDenominationsMap, amount) : amountInUSD(_amount),
-            customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()} ${card.productId}`,
+            customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()} ${gnerateUniqueRandomString(5)}`,
             recipientPhone: phoneNumber,
             senderName: fromnName,
             recipientEmail: user.email,
@@ -453,16 +458,12 @@ const amountInUSD = (amount: number) => {
             countryCode: selectedCountry.isoName,
             phoneNumber: phoneNumber,
           }
-          console.log("Card", card);
-          console.log("Data", data);
 
           buyCard(data).then((res) => {
             setLoading(false);
             if (res.data) {
-              console.log(res.data);
               toast.success('Giftcard bought successfully');
             } else {
-              console.log(res.error);
               toast.error('Failed to buy giftcard');
             }
           });
@@ -494,6 +495,15 @@ const amountInUSD = (amount: number) => {
     const localAmount = denomination / rate;
     return parseFloat(localAmount.toFixed(2));
   };
+
+  const gnerateUniqueRandomString = (length: number) => {
+    const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    for (let i = length; i > 0; --i) {
+      result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return result;
+  }
 
   return (
     <ModalBackdrop onClick={handleClose}>

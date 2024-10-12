@@ -190,21 +190,21 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         let _cashback = null;
         let percentage = 0;
         let isCashback = false;
-    
+
         if (cashback && cashback.length > 0) {
-          for (const cashbackItem of cashback) {
-            const hasGiftCardPurchase = cashbackItem.products.some(
-              (product) => 'GiftCardPurchase' in product
-            );
-            if (hasGiftCardPurchase) {
-              _cashback = cashbackItem.percentage;
-              percentage = cashbackItem.percentage
-              isCashback = true;
-              break;
+            for (const cashbackItem of cashback) {
+                const hasGiftCardPurchase = cashbackItem.products.some(
+                    (product) => 'GiftCardPurchase' in product
+                );
+                if (hasGiftCardPurchase) {
+                    _cashback = cashbackItem.percentage;
+                    percentage = cashbackItem.percentage
+                    isCashback = true;
+                    break;
+                }
             }
-          }
         }
-    
+
 
         if (!operator || !sCountrySenderPairRate) {
             toast.error('Please select an operator');
@@ -225,13 +225,13 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
         const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
 
-        
-    if (approveAmount > tokenBalance.balance) {
-        toast.error('Insufficient balance, please top up');
-        setBuyingAirtime(false);
-        return;
-      }
-  
+
+        if (approveAmount > tokenBalance.balance) {
+            toast.error('Insufficient balance, please top up');
+            setBuyingAirtime(false);
+            return;
+        }
+
 
         const arg: ApproveArgs = {
             fee: [],
@@ -251,17 +251,31 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
 
         const cashbackAmount = (Number(tokenAmnt) * percentage) / 100;
 
-      const txncashback : Cashback = {
-        amount: BigInt(cashbackAmount),
-        percentage: percentage
-      }
+        const txncashback: Cashback = {
+            amount: BigInt(cashbackAmount),
+            percentage: percentage
+        }
 
         if ("Ok" in res) {
             const arg2: TxnPayload = {
                 userEmail: user.email,
                 transferAmount: tokenAmnt,
-                txnType: { 'AirtimeTopup': { operator: operator.name, countryCode: selectedCountry.isoName, operaterId: String(operator.id), phoneNumber, amount: String(_amount) } },
-                cashback: isCashback ?  [txncashback] :[]
+                txnType: {
+                    'AirtimeTopup': {
+                        more : {
+                            name : operator.name,
+                            logoUrl: operator.logoUrls[0],
+                            countryCode: selectedCountry.isoName,
+                            phoneNumber,
+                            amount: String(_amount)
+                        },
+                        operator: operator.name,
+                        operaterId: String(operator.id),
+                   
+                    }
+                },
+                quantity: BigInt(1),
+                cashback: isCashback ? [txncashback] : []
             }
 
             const res2 = await backendActor.intiateTxn(arg2);
@@ -274,7 +288,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                     useLocalAmount: false,
                     customIdentifier: "airtime-top-up",
                     recipientEmail: user.email,
-                    cashback : _cashback,
+                    cashback: _cashback,
                     countryCode: selectedCountry.isoName,
                     phoneNumber: phoneNumber,
                 }
@@ -330,7 +344,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             getpair({ curr1: `${selectedCountry.currencyCode}`, curr2: `${operator.senderCurrencyCode}` }).then((res) => {
                 if (res.data) {
                     setSenderCountryPairRate(res.data);
-                    setCalculatingPrice(false); 
+                    setCalculatingPrice(false);
                 } else {
                     console.log(res.error);
                 }

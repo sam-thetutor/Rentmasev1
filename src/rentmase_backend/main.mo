@@ -23,7 +23,7 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+    let tokenCanister = "fr2qs-haaaa-aaaai-actya-cai";
     let tokenDecimals = 100_000_000;
 
     var cashback : CashbackType = null;
@@ -35,12 +35,34 @@ actor class Rentmase() = this {
     stable var socialShareRequests = List.nil<Types.SocialShareRewardRequest>();
 
     public shared ({caller}) func setCashback (args: CashbackType) : async () {
-        // assert (Principal.isController(caller)); // TODO: Uncomment this line
+        assert (Principal.isController(caller)); // TODO: Uncomment this line
         cashback := args;
     };
 
     public shared query func getCashback () : async CashbackType {
         return cashback;
+    };
+
+    public shared query ({caller}) func getUsersCashbackTxns() : async [InternalTxn] {
+        return List.toArray<InternalTxn>(
+            List.filter<InternalTxn>(
+                transactions,
+                func(txn : InternalTxn) : Bool {
+                    return txn.cashback != null and txn.userPrincipal == caller;
+                },
+            )
+        );
+    };
+
+    public shared query ({caller}) func getUsersTxns() : async [InternalTxn] {
+        return List.toArray<InternalTxn>(
+            List.filter<InternalTxn>(
+                transactions,
+                func(txn : InternalTxn) : Bool {
+                    return txn.userPrincipal == caller;
+                },
+            )
+        );
     };
 
     public shared ({ caller }) func registerUser(payload : Types.UserPayload) : async Result.Result<User, Text> {
@@ -337,6 +359,7 @@ actor class Rentmase() = this {
                     };
                     case (#TokensTransfered) {
                         let cashbackAmount = (natToFloat(_txn.transferData.amount) * percentage) / 100;
+                        Debug.print("Cashback amount: " # Float.toText(cashbackAmount));
                         let _actor = actor (tokenCanister) : TokenInterface;
                         let transferArg : Types.TransferArg = {
                             to = { owner = _txn.userPrincipal; subaccount = null };
@@ -442,6 +465,7 @@ actor class Rentmase() = this {
                 amount = payload.transferAmount;
             };
             cashback = payload.cashback;
+            quantity = payload.quantity;
             txnType = payload.txnType;
             userPrincipal = caller;
             timestamp = Time.now();

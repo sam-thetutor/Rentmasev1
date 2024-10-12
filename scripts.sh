@@ -4,12 +4,12 @@ dfx deploy token --argument '
       token_name = "Token E";
       token_symbol = "E";
       minting_account = record {
-        owner = principal "nu4ce-6r22f-2x4c3-byypo-ltk2h-rpoks-qd3hw-w22d6-n6adq-iwahh-jae";
+        owner = principal "shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae";
       };
       initial_balances = vec {
         record {
           record {
-            owner = principal "nu4ce-6r22f-2x4c3-byypo-ltk2h-rpoks-qd3hw-w22d6-n6adq-iwahh-jae";
+            owner = principal "shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae";
           };
           1_000_000_000_000_000_000;
         };
@@ -19,7 +19,7 @@ dfx deploy token --argument '
       archive_options = record {
         trigger_threshold = 2000;
         num_blocks_to_archive = 1000;
-        controller_id = principal "nu4ce-6r22f-2x4c3-byypo-ltk2h-rpoks-qd3hw-w22d6-n6adq-iwahh-jae";
+        controller_id = principal "shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae";
       };
       feature_flags = opt record {
         icrc2 = true;
@@ -56,5 +56,5 @@ dfx canister call token icrc2_transfer_from "(record {
 
 Demo = r52up-53nzf-qabm7-umbpm-mma4z-alcym-ngag4-de5j5-yx6xt-azgsp-lae
 Default = aokql-627cq-e54sj-hq3k5-6wway-pfgx7-6fcxq-7zsmx-j3rq6-32hpa-5qe
-Firstid = nu4ce-6r22f-2x4c3-byypo-ltk2h-rpoks-qd3hw-w22d6-n6adq-iwahh-jae
+Firstid = shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae
 Minter = nlwxt-arya3-k3zf3-2mr2w-cev5a-lftm2-22vtw-6velq-muscg-b34ej-pqe
