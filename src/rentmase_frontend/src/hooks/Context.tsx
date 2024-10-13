@@ -19,7 +19,7 @@ import { _SERVICE as TOKENSERVICE } from "../../../declarations/token/token.did"
 import { tokenCanisterId, tokenIDL } from "../constants";
 import { useAuthenticateMutation } from "../redux/api/servicesSlice";
 
-const network = process.env.DFX_NETWORK || "local";
+export const network = process.env.DFX_NETWORK || "local";
 const localhost = "http://localhost:4943";
 const host = "https://icp0.io";
 
@@ -64,9 +64,7 @@ export const useAuthClient = (options = defaultOptions) => {
   const [tokenCanister, setTokenCanister] = useState<ActorSubclass<TOKENSERVICE> | null>(null);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [
-    authenticate
-  ] = useAuthenticateMutation();
+
 
   useEffect(() => {
     AuthClient.create(options.createOptions).then(async (client) => {
@@ -140,7 +138,7 @@ export const useAuthClient = (options = defaultOptions) => {
     const _identity = client.getIdentity();
     setIdentity(_identity);
 
-    let agent = await HttpAgent.create({
+    let agent = new HttpAgent({
       host: network === "local" ? localhost : host,
       identity: _identity,
     });
@@ -148,7 +146,6 @@ export const useAuthClient = (options = defaultOptions) => {
     if (network === "local") {
       agent.fetchRootKey();
     }
-
     const _tokenCanister: ActorSubclass<TOKENSERVICE> = Actor.createActor(
       tokenIDL,
       {

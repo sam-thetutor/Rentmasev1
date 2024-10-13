@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import Rentals from './pages/Rentals';
@@ -31,15 +30,16 @@ import Payments from './pages/payments/Payments';
 import Bills from './pages/bills/Bills';
 import Airtime from './pages/airtime/Airtime';
 import Gift from './pages/gift/Gift';
-import PurchasesHistory from './pages/PurchaseHistory/PurchasesHistory';
 import PrivateRoutes from './PrivateRoutes';
 import { setCountries } from './redux/slices/app';
 import { useDispatch } from 'react-redux';
+import Navbar from './components/Navbar';
 import { backendCanisterId } from './constants';
 // @ts-ignore
 import { useIdentityKit } from "@nfid/identitykit/react"
 import { Actor } from '@dfinity/agent';
 import { idlFactory } from '../../declarations/rentmase_backend';
+import PurchasesHistory from './pages/PurchaseHistory/PurchasesHistory';
 
 function App() {
   // const { agent, identity, delegationType } = useIdentityKit()
@@ -54,7 +54,7 @@ function App() {
   // console.log("Identity: ", identity);
   // console.log("Target Actor: ", targetActor);
 
-  const { backendActor, isAuthenticated, setUser } = useAuth();
+  const { backendActor, isAuthenticated, setUser, login } = useAuth();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -124,8 +124,12 @@ function App() {
     setCartItems([]);
   };
 
+
   return (
-    <CartProvider>
+<div>
+ 
+
+<CartProvider>
       <OrderHistoryProvider>
         <Router>
           <Navbar />
@@ -164,7 +168,8 @@ function App() {
           <Footer />
         </Router>
       </OrderHistoryProvider>
-    </CartProvider>
+    </CartProvider> 
+</div>
   );
 }
 

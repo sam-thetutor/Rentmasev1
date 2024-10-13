@@ -9,6 +9,9 @@ dotenv.config({ path: '../../.env' });
 export default defineConfig({
   build: {
     emptyOutDir: true,
+    rollupOptions: {
+      external: ['@dfinity/agent'],  
+    },
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -24,9 +27,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    watch: {
-      usePolling: true
-    }
   },
   plugins: [
     react(),
