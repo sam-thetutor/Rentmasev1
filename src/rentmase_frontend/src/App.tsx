@@ -40,6 +40,7 @@ import { useIdentityKit } from "@nfid/identitykit/react"
 import { Actor } from '@dfinity/agent';
 import { idlFactory } from '../../declarations/rentmase_backend';
 import PurchasesHistory from './pages/PurchaseHistory/PurchasesHistory';
+import Rewards from './pages/rewards/Rewards';
 
 function App() {
   // const { agent, identity, delegationType } = useIdentityKit()
@@ -144,6 +145,7 @@ function App() {
               <Route path="/rentals" element={<Rentals />} />
               <Route path="/manage-addresses" element={<ManageAddresses />} />
               <Route path="/travel-bookings" element={<TravelBookings />} />
+              <Route path="/rewards" element={<Rewards />} />
               <Route path="/deliveries" element={<FoodOrders />} />
             </Route>
             <Route path="/products" element={<Products />} />

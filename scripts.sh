@@ -31,7 +31,7 @@ dfx deploy token --argument '
 
 dfx canister call token icrc1_transfer "(record { 
   to = record { 
-    owner = principal \"gkbfp-q3pvb-wluav-eqtcl-uxcxe-ud64h-gpu2h-schtu-jtzmx-ewnlw-7qe\";
+    owner = principal \"7km4a-3mivz-sugwg-naxhb-uc4fl-7nrqt-ibcsv-lbepu-v7tqu-33mup-fqe\";
   }; 
   amount = 10_000_000_000_000;
 })"

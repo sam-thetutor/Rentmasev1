@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { FaUser, FaTags, FaHistory, FaCreditCard, FaMoneyBill,FaShoppingCart, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome, FaBed } from 'react-icons/fa';
+import { FaUser, FaTags, FaHistory, FaCreditCard, FaTrophy, FaMoneyBill,FaShoppingCart, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome, FaBed } from 'react-icons/fa';
 import { useAuth } from '../hooks/Context';
 
 interface OverlayProps {
@@ -122,6 +122,11 @@ const SlideMenu = () => {
           <li>
             <MenuItem to="/invite-friends">
               <FaUserFriends /> Invite Friends
+            </MenuItem>
+          </li>
+          <li>
+            <MenuItem to="/rewards">
+              <FaTrophy /> Rewards
             </MenuItem>
           </li>
           <li>

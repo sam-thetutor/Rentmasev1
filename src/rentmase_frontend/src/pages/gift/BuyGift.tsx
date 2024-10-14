@@ -453,7 +453,7 @@ const amountInUSD = (amount: number) => {
             customIdentifier: `Giftcard Purchase ${res2.ok.id.toString()} ${gnerateUniqueRandomString(5)}`,
             recipientPhone: phoneNumber,
             senderName: fromnName,
-            recipientEmail: user.email,
+            recipientEmail: toEmail,
             cashback: _cashback,
             countryCode: selectedCountry.isoName,
             phoneNumber: phoneNumber,

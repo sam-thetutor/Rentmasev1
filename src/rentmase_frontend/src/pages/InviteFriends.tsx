@@ -260,7 +260,6 @@ const ModalButton = styled.button`
 const InviteFriends = () => {
   const navigate = useNavigate();
   const { user, setUser, isAuthenticated, backendActor } = useAuth();
-  const [openModal, setOpenModal] = useState(false);
   const [rewards, setRewards] = useState<Rewards | null>(null);
   const [customCode, setCustomCode] = useState<string>("");
   const [saving, setSaving] = useState(false);
@@ -363,26 +362,6 @@ const InviteFriends = () => {
         <SocialButton><FaEnvelope /></SocialButton>
         <SocialButton><FaLink /></SocialButton>
       </SocialButtons>
-
-      <StatsSection>
-        <StatItem>
-          <StatTitle>Friends Invited</StatTitle>
-          <StatValue>{user?.referrals.length}</StatValue>
-        </StatItem>
-        <StatItem>
-          <StatTitle>Total $RENT Earned</StatTitle>
-          <StatValue>{rewards?.rewards.length}</StatValue>
-          <p>Worth: *** $REM</p>
-          <p>The $Rent earned will be converted to $REM at SNS at a yet to be determined ratio</p>
-        </StatItem>
-        <StatItem>
-          <StatTitle>Available $RENT</StatTitle>
-          <StatValue>{rewards?.rewards.length}</StatValue>
-          <p>Worth: {Number(rewards?.balance)} REM</p>
-          <RedeemButton onClick={() => setOpenModal(true)} disabled>Redeem</RedeemButton>
-        </StatItem>
-      </StatsSection>
-
       <TaskSection>
         <SectionTitle>Complete Tasks & Earn More</SectionTitle>
         <TaskTable>
@@ -408,8 +387,6 @@ const InviteFriends = () => {
           </TaskRow>
         </TaskTable>
       </TaskSection>
-
-      {openModal && <RedeemTokens {...{ openModal, setOpenModal, rewards }} />}
     </InviteContainer>
   );
 };
