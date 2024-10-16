@@ -384,8 +384,8 @@ const amountInUSD = (amount: number) => {
     // const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
     // const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
 
-    const approveAmount = BigInt(1000 * tokenDecimas + tokenFee);
-    const tokenAmnt = BigInt(1000 * tokenDecimas);
+    const approveAmount = BigInt(100 * tokenDecimas + tokenFee);
+    const tokenAmnt = BigInt(100 * tokenDecimas);
 
 
     if (approveAmount > tokenBalance.balance) {

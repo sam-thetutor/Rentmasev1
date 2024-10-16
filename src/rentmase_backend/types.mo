@@ -1,6 +1,12 @@
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 module {
+    public type FaucetTxn = {
+        id : Nat;
+        user : Principal;
+        amount : Nat;
+        timestamp : Time.Time;
+    };
     public type UserPayload = {
         firstName : Text;
         lastName : Text;

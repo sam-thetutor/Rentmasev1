@@ -76,11 +76,11 @@ const RewardsPage = () => {
                 <StatsSection>
                     <StatBox>
                         <StatLabel>Total Rewards Earned</StatLabel>
-                        <StatValue>{Number(rewards.totalAmountEarned)} Points</StatValue>
+                        <StatValue>{Number(rewards.totalAmountEarned)} $Rent</StatValue>
                     </StatBox>
                     <StatBox>
                         <StatLabel>Current Balance</StatLabel>
-                        <StatValue>{Number(rewards.balance)} Points</StatValue>
+                        <StatValue>{Number(rewards.balance)} $Rent</StatValue>
                     </StatBox>
                 </StatsSection>
 
@@ -95,19 +95,19 @@ const RewardsPage = () => {
                     <TableBody>
                         <TableRow>
                             <TableData>Social Share</TableData>
-                            <TableData>{Number(totals.SocialShare)} Points</TableData>
+                            <TableData>{Number(totals.SocialShare)} $Rent</TableData>
                         </TableRow>
                         <TableRow>
                             <TableData>Review Reward</TableData>
-                            <TableData>{Number(totals.ReviewReward)} Points</TableData>
+                            <TableData>{Number(totals.ReviewReward)} $Rent</TableData>
                         </TableRow>
                         <TableRow>
                             <TableData>Signup Bonus</TableData>
-                            <TableData>{Number(totals.Signup)} Points</TableData>
+                            <TableData>{Number(totals.Signup)} $Rent</TableData>
                         </TableRow>
                         <TableRow>
                             <TableData>Referral Reward</TableData>
-                            <TableData>{Number(totals.Referral)} Points</TableData>
+                            <TableData>{Number(totals.Referral)} $Rent</TableData>
                         </TableRow>
                     </TableBody>
                 </RewardsTable>

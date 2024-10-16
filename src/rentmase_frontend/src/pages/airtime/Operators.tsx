@@ -170,10 +170,10 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
     };
 
     const handleTopUp = async () => {
-        if (!tokenLiveData || tokenLiveData.pair === null) {
-            toast.error('Token data not available, please try again later');
-            return;
-        }
+        // if (!tokenLiveData || tokenLiveData.pair === null) {
+        //     toast.error('Token data not available, please try again later');
+        //     return;
+        // }
         if (!amount) {
             toast.error('Please enter an amount');
             return;
@@ -222,8 +222,10 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
 
         setBuyingAirtime(true);
 
-        const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
-        const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
+        // const approveAmount = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas + tokenFee).toFixed(0));
+        // const tokenAmnt = BigInt((calculateTokenPriceEquivalent(_amount) * tokenDecimas).toFixed(0));
+        const approveAmount = BigInt(100 * tokenDecimas + tokenFee);
+        const tokenAmnt = BigInt(100 * tokenDecimas);
 
 
         if (approveAmount > tokenBalance.balance) {

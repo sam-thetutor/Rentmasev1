@@ -20,6 +20,161 @@ import { setTokenLiveData } from '../redux/slices/app';
 import { RootState } from '../redux/store';
 import SignUpModal from './SignUpModal';
 
+
+const Navbar = () => {
+  const dispatch = useDispatch();
+  const [openModal, setOpenModal] = useState(false);
+  const [openSignUpModal, setOpenSignUpModal] = useState(false);
+  const { isAuthenticated, backendActor, user, tokenCanister, identity } = useAuth();
+  const { location } = useSelector((state: RootState) => state.app);
+
+  useEffect(() => {
+    if (user && tokenCanister) {
+      getBalance();
+    }
+  }, [user, tokenCanister]);
+
+  useEffect(() => {
+    if (isAuthenticated && !user && backendActor) {
+      getUser()
+    } else {
+      setOpenSignUpModal(false);
+    }
+  }, [user, isAuthenticated, backendActor]);
+
+  const getUser = async () => {
+    const res = await backendActor.getUser()
+    if ("ok" in res) {
+      setOpenSignUpModal(false);
+    } else {
+      setOpenSignUpModal(true);
+    }
+  }
+
+  const getBalance = async () => {
+    const balance = await tokenCanister.icrc1_balance_of({
+      owner: user.id,
+      subaccount: []
+    });
+    dispatch(setTokenBalance({
+      balance: Number(balance),
+      principal: user.id.toString(),
+    }));
+  }
+
+  useEffect(() => {
+    if (location) {
+      fethTokenPrice();
+    }
+  }, [location]);
+
+  useEffect(() => {
+   (async () => {
+    if (backendActor) {
+      const _cashback = await backendActor.getCashback();
+      dispatch(setCashback(_cashback));
+    }
+   })();
+  }, [backendActor]);
+
+
+  const fethTokenPrice = async () => {
+    const response = await fetch("https://api.dexscreener.com/latest/dex/pairs/icp/mnbr7-uiaaa-aaaam-adaaq-cai:ryjl3-tyaaa-aaaaa-aaaba-cai");
+    const data = await response.json();
+    dispatch(setTokenLiveData(data));
+  }
+
+  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+            .then((response) => response.json())
+            .then((data) => {
+              const { address } = data;
+              const city = address.city || address.town || address.village || address.state_district || address.county || 'Unknown City';
+              const country = address.country || 'Unknown Country';
+
+              const location = `${city}, ${country}`;
+
+              processLocations(city, country, location);
+            })
+            .catch((error) => {
+              dispatch(setLocationStatus('Geolocation Error'));
+              console.error("Geolocation Error:", error);
+              setCurrentLocation(null);
+            });
+        },
+        (error) => {
+          dispatch(setLocationStatus('Denied'));
+          console.error("Geolocation Error:", error);
+          setCurrentLocation(null);
+        }
+      );
+    } else {
+      setCurrentLocation('Geolocation not supported');
+    }
+  }, []);
+
+
+  const processLocations = async (city: string, cntry: string, location: string) => {
+    const response = await fetch("https://topups.reloadly.com/countries");
+    const data = await response.json();
+    const _country = data.find((country: CountryData) => country.name === cntry);
+    if (_country) {
+      const _location: LocationType = {
+        city: city,
+        country: cntry,
+        fullLocation: location,
+        isoName: _country.isoName,
+        currencyCode: _country.currencyCode,
+      }
+      dispatch(setLocation(_location));
+      setCurrentLocation(location);
+    } else {
+      setLocationStatus("NotFound")
+      setCurrentLocation(location);
+    }
+  }
+
+  return (
+    <NavbarContainer>
+      {/* <ConnectWallet />; */}
+      <LeftContainer>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'black' }}>
+          <Logo src="/images/logoB.svg" alt="Logo" />
+        </Link>
+        {currentLocation && <StyledLocationButton>
+          <LocationButton {...{ currentLocation }} />
+        </StyledLocationButton>}
+      </LeftContainer>
+      <CenterContainer>
+        <RentmaseText>rentmase</RentmaseText>
+      </CenterContainer>
+
+      <RightContainer>
+        <LearderBorderLink to="leaderboard">Leaderboard</LearderBorderLink>
+        {isAuthenticated ? (
+          <>
+            {user ? <SlideMenu /> : <ButtonLink
+              onClick={() => setOpenSignUpModal(true)}
+            >Sign Up</ButtonLink>}
+          </>
+        ) : (
+          <Button onClick={() => setOpenModal(true)}>Login</Button>
+        )}
+      </RightContainer>
+      {openModal && <LoginModal {...{ openModal, setOpenModal }} />}
+      {openSignUpModal && <SignUpModal {...{ openSignUpModal, setOpenSignUpModal }} />}
+    </NavbarContainer>
+  );
+};
+
+export default Navbar;
+
 const NavbarContainer = styled.nav`
   display: flex;
   justify-content: space-between;
@@ -192,156 +347,3 @@ const LearderBorderLink = styled(Link)`
   }
 `;
 
-const Navbar = () => {
-  const dispatch = useDispatch();
-  const [openModal, setOpenModal] = useState(false);
-  const [openSignUpModal, setOpenSignUpModal] = useState(false);
-  const { isAuthenticated, backendActor, user, tokenCanister, identity } = useAuth();
-  const { location } = useSelector((state: RootState) => state.app);
-
-  useEffect(() => {
-    if (user && tokenCanister) {
-      getBalance();
-    }
-  }, [user, tokenCanister]);
-
-  useEffect(() => {
-    if (isAuthenticated && !user && backendActor) {
-      getUser()
-    } else {
-      setOpenSignUpModal(false);
-    }
-  }, [user, isAuthenticated, backendActor]);
-
-  const getUser = async () => {
-    const res = await backendActor.getUser()
-    if ("ok" in res) {
-      setOpenSignUpModal(false);
-    } else {
-      setOpenSignUpModal(true);
-    }
-  }
-
-  const getBalance = async () => {
-    const balance = await tokenCanister.icrc1_balance_of({
-      owner: user.id,
-      subaccount: []
-    });
-    dispatch(setTokenBalance({
-      balance: Number(balance),
-      principal: user.id.toString(),
-    }));
-  }
-
-  useEffect(() => {
-    if (location) {
-      fethTokenPrice();
-    }
-  }, [location]);
-
-  useEffect(() => {
-   (async () => {
-    if (backendActor) {
-      const _cashback = await backendActor.getCashback();
-      dispatch(setCashback(_cashback));
-    }
-   })();
-  }, [backendActor]);
-
-
-  const fethTokenPrice = async () => {
-    const response = await fetch("https://api.dexscreener.com/latest/dex/pairs/icp/mnbr7-uiaaa-aaaam-adaaq-cai:ryjl3-tyaaa-aaaaa-aaaba-cai");
-    const data = await response.json();
-    dispatch(setTokenLiveData(data));
-  }
-
-  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
-            .then((response) => response.json())
-            .then((data) => {
-              const { address } = data;
-              const city = address.city || address.town || address.village || address.state_district || address.county || 'Unknown City';
-              const country = address.country || 'Unknown Country';
-
-              const location = `${city}, ${country}`;
-
-              processLocations(city, country, location);
-            })
-            .catch((error) => {
-              dispatch(setLocationStatus('Geolocation Error'));
-              console.error("Geolocation Error:", error);
-              setCurrentLocation(null);
-            });
-        },
-        (error) => {
-          dispatch(setLocationStatus('Denied'));
-          console.error("Geolocation Error:", error);
-          setCurrentLocation(null);
-        }
-      );
-    } else {
-      setCurrentLocation('Geolocation not supported');
-    }
-  }, []);
-
-
-  const processLocations = async (city: string, cntry: string, location: string) => {
-    const response = await fetch("https://topups.reloadly.com/countries");
-    const data = await response.json();
-    const _country = data.find((country: CountryData) => country.name === cntry);
-    if (_country) {
-      const _location: LocationType = {
-        city: city,
-        country: cntry,
-        fullLocation: location,
-        isoName: _country.isoName,
-        currencyCode: _country.currencyCode,
-      }
-      dispatch(setLocation(_location));
-      setCurrentLocation(location);
-    } else {
-      setLocationStatus("NotFound")
-      setCurrentLocation(location);
-    }
-  }
-
-  return (
-    <NavbarContainer>
-      {/* <ConnectWallet />; */}
-      <LeftContainer>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'black' }}>
-          <Logo src="/images/logoB.svg" alt="Logo" />
-        </Link>
-        {currentLocation && <StyledLocationButton>
-          <LocationButton {...{ currentLocation }} />
-        </StyledLocationButton>}
-      </LeftContainer>
-      <CenterContainer>
-        <RentmaseText>rentmase</RentmaseText>
-      </CenterContainer>
-
-      <RightContainer>
-        <LearderBorderLink to="leaderboard">Leaderboard</LearderBorderLink>
-        {isAuthenticated ? (
-          <>
-            {user ? <SlideMenu /> : <ButtonLink
-              onClick={() => setOpenSignUpModal(true)}
-            >Sign Up</ButtonLink>}
-          </>
-        ) : (
-          <Button onClick={() => setOpenModal(true)}>Login</Button>
-        )}
-      </RightContainer>
-      {openModal && <LoginModal {...{ openModal, setOpenModal }} />}
-      {openSignUpModal && <SignUpModal {...{ openSignUpModal, setOpenSignUpModal }} />}
-    </NavbarContainer>
-  );
-};
-
-export default Navbar;

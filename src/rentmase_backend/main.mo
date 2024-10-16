@@ -23,8 +23,9 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+    let tokenCanister = "fr2qs-haaaa-aaaai-actya-cai";
     let tokenDecimals = 100_000_000;
+    let faucetAmount = 1_000_000_000_000;
 
     var cashback : CashbackType = null;
 
@@ -33,6 +34,105 @@ actor class Rentmase() = this {
     stable var reviews = List.nil<Types.Review>();
     stable var rewards = List.nil<Types.Rewards>();
     stable var socialShareRequests = List.nil<Types.SocialShareRewardRequest>();
+    stable var faucets = List.nil<Types.FaucetTxn>();
+
+    public shared ({caller}) func getTestTokens() : async Result.Result<(), Text> {
+       let userFaucetTxn = List.find<Types.FaucetTxn>(
+            faucets,
+            func(faucet : Types.FaucetTxn) : Bool {
+                return faucet.user == caller;
+            },
+        );
+        switch (userFaucetTxn) {
+            case (null) {
+           
+                switch (await transferTokens(caller, faucetAmount)) {
+                    case (#err(err)) {
+                        return #err(err);
+                    };
+                    case (#ok(_)) {
+                        let faucetTxn : Types.FaucetTxn = {
+                            id = List.size<Types.FaucetTxn>(faucets);
+                            user = caller;
+                            amount = faucetAmount;
+                            timestamp = Time.now();
+                        };
+                        faucets := List.push<Types.FaucetTxn>(faucetTxn, faucets);
+                        return #ok(());
+                    };
+                };
+            };
+            case (?_txn) {
+                let currentTime = Time.now();
+                let lastTxnTime = _txn.timestamp;
+                let diff = currentTime - lastTxnTime;
+                if (diff > 86400_000_000_000) {
+                    switch (await transferTokens(caller, faucetAmount)) {
+                        case (#err(err)) {
+                            return #err(err);
+                        };
+                        case (#ok(_)) {
+                           // Update the faucet transaction
+                            let updatedFaucetTxn : Types.FaucetTxn = {
+                                _txn with
+                                timestamp = Time.now();
+                            };
+                            func updateFaucetTxn(f : Types.FaucetTxn) : Types.FaucetTxn {
+                                if (f.id == _txn.id) {
+                                    return updatedFaucetTxn;
+                                } else {
+                                    return f;
+                                };
+                            };
+                            faucets := List.map(faucets, updateFaucetTxn);
+                            return #ok(());
+                        };
+                    };
+                } else {
+                return #err("You have already received test tokens, please try again after 24 hours");
+                };
+            };
+        };
+    };
+
+    public shared query ({caller}) func getMyFaucetTxn() : async Result.Result<Types.FaucetTxn, Text> {
+        let userFaucetTxn = List.find<Types.FaucetTxn>(
+            faucets,
+            func(faucet : Types.FaucetTxn) : Bool {
+                return faucet.user == caller;
+            },
+        );
+        switch (userFaucetTxn) {
+            case (null) {
+                return #err("User has not received test tokens");
+            };
+            case (?_txn) {
+                return #ok(_txn);
+            };
+        };
+    };
+
+
+
+    func transferTokens(to : Principal, amount : Nat) : async Result.Result<(), Text> {
+        let _actor = actor (tokenCanister) : TokenInterface;
+        let transferArg : Types.TransferArg = {
+            to = { owner = to; subaccount = null };
+            fee = null;
+            memo = null;
+            from_subaccount = null;
+            created_at_time = null;
+            amount = amount;
+        };
+        switch (await _actor.icrc1_transfer(transferArg)) {
+            case (#Err(err)) {
+                return #err(handleTransferError(err));
+            };
+            case (#Ok(_)) {
+                return #ok(());
+            };
+        };
+    };
 
     public shared ({caller}) func setCashback (args: CashbackType) : async () {
         assert (Principal.isController(caller)); // TODO: Uncomment this line

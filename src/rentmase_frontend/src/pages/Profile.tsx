@@ -220,7 +220,7 @@ const Profile = () => {
         <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
         <div className="">
           <WalletBalanceDiv>Wallet Balance: { }
-            {tokenBalance?.balance / 100_000_000} RENT
+            {tokenBalance?.balance / 100_000_000} $Rent
           </WalletBalanceDiv>
           <h5>
             Principal  : {user?.id.toString()}

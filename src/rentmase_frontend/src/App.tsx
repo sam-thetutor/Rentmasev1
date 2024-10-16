@@ -41,19 +41,20 @@ import { Actor } from '@dfinity/agent';
 import { idlFactory } from '../../declarations/rentmase_backend';
 import PurchasesHistory from './pages/PurchaseHistory/PurchasesHistory';
 import Rewards from './pages/rewards/Rewards';
+import Faucet from './pages/Faucet';
 
 function App() {
-  // const { agent, identity, delegationType } = useIdentityKit()
-  // const targetActor =
-  // agent &&
-  // Actor.createActor(idlFactory, {
-  //   agent,
-  //   canisterId: backendCanisterId,
-  // })
+  const { agent, identity, delegationType } = useIdentityKit()
+  const targetActor =
+  agent &&
+  Actor.createActor(idlFactory, {
+    agent,
+    canisterId: backendCanisterId,
+  })
 
-  // console.log("Agent: ", agent);
-  // console.log("Identity: ", identity);
-  // console.log("Target Actor: ", targetActor);
+  console.log("Agent: ", agent);
+  console.log("Identity: ", identity);
+  console.log("Target Actor: ", targetActor);
 
   const { backendActor, isAuthenticated, setUser, login } = useAuth();
   const dispatch = useDispatch();
@@ -147,6 +148,7 @@ function App() {
               <Route path="/travel-bookings" element={<TravelBookings />} />
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/deliveries" element={<FoodOrders />} />
+              <Route path="/faucet" element={<Faucet />} />
             </Route>
             <Route path="/products" element={<Products />} />
             <Route path="/food-delivery" element={<FoodDelivery />} />

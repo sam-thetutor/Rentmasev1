@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaUser, FaTags, FaHistory, FaCreditCard, FaTrophy, FaMoneyBill,FaShoppingCart, FaHeart, FaUserFriends, FaSignOutAlt, FaUtensils, FaHome, FaBed } from 'react-icons/fa';
 import { useAuth } from '../hooks/Context';
+import { GiWaterDrop } from 'react-icons/gi';
 
 interface OverlayProps {
   open: boolean;
@@ -134,11 +135,12 @@ const SlideMenu = () => {
               <FaShoppingCart /> Payment History
             </MenuItem>
           </li>
-          {/* <li>
-            <MenuItem to="/my-deals">
-              <FaTags /> My Deals
+          <li>
+            <MenuItem to="/faucet">
+              <GiWaterDrop /> Faucet
             </MenuItem>
           </li>
+          {/*
           <li>
             <MenuItem to="/payment-history">
               <FaHistory /> Payment History
