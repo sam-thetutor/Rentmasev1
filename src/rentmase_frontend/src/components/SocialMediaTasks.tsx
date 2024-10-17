@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 const SocialMediaTasks =({ setOpenTaskModal })=> {
     const { backendActor } = useAuth();
     const [url, setUrl] = useState('');
+    const [platform, setPlatform] = useState('');
     const [saving, setSaving] = useState(false);
     const handleSave = async () => {
         if (!url) {
@@ -35,6 +36,16 @@ const SocialMediaTasks =({ setOpenTaskModal })=> {
             <RegisterForm>
                 <Input type="text" placeholder="Post link"
                  value={url} onChange={(e) => setUrl(e.target.value)} required />
+                <Select
+                    value={platform}
+                    onChange={(e) => setPlatform(e.target.value)}
+                    required
+                >
+                    <option value="">Select Platform</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="x">X</option>
+                    <option value="openchat">Open Chat</option>
+                </Select>
               
                 <Button type="button" onClick={handleSave}>
                     {saving ? 'Saving...' : 'Save'}

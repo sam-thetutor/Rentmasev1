@@ -89,10 +89,17 @@ module {
     public type SocialShareRewardRequest = {
         id: Nat;
         user : Principal;
+        platform : Text;
         postUrl : Text;
         approved : Bool;
         timestamp : Time.Time;
     };
+
+    public type SocialShareRewardRequestPayload = {
+        postUrl : Text;
+        platform : Text;
+    };
+
     public type Review = {
         user : Principal;
         review : Text;

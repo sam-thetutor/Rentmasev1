@@ -796,11 +796,12 @@ actor class Rentmase() = this {
     * SOCIAL SHARE
     *****************************/
 
-    public shared ({ caller }) func addSocialShereRequest(url :Text) : async () {
+    public shared ({ caller }) func addSocialShereRequest(args : Types.SocialShareRewardRequestPayload) : async () {
         let request : Types.SocialShareRewardRequest = {
             id = List.size(socialShareRequests);
             user = caller;
-            postUrl = url;
+            postUrl = args.postUrl;
+            platform = args.platform;
             approved = false;
             timestamp = Time.now();
         };
@@ -895,7 +896,7 @@ actor class Rentmase() = this {
         );
     };
 
-    public shared ({caller}) func updateMyShareRequest (url: Text, id: Nat) : async Result.Result<Types.SocialShareRewardRequest, Text> {
+    public shared ({caller}) func updateMyShareRequest (args: Types.SocialShareRewardRequestPayload, id: Nat) : async Result.Result<Types.SocialShareRewardRequest, Text> {
         let request = List.find<Types.SocialShareRewardRequest>(
             socialShareRequests,
             func(req : Types.SocialShareRewardRequest) : Bool {
@@ -910,7 +911,7 @@ actor class Rentmase() = this {
             case (?_req) {
                 let updatedReq : Types.SocialShareRewardRequest = {
                     _req with
-                    postUrl = url;
+                    postUrl = args.postUrl;
                 };
                 func updateReq(t : Types.SocialShareRewardRequest) : Types.SocialShareRewardRequest {
                     if (t.id == _req.id) {
