@@ -6,6 +6,141 @@ import { toast } from "react-toastify";
 import { UserPayload } from "../../../declarations/rentmase_backend/rentmase_backend.did";
 
 
+const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
+    const { isAuthenticated, backendActor, user, setUser, logout } = useAuth();
+    const [inviteCode, setInviteCode] = useState('');
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [saving, setSaving] = useState(false);
+    const [inputInviteCode, setInputInviteCode] = useState('');
+
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastname] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [dob, setDob] = useState('');
+    const [gender, setGender] = useState('');
+    const handleClose = () => setOpenSignUpModal(false);
+
+    if (!openSignUpModal) return null;
+
+
+    useEffect(() => {
+        if (isAuthenticated && user) {
+            setOpenSignUpModal(false);
+        }
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const invite = params.get('invite');
+        if (invite) {
+            setInviteCode(invite);
+        }
+    }, [location]);
+
+    const handleRegister = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!firstName || !lastName || !email || !username) {
+            toast.error('Please fill in all fields');
+            return;
+        }
+        setSaving(true);
+        const isUNameUnique = await backendActor.isUserNameUnique(username);
+        if (!isUNameUnique) {
+            setSaving(false);
+            toast.error('Username already taken, please choose another');
+            return;
+        }
+        let referralCode: string;
+        let isUnique = false;
+
+        do {
+            referralCode = generateReferralCode(firstName);
+            isUnique = await backendActor.isReferralCodeUnique(referralCode);
+        } while (!isUnique);
+
+        const dobInNanoSeconds = new Date(dob).getTime() * 1000000;
+
+        const user: UserPayload = {
+            username,
+            firstName,
+            lastName,
+            email,
+            referralCode,
+            dob: dob ? [BigInt(dobInNanoSeconds)] : [],
+            gender: gender ? [gender] : [],
+            referrerCode: inputInviteCode ? [inputInviteCode] : inviteCode ? [inviteCode] : []
+        };
+        const result = await backendActor.registerUser(user);
+        if ("ok" in result) {
+            toast.success('Registered successfully');
+            setSaving(false);
+            setUser(result.ok);
+            setOpenSignUpModal(false);
+            navigate('/profile');
+        } else {
+            setSaving(false);
+            toast.error('Failed to register user');
+        }
+    };
+
+    const generateReferralCode = (userId: string): string => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const codeLength = 7;
+        let randomPart = '';
+
+        for (let i = 0; i < codeLength; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            randomPart += characters[randomIndex];
+        }
+        return randomPart;
+    }
+
+    const handleLogout = async () => {
+        logout();
+        setOpenSignUpModal(false);
+    }
+    
+    return (
+        <ModalBackdrop onClick={handleClose}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
+                <CloseButton onClick={handleClose}>&times;</CloseButton>
+                <RegisterContainer>
+                    <h1>
+                        <Title>Sign Up</Title>
+                    </h1>
+                    <RegisterForm>
+                        <Input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                        <Input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                        <Input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastname(e.target.value)} required />
+                        <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+
+                        <Select value={gender} onChange={(e) => setGender(e.target.value)} required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </Select>
+                        <Input type="date" placeholder="Birthday" value={dob} onChange={(e) => setDob(e.target.value)} required />
+                        {!inviteCode && <Input type="text" placeholder="Invite Code (optional)" value={inputInviteCode}
+                            onChange={(e) => setInputInviteCode(e.target.value)}
+                        />}
+                        <Button type="button" onClick={handleRegister}>
+                            {saving ? 'Saving...' : 'Register'}
+                        </Button>
+                        <LogoutButton onClick={handleLogout}
+                        >Logout</LogoutButton>
+                    </RegisterForm>
+                </RegisterContainer>
+            </ModalContent>
+        </ModalBackdrop>
+    )
+}
+
+export default SignUpModal
+
+
 const ModalBackdrop = styled.div`
     position: fixed;
     top: 0;
@@ -142,140 +277,3 @@ const Title = styled.h1`
   color: #008DD5; /* Change to blue */
   margin-bottom: 30px;
 `;
-
-const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
-    const { isAuthenticated, backendActor, user, setUser, logout } = useAuth();
-    const [inviteCode, setInviteCode] = useState('');
-    const location = useLocation();
-    const navigate = useNavigate();
-    const [saving, setSaving] = useState(false);
-    const [inputInviteCode, setInputInviteCode] = useState('');
-
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastname] = useState('');
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [dob, setDob] = useState('');
-    const [gender, setGender] = useState('');
-    const handleClose = () => setOpenSignUpModal(false);
-
-    if (!openSignUpModal) return null;
-
-
-    useEffect(() => {
-        if (isAuthenticated && user) {
-            setOpenSignUpModal(false);
-        }
-    }, [isAuthenticated]);
-
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const invite = params.get('invite');
-        if (invite) {
-            setInviteCode(invite);
-        }
-    }, [location]);
-
-    const handleRegister = async (e: FormEvent) => {
-        e.preventDefault();
-        if (!firstName || !lastName || !email || !username) {
-            toast.error('Please fill in all fields');
-            return;
-        }
-        setSaving(true);
-        const isUNameUnique = await backendActor.isUserNameUnique(username);
-        if (!isUNameUnique) {
-            setSaving(false);
-            toast.error('Username already taken, please choose another');
-            return;
-        }
-        let referralCode: string;
-        let isUnique = false;
-
-        do {
-            referralCode = generateReferralCode(firstName);
-            isUnique = await backendActor.isReferralCodeUnique(referralCode);
-        } while (!isUnique);
-
-        const dobInNanoSeconds = new Date(dob).getTime() * 1000000;
-
-        const user: UserPayload = {
-            username,
-            firstName,
-            lastName,
-            email,
-            referralCode,
-            dob: dob ? [BigInt(dobInNanoSeconds)] : [],
-            gender: gender ? [gender] : [],
-            referrerCode: inputInviteCode ? [inputInviteCode] : inviteCode ? [inviteCode] : []
-        };
-        const result = await backendActor.registerUser(user);
-        if ("ok" in result) {
-            toast.success('Registered successfully');
-            setSaving(false);
-            setUser(result.ok);
-            setOpenSignUpModal(false);
-            navigate('/profile');
-        } else {
-            setSaving(false);
-            toast.error('Failed to register user');
-        }
-    };
-
-    const generateReferralCode = (userId: string): string => {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const codeLength = 7;
-        let randomPart = '';
-
-        for (let i = 0; i < codeLength; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
-            randomPart += characters[randomIndex];
-        }
-        return randomPart;
-    }
-
-    const handleLogout = async () => {
-        logout();
-        setOpenSignUpModal(false);
-    }
-    return (
-        <ModalBackdrop onClick={handleClose}>
-            <ModalContent onClick={(e) => e.stopPropagation()}>
-                <CloseButton onClick={handleClose}>&times;</CloseButton>
-                <RegisterContainer>
-                    <h1>
-                        <Title>Sign Up</Title>
-                    </h1>
-                    <RegisterForm>
-                        <Input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                        <Input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-                        <Input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastname(e.target.value)} required />
-                        <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-
-                        <Select value={gender} onChange={(e) => setGender(e.target.value)} required>
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </Select>
-                        <Input type="date" placeholder="Birthday" value={dob} onChange={(e) => setDob(e.target.value)} required />
-                        {!inviteCode && <Input type="text" placeholder="Invite Code (optional)" value={inputInviteCode}
-                            onChange={(e) => setInputInviteCode(e.target.value)}
-                        />}
-                        <Button type="button" onClick={handleRegister}>
-                            {saving ? 'Saving...' : 'Register'}
-                        </Button>
-                        <LogoutButton onClick={handleLogout}
-                        >Logout</LogoutButton>
-                    </RegisterForm>
-
-                    {/* <NavigationButton onClick={() => navigate('/deliveries')}>Orders</NavigationButton>
-                <NavigationButton onClick={() => navigate('/travel-bookings')}>Bookings</NavigationButton>
-                <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton> */}
-                </RegisterContainer>
-            </ModalContent>
-        </ModalBackdrop>
-    )
-}
-
-export default SignUpModal

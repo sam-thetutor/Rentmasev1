@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaFacebookF, FaTwitter, FaWhatsapp, FaEnvelope, FaLink } from 'react-icons/fa';
 import { useAuth } from '../hooks/Context';
-import {  Rewards, UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { Rewards, UserUpdatePayload } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 import RedeemTokens from '../components/RedeemTokens';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { frontendUrl } from '../constants';
+import SocialMediaTasks from '../components/SocialMediaTasks';
 
 // Invite Container Styles
 const InviteContainer = styled.div`
@@ -263,9 +264,10 @@ const InviteFriends = () => {
   const [rewards, setRewards] = useState<Rewards | null>(null);
   const [customCode, setCustomCode] = useState<string>("");
   const [saving, setSaving] = useState(false);
-  const [copyStatus, setCopyStatus] = useState('Copy'); 
-  const [copyLinkStatus, setCopyLinkStatus] = useState('Copy'); 
-  const [modalTask, setModalTask] = useState(""); 
+  const [copyStatus, setCopyStatus] = useState('Copy');
+  const [copyLinkStatus, setCopyLinkStatus] = useState('Copy');
+  const [openTaskModal, setOpenTaskModal] = useState(false);
+
   const [link, setLink] = useState("");
   useEffect(() => {
     if (isAuthenticated && backendActor) {
@@ -328,6 +330,11 @@ const InviteFriends = () => {
     }
   };
 
+  const handleOpenTaskModal = () => {
+    console.log("Opening task modal");
+    setOpenTaskModal(true);
+  };
+
   return (
     <InviteContainer>
       <SectionTitle>Hello {user?.firstName}, <br /> Invite Friends</SectionTitle>
@@ -373,7 +380,9 @@ const InviteFriends = () => {
           <TaskRow>
             <TaskColumn>Share on Social Media</TaskColumn>
             <TaskColumn>Share RentMase on any social platform and earn 50 $RENT</TaskColumn>
-            <TaskColumn><TaskButton>Verify</TaskButton></TaskColumn>
+            <TaskColumn><TaskButton
+             onClick={handleOpenTaskModal}
+            >Verify</TaskButton></TaskColumn>
           </TaskRow>
           <TaskRow>
             <TaskColumn>Leave a Review</TaskColumn>
@@ -387,6 +396,8 @@ const InviteFriends = () => {
           </TaskRow>
         </TaskTable>
       </TaskSection>
+
+      {openTaskModal && <SocialMediaTasks setOpenTaskModal={setOpenTaskModal} />}
     </InviteContainer>
   );
 };

@@ -110,7 +110,7 @@ const WalletBalanceDiv = styled.div`
 
 const Profile = () => {
   const {tokenBalance} = useSelector((state : RootState) => state.app);
-  const { user, isAuthenticated, backendActor, tokenCanister } = useAuth();
+  const { user, isAuthenticated, backendActor } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
@@ -126,8 +126,6 @@ const Profile = () => {
       navigate('/signup');
     }
   }, [user, isAuthenticated]);
-
-
 
   useEffect(() => {
     if (user) {
@@ -220,14 +218,12 @@ const Profile = () => {
         <NavigationButton onClick={() => navigate('/manage-addresses')}>Manage Addresses</NavigationButton>
         <div className="">
           <WalletBalanceDiv>Wallet Balance: { }
-            {tokenBalance?.balance / 100_000_000} $Rent
+            {tokenBalance?.balance / 100_000_000} $xRem
           </WalletBalanceDiv>
           <h5>
             Principal  : {user?.id.toString()}
           </h5>
         </div>
-
-
       </ProfileContainer>
 
     </div>

@@ -164,7 +164,7 @@ const Navbar = () => {
             >Sign Up</ButtonLink>}
           </>
         ) : (
-          <Button onClick={() => setOpenModal(true)}>Login</Button>
+          <Button onClick={() => setOpenModal(true)}>Login/Sign Up</Button>
         )}
       </RightContainer>
       {openModal && <LoginModal {...{ openModal, setOpenModal }} />}

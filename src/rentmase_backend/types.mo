@@ -87,12 +87,12 @@ module {
     };
 
     public type SocialShareRewardRequest = {
+        id: Nat;
         user : Principal;
         postUrl : Text;
         approved : Bool;
         timestamp : Time.Time;
     };
-
     public type Review = {
         user : Principal;
         review : Text;
