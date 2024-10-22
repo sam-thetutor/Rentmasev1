@@ -14,7 +14,10 @@ const SocialMediaTasks =({ setOpenTaskModal })=> {
             return;
         }
         setSaving(true);
-        await backendActor.addSocialShereRequest(url);
+        await backendActor.addSocialShereRequest({
+            postUrl: url,
+            platform
+        });
         toast.success('Task submitted successfully');
         setOpenTaskModal(false);
         setSaving(false);
@@ -42,7 +45,6 @@ const SocialMediaTasks =({ setOpenTaskModal })=> {
                     required
                 >
                     <option value="">Select Platform</option>
-                    <option value="facebook">Facebook</option>
                     <option value="x">X</option>
                     <option value="openchat">Open Chat</option>
                 </Select>

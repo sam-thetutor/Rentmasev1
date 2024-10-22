@@ -23,7 +23,7 @@ actor class Rentmase() = this {
     var referralRewardAmnt = 50;
     var reviewReward = 30;
     var socialShareReward = 50;
-    let tokenCanister = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+    let tokenCanister = "fr2qs-haaaa-aaaai-actya-cai";
     let tokenDecimals = 100_000_000;
     let faucetAmount = 1_000_000_000_000;
 

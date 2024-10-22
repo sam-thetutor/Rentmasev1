@@ -97,7 +97,6 @@ const Navbar = () => {
               const { address } = data;
               const city = address.city || address.town || address.village || address.state_district || address.county || 'Unknown City';
               const country = address.country || 'Unknown Country';
-
               const location = `${city}, ${country}`;
 
               processLocations(city, country, location);
