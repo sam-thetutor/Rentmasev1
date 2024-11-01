@@ -1,0 +1,601 @@
+name: Rentmase DAO
+
+# SNS configuration of Rentmase DAO
+
+description: >
+  Rentmase is the world's first decentralized SuperApp fully hosted on-chain.
+    Rentmase offers a comprehensive platform that integrates multiple services including property management, e-commerce, fractional ownership, property financing, and an innovative metaverse experience.
+
+# This is currently a placeholder field and must be left empty for now.
+Principals: []
+
+# Path to the SNS Project logo on the local filesystem. The path is ../assets/logo.png
+logo: ./src/rentmase_frontend/public/images/Rentmase_logo.png
+
+# URL to the dapp controlled by the SNS project.
+url: https://app.rentmase.com/
+
+# Metadata for the NNS proposal required to create the SNS. This data will be
+# shown only in the NNS proposal.
+NnsProposal:
+    # The title of the NNS proposal. Must be a string of 4 to 256 bytes.
+    title: "NNS Proposal to create an SNS named 'Rentmase DAO'"
+
+    # The HTTPS address of additional content required to evaluate the NNS
+    # proposal.
+    url: "https://forum.dfinity.org/t/upcoming-rentmase-sns-decentralization-sale/36845"
+
+    # The description of the proposal. Must be a string of 10 to 2,000 bytes.
+    summary:  |
+      **I. Token Distribution**
+
+      * Total token supply -  1 Billion
+      * Allocated to treasury -  52.7%
+      * Allocated to decentralization sale -  24%
+      * Allocated to developer neurons -  23.3%
+      * The Ledger Transaction fee is 0.01 REM
+
+
+      **II. Governance**
+
+      The governance model includes staking, voting, and other relevant details. The minimum amount of SNS tokens to stake a neuron is 50 tokens. The minimum dissolve delay a neuron must have to be able to cast votes on proposals is 3 months and the maximum dissolve delay is 1 year.
+
+      Decentralization Sale
+      * Min participation -  1 ICP
+      * Min participants -  60
+      * Min to be raised -  50,000 ICP
+      * Max to be raised -  500,000 ICP
+
+
+      **III. The DApp**
+
+      Rentmase consists of a set of canister smart contracts, with the SNS directly controlling the following canisters
+      * hqdel-diaaa-aaaai-actvq-cai
+      * 55e7x-xyaaa-aaaal-qmzsq-cai
+
+
+      **IV. Verification**
+
+      The above details can be verified through:
+      * [Whitepaper](https://rentmase.gitbook.io )
+      * [Github](https://github.com/rentmase-org )
+      * [Product](https://app.rentmase.com/ )
+      * [PMS demo](https://dashboard.rentmase.com )
+
+# If the SNS launch attempt fails, control over the dapp canister(s) is given to
+# these principals. In most use cases, this is chosen to be the original set of
+# controller(s) of the dapp. Must be a list of PrincipalIds.
+fallback_controller_principals:
+    - jpc6y-lku7i-hbwh4-fjazu-bgvtz-w5tis-3ejss-z6al2-ho6gj-72sn5-4qe
+    - shu3y-t65bi-rhvef-c7vvy-arrzh-emws6-g2uew-hpgh2-uvjqi-7s3b2-zae
+# The list of dapp canister(s) that will be decentralized if the decentralization swap succeeds. 
+dapp_canisters:
+    - hqdel-diaaa-aaaai-actvq-cai
+    - 55e7x-xyaaa-aaaal-qmzsq-cai
+
+
+# Configuration of SNS tokens in the SNS Ledger canister deployed as part
+# of the SNS.
+Token:
+    # The name of the token issued by the SNS ledger.
+    # Must be a string of 4 to 255 bytes without leading or trailing spaces.
+    name: Rentmase DAO
+
+    # The symbol of the token issued by the SNS Ledger.
+    # Must be a string of 3 to 10 bytes without leading or trailing spaces.
+    symbol: REM
+
+    # SNS ledger transaction fee.
+    transaction_fee: 1_000_000 e8s
+
+    # Path to the SNS token logo on your local filesystem. The path is relative
+    # to the configuration file location, unless an absolute path is given.
+    # Must have less than 341,334 bytes. The only supported format is PNG.
+    logo: ./src/rentmase_frontend/public/images/Rentmase_logo.png
+
+# Configures SNS proposal-related fields. These fields define the initial values
+# for some of the nervous system parameters related to SNS proposals. This will
+# not affect all SNS proposals submitted to the newly created SNS.
+Proposals:
+    # The cost of making an SNS proposal that is rejected by the SNS neuron
+    # holders. This field is specified as a token. For example: "1 token".
+    rejection_fee: 10_000 token
+
+    # The initial voting period of an SNS proposal. A proposal's voting period
+    # may be increased during its lifecycle due to the wait-for-quiet algorithm
+    # (see details below). This field is specified as a duration. For example
+    # "4 days".
+    initial_voting_period: 3 days
+
+    maximum_wait_for_quiet_deadline_extension: 1 day
+
+# Configuration of SNS voting.
+Neurons:
+    # The minimum amount of SNS tokens to stake a neuron. This field is specified
+    # as a token. For instance, "1 token".
+    minimum_creation_stake: 50 tokens
+
+# Configuration of SNS voting.
+Voting:
+    # The minimum dissolve delay a neuron must have to be able to cast votes on
+    # proposals.
+    #
+    # Dissolve delay incentivizes neurons to vote in the long-term interest of
+    # an SNS, as they are rewarded for longer-term commitment to that SNS.
+    #
+    # Users cannot access the SNS tokens used to stake neurons (until the neuron
+    # is dissolved). This field is specified as a duration. For example: "6 months".
+    minimum_dissolve_delay: 3 months
+
+    # Configuration of voting power bonuses that are applied to neurons to
+    # incentivize alignment with the best interest of the DAO. Note, these
+    # bonuses multiply each other, so the increase in voting power due to
+    # the dissolve delay bonus is used in the equation to increase voting
+    # power for the age bonus.
+    MaximumVotingPowerBonuses:
+        # Users with a higher dissolve delay are incentivized to take the
+        # long-term interests of the SNS into consideration when voting. To
+        # reward this long-term commitment, this bonus can be set to a
+        # percentage greater than zero, which will result in neurons having
+        # their voting power increased in proportion to their dissolve delay.
+        #
+
+        # If you do not want this bonus to be applied for neurons with higher
+        # dissolve delay, set `bonus` to `0%` and those neurons will not receive
+        # higher voting power.
+        DissolveDelay:
+            # This parameter sets the maximum dissolve delay a neuron can have.
+            # When reached, the maximum dissolve delay bonus will be applied.
+            # This field is specified as a duration. For example: "8 years".
+            duration: 1 years
+            # If a neuron's dissolve delay is `duration`, its voting power will
+            # be increased by the dissolve delay `bonus` amount. 
+            # This field is specified as a percentage. For instance, 
+            # a value of "100%" means that the voting power will be doubled
+            # (multiplied by 2).
+            bonus: 100%
+
+        # Users with neurons staked in the non-dissolving state for a long
+        # period of time are incentivized to take the long-term interests of
+        # the SNS into consideration when voting. To reward this long-term
+        # commitment, this bonus can be set to a percentage (greater than zero),
+        # which will result in neurons having their voting power increased in
+        # proportion to their age.
+        #
+        # If this bonus should not be applied for older neurons, set the bonus
+        # to `0%` and older neurons will not receive higher voting power.
+        Age:
+            # This parameter sets the duration of time the neuron must be staked
+            # in the non-dissolving state, in other words its `age`, to reach
+            # the maximum age bonus. Once this age is reached, the neuron will
+            # continue to age, but no more bonus will be applied. This field
+            # is specified as a duration. For example: "2 years".
+            duration: 2 years
+            # If a neuron's age is `duration` or older, its voting power will be
+            # increased by this age`bonus` amount. 
+            # This field is specified as a percentage. For instance, 
+            # a value of "25%" means that the voting power will increase by a quarter
+            # (multiplied by 1.25).
+            bonus: 100%
+
+    # Configuration of SNS voting reward parameters.
+    #
+    # The voting reward rate controls how quickly the supply of the SNS token
+    # increases. For example, setting `initial` to `2%` will cause the supply to
+    # increase by at most `2%` per year. A higher voting reward rate
+    # incentivizes users to participate in governance, but also results in
+    # higher inflation.
+    #
+    # The initial and final reward rates can be set to have a higher reward rate
+    # at the launch of the SNS and a lower rate further into the SNS’s lifetime.
+    # The reward rate falls quadratically from the `initial` rate to the `final`
+    # rate over the course of `transition_duration`.
+    #
+    # Setting both `initial` and `final` to `0%` will result in the system not
+    # distributing voting rewards at all.
+    #
+    # More details on SNS tokenomics can be found in the developer documentation:
+    # https://internetcomputer.org/docs/current/developer-docs/integrations/sns/tokenomics/rewards/#voting-rewards
+    RewardRate:
+        # The initial reward rate at which the SNS voting rewards will increase
+        # per year. This field is specified as a percentage. For example: "15%".
+        initial: 2.7%
+
+        # The final reward rate at which the SNS voting rewards will increase
+        # per year. This rate is reached after `transition_duration` and remains
+        # at this level unless changed by an SNS proposal. This field is
+        # specified as a percentage. For example: "5%".
+        final: 2.7%
+
+        # The voting reward rate falls quadratically from `initial` to `final`
+        # over the time period defined by `transition_duration`.
+        #
+        # Values of 0 result in the reward rate always being `final`.
+        #
+        # This field is specified as a duration. For example: "8 years".
+        transition_duration: 7 years
+
+# Configuration of the initial token distribution of the SNS. You can configure
+# how SNS tokens are distributed in each of the three groups:
+# (1) tokens that are given to the original developers of the dapp,
+# (2) treasury tokens that are owned by the SNS governance canister, and
+# (3) tokens which are distributed to the decentralization swap participants.
+#
+# The initial token distribution must satisfy the following preconditions to be
+# valid:
+#    - The sum of all developer tokens in E8s must be less than `u64::MAX`.
+#    - The Swap's initial balance (see group (3) above) must be greater than 0.
+#    - The Swap's initial balance (see group (3) above) must be greater than or
+#      equal to the sum of all developer tokens.
+Distribution:
+    # The initial neurons created when the SNS Governance canister is installed.
+    # Each element in this list specifies one such neuron, including its stake,
+    # controlling principal, memo identifying this neuron (every neuron that
+    # a user has must be identified by a unique memo), dissolve delay, and a
+    # vesting period. Even though these neurons are distributed at genesis,
+    # they are locked in a (restricted) pre-initialization mode until the
+    # decentralization swap is completed. Note that `vesting_period` starts
+    # right after the SNS creation and thus includes the pre-initialization mode
+    # period.
+    #
+    Neurons:
+        # For the actual SNS launch, you should replace this with one or more
+        # principals of your intended genesis neurons.
+        #
+        # For team vesting over 4 years in multiple tranches.
+        #team
+        - principal: jpc6y-lku7i-hbwh4-fjazu-bgvtz-w5tis-3ejss-z6al2-ho6gj-72sn5-4qe
+          stake: 15_000_000 tokens
+          memo: 0
+          dissolve_delay: 0 months
+          vesting_period: 12 months
+        - principal: jpc6y-lku7i-hbwh4-fjazu-bgvtz-w5tis-3ejss-z6al2-ho6gj-72sn5-4qe
+          stake: 15_000_000 tokens
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 24 months
+        - principal: jpc6y-lku7i-hbwh4-fjazu-bgvtz-w5tis-3ejss-z6al2-ho6gj-72sn5-4qe
+          stake: 15_000_000 tokens
+          memo: 2
+          dissolve_delay: 6 months
+          vesting_period: 36 months
+        - principal: jpc6y-lku7i-hbwh4-fjazu-bgvtz-w5tis-3ejss-z6al2-ho6gj-72sn5-4qe
+          stake: 15_000_000 tokens
+          memo: 3
+          dissolve_delay: 9 months
+          vesting_period: 48 months
+        - principal: bt3xa-5tyqg-5atbe-aysxt-atjsg-kfx6e-l4gk4-dsk7n-b4uro-ndl22-tae
+          stake: 10_000_000 tokens
+          memo: 4
+          dissolve_delay: 0 months
+          vesting_period: 12 months
+        - principal: bt3xa-5tyqg-5atbe-aysxt-atjsg-kfx6e-l4gk4-dsk7n-b4uro-ndl22-tae
+          stake: 10_000_000 tokens
+          memo: 5
+          dissolve_delay: 3 months
+          vesting_period: 18 months
+        - principal: bt3xa-5tyqg-5atbe-aysxt-atjsg-kfx6e-l4gk4-dsk7n-b4uro-ndl22-tae
+          stake: 10_000_000 tokens
+          memo: 6
+          dissolve_delay: 4 months
+          vesting_period: 24 months
+        - principal: bt3xa-5tyqg-5atbe-aysxt-atjsg-kfx6e-l4gk4-dsk7n-b4uro-ndl22-tae
+          stake: 10_000_000 tokens
+          memo: 7
+          dissolve_delay: 6 months
+          vesting_period: 36 years
+        - principal: k2rra-dm7yr-qhn3t-rijs5-uyb72-3zjms-xka4z-5e67x-hcnip-kta7g-iae
+          stake: 5_000_000 tokens
+          memo: 8
+          dissolve_delay: 0 months
+          vesting_period: 6 months
+        - principal: k2rra-dm7yr-qhn3t-rijs5-uyb72-3zjms-xka4z-5e67x-hcnip-kta7g-iae
+          stake: 5_000_000 tokens
+          memo: 9
+          dissolve_delay: 6 months
+          vesting_period: 6 months
+        - principal: k2rra-dm7yr-qhn3t-rijs5-uyb72-3zjms-xka4z-5e67x-hcnip-kta7g-iae
+          stake: 5_000_000 tokens
+          memo: 10
+          dissolve_delay: 6 months
+          vesting_period: 12 months
+        - principal: k2rra-dm7yr-qhn3t-rijs5-uyb72-3zjms-xka4z-5e67x-hcnip-kta7g-iae
+          stake: 5_000_000 tokens
+          memo: 11
+          dissolve_delay: 9 months
+          vesting_period: 24 months
+        - principal: ghono-n7ayf-jh7wh-76kpe-vjex4-hv7ok-chtig-ilrf7-6cwn2-ychca-iqe
+          stake: 5_000_000 tokens
+          memo: 12
+          dissolve_delay: 0 months
+          vesting_period: 9 months
+        - principal: ghono-n7ayf-jh7wh-76kpe-vjex4-hv7ok-chtig-ilrf7-6cwn2-ychca-iqe
+          stake: 5_000_000 tokens
+          memo: 13
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: ghono-n7ayf-jh7wh-76kpe-vjex4-hv7ok-chtig-ilrf7-6cwn2-ychca-iqe
+          stake: 5_000_000 tokens
+          memo: 14
+          dissolve_delay: 3 months
+          vesting_period: 15 months
+        - principal: ghono-n7ayf-jh7wh-76kpe-vjex4-hv7ok-chtig-ilrf7-6cwn2-ychca-iqe
+          stake: 5_000_000 tokens
+          memo: 15
+          dissolve_delay: 2 months
+          vesting_period: 18 months
+        - principal: gl6vy-xrefh-bbueb-2milr-tcp5m-vsbqd-kjycb-lmpm7-36dx4-3iqbu-qae
+          stake: 2_500_000 tokens
+          memo: 16
+          dissolve_delay: 0 months
+          vesting_period: 9 months
+        - principal: gl6vy-xrefh-bbueb-2milr-tcp5m-vsbqd-kjycb-lmpm7-36dx4-3iqbu-qae
+          stake: 2_500_000 tokens
+          memo: 17
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: gl6vy-xrefh-bbueb-2milr-tcp5m-vsbqd-kjycb-lmpm7-36dx4-3iqbu-qae
+          stake: 2_500_000 tokens
+          memo: 18
+          dissolve_delay: 6 months
+          vesting_period: 18 months
+        - principal: gl6vy-xrefh-bbueb-2milr-tcp5m-vsbqd-kjycb-lmpm7-36dx4-3iqbu-qae
+          stake: 2_500_000 tokens
+          memo: 19
+          dissolve_delay: 6 months
+          vesting_period: 24 months
+        - principal: ip36n-5sphk-3ic5u-ncla6-7qwhc-fvowb-3tmiv-aqnop-5uxis-gsamu-tae
+          stake: 3_750_000 tokens
+          memo: 20
+          dissolve_delay: 0 months
+          vesting_period: 12 months
+        - principal: ip36n-5sphk-3ic5u-ncla6-7qwhc-fvowb-3tmiv-aqnop-5uxis-gsamu-tae
+          stake: 3_750_000 tokens
+          memo: 21
+          dissolve_delay: 3 months
+          vesting_period: 18 months
+        - principal: ip36n-5sphk-3ic5u-ncla6-7qwhc-fvowb-3tmiv-aqnop-5uxis-gsamu-tae
+          stake: 3_750_000 tokens
+          memo: 22
+          dissolve_delay: 3 months
+          vesting_period: 24 months
+        - principal: ip36n-5sphk-3ic5u-ncla6-7qwhc-fvowb-3tmiv-aqnop-5uxis-gsamu-tae
+          stake: 3_750_000 tokens
+          memo: 23
+          dissolve_delay: 3 months
+          vesting_period: 36 months
+        - principal: nsvlb-pryxa-v4f6m-icdaf-su3j2-ygdgs-jenfq-hqh6b-yqr4e-shvf7-qae
+          stake: 3_750_000 tokens
+          memo: 24
+          dissolve_delay: 0 months
+          vesting_period: 18 months
+        - principal: nsvlb-pryxa-v4f6m-icdaf-su3j2-ygdgs-jenfq-hqh6b-yqr4e-shvf7-qae
+          stake: 3_750_000 tokens
+          memo: 25
+          dissolve_delay: 2 months
+          vesting_period: 21 months
+        - principal: nsvlb-pryxa-v4f6m-icdaf-su3j2-ygdgs-jenfq-hqh6b-yqr4e-shvf7-qae
+          stake: 3_750_000 tokens
+          memo: 26
+          dissolve_delay: 2 months
+          vesting_period: 24 months
+        - principal: nsvlb-pryxa-v4f6m-icdaf-su3j2-ygdgs-jenfq-hqh6b-yqr4e-shvf7-qae
+          stake: 3_750_000 tokens
+          memo: 27
+          dissolve_delay: 3 months
+          vesting_period: 36 months
+        #early contributors
+        - principal: epdzq-bmga7-4k7qf-pzt6w-efish-4wpaq-lok3a-zt3cc-33fat-v3q63-5ae
+          stake: 5_000_000 tokens
+          memo: 28
+          dissolve_delay: 0 months
+          vesting_period: 6 months
+        - principal: epdzq-bmga7-4k7qf-pzt6w-efish-4wpaq-lok3a-zt3cc-33fat-v3q63-5ae
+          stake: 5_000_000 tokens
+          memo: 29
+          dissolve_delay: 6 months
+          vesting_period: 6 months
+        - principal: wsln3-elxky-w5xma-3ihdh-v3wut-2gz24-ouek2-nqnun-g6qxf-wldod-5ae
+          stake: 5_000_000 tokens
+          memo: 30
+          dissolve_delay: 0 months
+          vesting_period: 12 months
+        - principal: wsln3-elxky-w5xma-3ihdh-v3wut-2gz24-ouek2-nqnun-g6qxf-wldod-5ae
+          stake: 5_000_000 tokens
+          memo: 31
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: jvmbm-qza6g-vonys-2vbf4-k3vrq-wgdua-ttzhp-hphiv-ie4to-yfgks-eae
+          stake: 500_000 tokens
+          memo: 32
+          dissolve_delay: 0 months
+          vesting_period: 9 months
+        - principal: jvmbm-qza6g-vonys-2vbf4-k3vrq-wgdua-ttzhp-hphiv-ie4to-yfgks-eae
+          stake: 500_000 tokens
+          memo: 33
+          dissolve_delay: 1 months
+          vesting_period: 12 months
+        - principal: vgqx3-iuzox-422y7-p7coi-liauu-7sdxn-56stn-4bejp-4yqp7-6m5g3-gqe
+          stake: 500_000 tokens
+          memo: 34
+          dissolve_delay: 0 months
+          vesting_period: 9 months
+        - principal: vgqx3-iuzox-422y7-p7coi-liauu-7sdxn-56stn-4bejp-4yqp7-6m5g3-gqe
+          stake: 500_000 tokens
+          memo: 35
+          dissolve_delay: 1 months
+          vesting_period: 12 months
+        - principal: lvyso-obxqe-e6tis-respj-k7qya-y6743-6fr5p-62jvm-y5yf5-ru7hn-yqe
+          stake: 100_000 tokens
+          memo: 36
+          dissolve_delay: 0 months
+          vesting_period: 9 months
+        - principal: lvyso-obxqe-e6tis-respj-k7qya-y6743-6fr5p-62jvm-y5yf5-ru7hn-yqe
+          stake: 100_000 tokens
+          memo: 37
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: nbmgj-me7q3-3rffo-tyjqn-kvu73-6a53d-vu7vp-h4zze-je45o-edfpk-kqe
+          stake: 250_000 tokens
+          memo: 38
+          dissolve_delay: 0 months
+          vesting_period: 12 months
+        - principal: nbmgj-me7q3-3rffo-tyjqn-kvu73-6a53d-vu7vp-h4zze-je45o-edfpk-kqe
+          stake: 250_000 tokens
+          memo: 39
+          dissolve_delay: 0 months
+          vesting_period: 12 months
+        - principal: eatal-jr5xr-k7nfv-tzrsd-pl3is-xgulb-yfpio-cawdp-6yohv-kchcj-cae
+          stake: 150_000 tokens
+          memo: 40
+          dissolve_delay: 0 months
+          vesting_period: 0 months
+        - principal: eatal-jr5xr-k7nfv-tzrsd-pl3is-xgulb-yfpio-cawdp-6yohv-kchcj-cae
+          stake: 150_000 tokens
+          memo: 41
+          dissolve_delay: 0 months
+          vesting_period: 3 months
+        #early investors
+        - principal: sc4nq-kb57g-46srk-6damd-crm3w-6s5yz-rpkes-xwyjs-lnhfz-h4eyj-zqe
+          stake: 15_000_000 tokens
+          memo: 42
+          dissolve_delay: 0 months
+          vesting_period: 1 months
+        - principal: sc4nq-kb57g-46srk-6damd-crm3w-6s5yz-rpkes-xwyjs-lnhfz-h4eyj-zqe
+          stake: 15_000_000 tokens
+          memo: 43
+          dissolve_delay: 0 months
+          vesting_period: 1 months
+ # The initial SNS token balances of the various canisters of the SNS.
+    InitialBalances:
+        # The initial SNS token balance of the SNS Governance canister is known
+        # as the treasury. This is initialized in a special sub-account, as the
+        # main account of Governance is the minting account of the SNS Ledger.
+        governance: 527_000_000 tokens
+        
+        # The initial SNS token balance of the Swap canister is what will be
+        # available for the decentralization swap. These tokens will be swapped
+        # for ICP.
+        swap: 240_000_000 tokens
+
+    #Error: The sum of all developer allocated tokens must be less than or equal to swap_distribution.total_e8s
+    # Checksum of the total number of tokens distributed in this section.
+    #     233 million     (developer neurons) 
+    #     527 million     (governance)
+    #     240 million     (swap)
+    total: 1_000_000_000 tokens
+
+# Configuration of the decentralization swap parameters. Choose these parameters
+# carefully, if a decentralization swap fails, the SNS will restore the dapp
+# canister(s) to the fallback controllers (defined in
+# `fallback_controller_principals`) and you will need to start over.
+Swap:
+    # The minimum number of direct participants that must participate for the
+    # decentralization swap to succeed. If a decentralization swap finishes due
+    # to the deadline or the maximum target being reached, and if there are less
+    # than `minimum_participants` (here, only direct participants are counted),
+    # the swap will be committed.
+    minimum_participants: 60
+
+    # Minimum amount of ICP from direct participants. This amount is required for
+    # the swap to succeed. If this amount is not achieved, the swap will be
+    # aborted (instead of committed) when the due date/time occurs.
+    # Must be smaller than or equal than `maximum_direct_participation_icp`.
+    minimum_direct_participation_icp: 50_000 tokens
+
+    # Maximum amount of ICP from direct participants. If this amount is achieved,
+    # the swap will finalize immediately, without waiting for the due date/time;
+    # in this case, the swap would be committed if and only if the number of
+    # direct participants (`minimum_participants`) is reached (otherwise, it
+    # would be aborted).
+    # Must be at least `min_participants * minimum_direct_participation_icp`.
+    maximum_direct_participation_icp: 500_000 tokens
+
+    # The minimum amount of ICP that each participant must contribute
+    # to participate. This field is specified as a token. For instance,
+    # "1 token".
+    minimum_participant_icp: 1 tokens
+
+    # The maximum amount of ICP that each participant may contribute
+    # to participate. This field is specified as a token. For instance,
+    # "1 token".
+    maximum_participant_icp: 100_000 tokens
+
+    # The text that swap participants must confirm before they may participate
+    # in the swap.
+    #
+    # This field is optional. If set, must be within 1 to 1,000 characters and
+    # at most 8,000 bytes.
+    confirmation_text: >
+      I confirm my understanding of the responsibilities and risks associated with participating in this token swap.
+
+    # A list of countries from which swap participation should not be allowed.
+    #
+    # This field is optional. By default, participants from all countries
+    # are allowed.
+    #
+    # Each list element must be an ISO 3166-1 alpha-2 country code.
+    restricted_countries:
+      - IR # IRAN
+      - KP # NORTH KOREA
+      - CU # Cuba
+      - SY # Syrian Arab Republic
+
+
+
+    # Configuration of the vesting schedule of the neuron basket, i.e., the SNS
+    # neurons that a participants will receive from a successful
+    # decentralization swap.
+    VestingSchedule:
+        # The number of events in the vesting schedule. This translates to how
+        # many neurons will be in each participant's neuron basket. Note that
+        # the first neuron in each neuron basket will have zero dissolve delay.
+        # This value should thus be greater than or equal to `2`.
+        events: 2
+
+        # The interval at which the schedule will be increased per event. The
+        # first neuron in the basket will be unlocked with zero dissolve delay.
+        # Each other neuron in the schedule will have its dissolve delay
+        # increased by `interval` compared to the previous one. For example,
+        # if `events` is set to `3` and `interval` is `1 month`, then each
+        # participant's neuron basket will have three neurons (with equal stake)
+        # with dissolve delays zero, 1 month, and 2 months. Note that the notion
+        # of `Distribution.neurons.vesting_period` applies only to developer
+        # neurons. While neuron basket neurons do not use `vesting_period`, they
+        # have a vesting schedule. This field is specified as a duration. For
+        # example: "1 month".
+        interval: 3 months
+
+    # Absolute time of day when the decentralization swap is supposed to start.
+    #
+    # An algorithm will be applied to allow at least 24 hours between the time
+    # of execution of the CreateServiceNervousSystem proposal and swap start.
+    # For example, if start_time is 23:30 UTC and the proposal is adopted and
+    # executed at 23:20 UTC, then the swap start will be at 23:30 UTC the next
+    # day (i.e., in 24 hours and 10 min from the proposal execution time).
+    #
+    # WARNING: Swap start_time works differently on mainnet and in testing.
+    #
+    # On mainnet:
+    # - Setting start_time to some value (e.g., 23:30 UTC) will allow the swap
+    #   participants to be prepared for the swap in advance, e.g.,
+    #   by obtaining ICPs that they would like to participate with.
+    # - If start_time is not specified, the actual start time of the swap will
+    #   be chosen at random (allowing at least 24 hours and less than 48 hours,
+    #   as described above).
+    #
+    # In testing:
+    # - Setting start_time to some value works the same as explained above.
+    # - If start_time is not specified, the swap will begin immediately after
+    #   the CreateServiceNervousSystem proposal is executed. This facilitates
+    #   testing in an accelerated manner.
+    #
+    # start_time: 23:30 UTC  # Intentionally commented out for testing.
+
+    # The duration of the decentralization swap. When `start_time` is calculated
+    # during CreateServiceNervousSystem proposal execution, this `duration` will
+    # be added to that absolute time and set as the swap's deadline.
+    duration: 14 days
+
+    # Whether Neurons' Fund participation is requested.
+    neurons_fund_participation: true
