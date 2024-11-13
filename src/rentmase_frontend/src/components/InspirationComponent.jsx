@@ -137,11 +137,11 @@ const RatingValue = styled.span`
 
 const AddToCartButton = styled.button`
   padding: 10px 20px;
-  background-color: #cccccc; /* Grayed out when disabled */
+  background-color: #008DD5;
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: not-allowed;
+  cursor: pointer;
   margin-top: 10px;
 `;
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../hooks/Context';
 import { tokensPerReward } from '../constants';
-import { Rewards, RewardType } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { Rewards, RewardsReturn, RewardType } from '../../../declarations/rentmase_backend/rentmase_backend.did';
 
 const LeaderboardContainer = styled.div`
   max-width: 1200px;
@@ -89,8 +89,9 @@ const Trophy = styled.span`
 
 const Leaderboard = () => {
   const { backendActor, user } = useAuth();
-  const [rewards, setRewards] = useState<Rewards[]>([]);
-  const [currentReward, setCurrentReward] = useState<Rewards | null>(null);
+  const [rewards, setRewards] = useState<RewardsReturn[]>([]);
+  const [currentReward, setCurrentReward] = useState<RewardsReturn | null>(null);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
 
   useEffect(() => {
     if (backendActor) {
@@ -100,12 +101,12 @@ const Leaderboard = () => {
 
   const getUsers = async () => {
     if (backendActor) {
-      const _rewards = await backendActor.getRewards();
-      _rewards.sort((a, b) => b.rewards.length - a.rewards.length);
-      setRewards(_rewards);
+      const _rewards = await backendActor.getRewards()
+      setRewards(_rewards[0]);
+      setTotalUsers(Number(_rewards[1]));
 
       // If the current user exists, find their rank
-      const currentUserData = _rewards.find((u) => u.user.toString() === user?.id.toString());
+      const currentUserData = _rewards[0].find((u) => u.user.toString() === user?.id.toString());
       setCurrentReward(currentUserData);
     }
   };
@@ -121,15 +122,6 @@ const Leaderboard = () => {
     const top10Users = rewards.slice(0, 10);
     const userRank = rewards.findIndex((u) => u.user.toString() === user?.id.toString()) + 1;
 
-    const calcultateUsersReferred = (_rewards: RewardType[]) => {
-      let referredUsers = 0;
-      _rewards.forEach((reward) => {
-        if ('Referral' in reward) {
-          referredUsers += 1;
-        }
-      });
-      return referredUsers;
-    };
 
     return (
       <>
@@ -144,7 +136,7 @@ const Leaderboard = () => {
             </TableData>
             <TableData>{userReward.username}</TableData>
             <TableData>{Number(userReward.totalAmountEarned)}</TableData>
-            <TableData>{calcultateUsersReferred(userReward.rewards)}</TableData>
+            <TableData>{Number(userReward.referrals)}</TableData>
           </TableRow>
         ))}
 
@@ -168,7 +160,7 @@ const Leaderboard = () => {
             </TableData>
             <TableData>{currentReward.username}</TableData>
             <TableData>{Number(currentReward.totalAmountEarned)}</TableData>
-            <TableData>{currentReward.rewards.length}</TableData>
+            <TableData>{Number(currentReward.created)}</TableData>
           </TableRow>
         )}
       </>
@@ -178,7 +170,7 @@ const Leaderboard = () => {
   return (
     <LeaderboardContainer>
       <LeaderboardTitle>Leaderboard</LeaderboardTitle>
-      <TotalUsersText>Total Users: {rewards.length}</TotalUsersText>
+      <TotalUsersText>Total Users: {totalUsers}</TotalUsersText>
       <LeaderboardTable>
         <TableHead>
           <tr>

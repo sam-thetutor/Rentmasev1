@@ -10,6 +10,8 @@ import Float "mo:base/Float";
 import Int64 "mo:base/Int64";
 import Debug "mo:base/Debug";
 import Text "mo:base/Text";
+import Array "mo:base/Array";
+import Order "mo:base/Order";
 import Types "types";
 
 actor class Rentmase() = this {
@@ -509,8 +511,53 @@ actor class Rentmase() = this {
         return Nat64.toNat(Int64.toNat64(Float.toInt64(float)));
     };
 
-    public shared query func getRewards() : async [Types.Rewards] {
-        return List.toArray<Types.Rewards>(rewards);
+    public shared query func getRewards() : async ([Types.RewardsReturn], Nat) {
+        // return List.toArray<Types.Rewards>(rewards);
+
+        let sortedRewards = List.fromArray(
+            Array.sort(
+                List.toArray(rewards),
+                func(a : Types.Rewards, b : Types.Rewards) : Order.Order {
+                    let a_rewards = Array.size(a.rewards);
+                    let b_rewards = Array.size(b.rewards);
+                    Nat.compare(a_rewards, b_rewards);
+                },
+            )
+
+        );
+        let reversedRewards = List.reverse(sortedRewards);
+
+        let shortList = List.take(reversedRewards, 50);
+
+        let modifiedList = List.map<Types.Rewards, Types.RewardsReturn>(
+            shortList,
+            func(reward : Types.Rewards) : Types.RewardsReturn {
+                return {
+                    user = reward.user;
+                    username = reward.username;
+                    rewards = Array.size(reward.rewards);
+                    referrals = getUsersReferedValue(reward.rewards);
+                    totalAmountEarned = reward.totalAmountEarned;
+                    balance = reward.balance;
+                    created = reward.created;
+                };
+            },
+        );
+        return (List.toArray(modifiedList), List.size(rewards));
+    };
+
+    func getUsersReferedValue(args : [Types.RewardType]) : Nat {
+        var value = 0;
+        for (reward in args.vals()) {
+            switch (reward) {
+                case (#Referral(_)) {
+                    value += 1;
+                };
+                case (_) {};
+
+            };
+        };
+        return value;
     };
 
     public shared query ({ caller }) func getUserRewards() : async Result.Result<Types.Rewards, Text> {
@@ -896,7 +943,7 @@ actor class Rentmase() = this {
         );
     };
 
-    public shared ({caller}) func updateMyShareRequest (args: Types.SocialShareRewardRequestPayload, id: Nat) : async Result.Result<Types.SocialShareRewardRequest, Text> {
+    public shared ({ caller }) func updateMyShareRequest(args : Types.SocialShareRewardRequestPayload, id : Nat) : async Result.Result<Types.SocialShareRewardRequest, Text> {
         let request = List.find<Types.SocialShareRewardRequest>(
             socialShareRequests,
             func(req : Types.SocialShareRewardRequest) : Bool {

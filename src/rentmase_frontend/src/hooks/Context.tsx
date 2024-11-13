@@ -11,7 +11,7 @@ import {
   AuthClientLoginOptions,
 } from "@dfinity/auth-client";
 import { canisterId as iiCanId } from "../../../declarations/internet_identity";
-import { getAuthClient } from "./nfid";
+import { getAuthClient, NFID_AUTH_URL } from "./nfid";
 import { Actor, ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
 import { canisterId, idlFactory } from "../../../declarations/rentmase_backend";
 import { _SERVICE, User } from "../../../declarations/rentmase_backend/rentmase_backend.did";
@@ -96,16 +96,6 @@ export const useAuthClient = (options = defaultOptions) => {
     await nfidLogin(authClient!);
   };
 
-  const APPLICATION_NAME = "Rentmase";
-  const APPLICATION_LOGO_URL =
-    "https://dev.nfid.one/static/media/id.300eb72f3335b50f5653a7d6ad5467b3.svg";
-  const AUTH_PATH =
-    "/authenticate/?applicationName=" +
-    APPLICATION_NAME +
-    "&applicationLogo=" +
-    APPLICATION_LOGO_URL +
-    "#authorize";
-  const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
 
   const nfidLogin = async (authClient: AuthClient) => {
     await new Promise((resolve, reject) => {

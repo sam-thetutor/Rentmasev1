@@ -35,7 +35,7 @@ import { setCountries } from './redux/slices/app';
 import { useDispatch } from 'react-redux';
 import Navbar from './components/Navbar';
 import { backendCanisterId } from './constants';
-// @ts-ignore
+// @ts-ignore 
 import { useIdentityKit } from "@nfid/identitykit/react"
 import { Actor } from '@dfinity/agent';
 import { idlFactory } from '../../declarations/rentmase_backend';

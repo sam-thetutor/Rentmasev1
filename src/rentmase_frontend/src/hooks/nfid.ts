@@ -11,7 +11,7 @@ const AUTH_PATH =
   "&applicationLogo=" +
   APPLICATION_LOGO_URL +
   "#authorize";
-const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
+export const NFID_AUTH_URL = "https://nfid.one" + AUTH_PATH;
 
 export const nfidLogin = async (authClient: AuthClient) => {
   await new Promise((resolve, reject) => {

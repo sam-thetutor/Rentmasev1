@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import { getCurrencySymbol, convertPrice } from '../utils/currency';
-import { FaCheck, FaHeart, FaRegHeart, FaStar } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaStar } from 'react-icons/fa';
 
 type StyleProps = {
   isFavorite: boolean;
@@ -95,11 +95,11 @@ const RatingValue = styled.span`
 
 const AddToCartButton = styled.button`
   padding: 10px 20px;
-  background-color: #cccccc; /* Gray out the button */
+  background-color: #008DD5;
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: not-allowed; /* Show that the button is not clickable */
+  cursor: poin
   margin-top: 10px;
   margin-bottom: 10px;
   display: block;
@@ -109,35 +109,13 @@ const AddToCartButton = styled.button`
   transition: background-color 0.3s;
 `;
 
-const QuantityControls = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
-`;
-
-const QuantityButton = styled.button`
-  padding: 5px 10px;
-  background-color: #008DD5;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-`;
-
-const QuantityDisplay = styled.span`
-  padding: 0 10px;
-  font-size: 16px;
-  font-weight: bold;
-`;
-
 const StyledLink = styled(Link)`
   text-decoration: none;
   color: inherit;
 `;
 
 const ProductCard = ({ product }) => {
-  const { addToCart, updateQuantity, cart } = useCart();
+  const { cart } = useCart();
   const location = ''; // Set to default
   const currencySymbol = getCurrencySymbol(location);
   const convertedPrice = convertPrice(product.price, location);
@@ -184,7 +162,7 @@ const ProductCard = ({ product }) => {
             <FaStar />
             <RatingValue>{averageRating.toFixed(1)} ({product.reviews.length} reviews)</RatingValue>
           </Rating>
-          <AddToCartButton disabled>
+          <AddToCartButton>
             Add to Cart
           </AddToCartButton>
         </Content>

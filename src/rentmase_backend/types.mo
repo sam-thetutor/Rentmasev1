@@ -57,6 +57,16 @@ module {
         created : Time.Time;
     };
 
+    public type RewardsReturn = {
+        user : Principal;
+        username : Text;
+        rewards : Nat;
+        referrals : Nat;
+        totalAmountEarned : Nat;
+        balance : Nat;
+        created : Time.Time;
+    };
+
     public type RewardType = {
         #Signup : SignupReward;
         #Referral : ReferralReward;
