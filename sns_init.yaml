@@ -283,7 +283,7 @@ Distribution:
           stake: 10_000_000 tokens
           memo: 7
           dissolve_delay: 6 months
-          vesting_period: 36 years
+          vesting_period: 36 months
         - principal: k2rra-dm7yr-qhn3t-rijs5-uyb72-3zjms-xka4z-5e67x-hcnip-kta7g-iae
           stake: 5_000_000 tokens
           memo: 8
@@ -449,12 +449,12 @@ Distribution:
           stake: 150_000 tokens
           memo: 40
           dissolve_delay: 0 months
-          vesting_period: 0 months
+          vesting_period: 3 months
         - principal: eatal-jr5xr-k7nfv-tzrsd-pl3is-xgulb-yfpio-cawdp-6yohv-kchcj-cae
           stake: 150_000 tokens
           memo: 41
           dissolve_delay: 0 months
-          vesting_period: 3 months
+          vesting_period: 6 months
         #early investors
         - principal: sc4nq-kb57g-46srk-6damd-crm3w-6s5yz-rpkes-xwyjs-lnhfz-h4eyj-zqe
           stake: 15_000_000 tokens
