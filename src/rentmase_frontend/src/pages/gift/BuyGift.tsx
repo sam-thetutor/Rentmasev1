@@ -233,8 +233,9 @@ const BuyGift = ({ card, setOpenModal }) => {
       return 0;
     }
     const usdAmount = zarAmount * senderUsdPairRate.conversion_rate;
-    const tokenAmount = usdAmount / tokenLiveData.pair.priceUsd;
-    return tokenAmount;
+    // const tokenAmount = usdAmount / tokenLiveData.pair.priceUsd;
+    // return tokenAmount;
+    return 0
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -310,6 +311,7 @@ const BuyGift = ({ card, setOpenModal }) => {
   };
 
   const lookUpKeyAmount = (map: { [key: number]: number }, value: number): number | null => {
+    console.log("Map", map);
     for (const [key, val] of Object.entries(map)) {
         if (val === value) {
             return Number(key); 
@@ -340,8 +342,14 @@ const amountInUSD = (amount: number) => {
       return;
     }
 
-    if (!toEmail || !phoneNumber || !fromnName || !amount || !quantity || !card) {
-      toast("Please fill in all fields");
+    if (!toEmail || !phoneNumber || !fromnName || !quantity || !card) {
+      const missingFields = [];
+     for (const field of ['toEmail', 'phoneNumber', 'fromnName', 'amount', 'quantity', 'card']) {
+        if (!field) {
+          missingFields.push(field);
+        }
+      }
+      toast("Please fill in all fields: " + missingFields.join(', '));
       return;
     }
 
@@ -443,6 +451,8 @@ const amountInUSD = (amount: number) => {
         }
         const res2 = await backendActor.intiateTxn(arg2);
 
+        console.log("unit price", isFixedDenomination ? lookUpKeyAmount(card.fixedRecipientToSenderDenominationsMap, amount) : amountInUSD(_amount));
+
         if ("ok" in res2) {
           const data = {
             txnId: res2.ok.id.toString(),
@@ -464,6 +474,7 @@ const amountInUSD = (amount: number) => {
             if (res.data) {
               toast.success('Giftcard bought successfully');
             } else {
+              console.log("Error", res);
               toast.error('Failed to buy giftcard');
             }
           });

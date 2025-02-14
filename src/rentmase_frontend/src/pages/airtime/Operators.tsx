@@ -170,10 +170,10 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
     };
 
     const handleTopUp = async () => {
-        // if (!tokenLiveData || tokenLiveData.pair === null) {
-        //     toast.error('Token data not available, please try again later');
-        //     return;
-        // }
+        if (!tokenLiveData || tokenLiveData.pair === null) {
+            toast.error('Token data not available, please try again later');
+            return;
+        }
         if (!amount) {
             toast.error('Please enter an amount');
             return;
@@ -234,7 +234,6 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             return;
         }
 
-
         const arg: ApproveArgs = {
             fee: [],
             memo: [],
@@ -258,33 +257,33 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
             percentage: percentage
         }
 
-        if ("Ok" in res) {
-            const arg2: TxnPayload = {
-                userEmail: user.email,
-                transferAmount: tokenAmnt,
-                txnType: {
-                    'AirtimeTopup': {
-                        more : {
-                            name : operator.name,
-                            logoUrl: operator.logoUrls[0],
-                            countryCode: selectedCountry.isoName,
-                            phoneNumber,
-                            amount: String(_amount)
-                        },
-                        operator: operator.name,
-                        operaterId: String(operator.id),
+        // if ("Ok" in res) {
+        //     const arg2: TxnPayload = {
+        //         userEmail: user.email,
+        //         transferAmount: tokenAmnt,
+        //         txnType: {
+        //             'AirtimeTopup': {
+        //                 more : {
+        //                     name : operator.name,
+        //                     logoUrl: operator.logoUrls[0],
+        //                     countryCode: selectedCountry.isoName,
+        //                     phoneNumber,
+        //                     amount: String(_amount)
+        //                 },
+        //                 operator: operator.name,
+        //                 operaterId: String(operator.id),
                    
-                    }
-                },
-                quantity: BigInt(1),
-                cashback: isCashback ? [txncashback] : []
-            }
+        //             }
+        //         },
+        //         quantity: BigInt(1),
+        //         cashback: isCashback ? [txncashback] : []
+        //     }
 
-            const res2 = await backendActor.intiateTxn(arg2);
+        //     const res2 = await backendActor.intiateTxn(arg2);
 
-            if ("ok" in res2) {
+        //     if ("ok" in res2) {
                 const data = {
-                    txnId: res2.ok.id.toString(),
+                    txnId: 3,// res2.ok.id.toString(),
                     operatorId: operator.id,
                     amount: _amount,
                     useLocalAmount: false,
@@ -304,17 +303,17 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                         toast.error('Airtime top up failed');
                     }
                 });
-            } else {
-                console.log("Error", res2);
-                toast.error('Airtime top up failed');
-                return
-            }
-        } else {
-            setBuyingAirtime(false);
-            console.log("Error", res);
-            toast.error('Airtime top up failed');
-            return
-        }
+        //     } else {
+        //         console.log("Error", res2);
+        //         toast.error('Airtime top up failed');
+        //         return
+        //     }
+        // } else {
+        //     setBuyingAirtime(false);
+        //     console.log("Error", res);
+        //     toast.error('Airtime top up failed');
+        //     return
+        // }
     };
 
     useEffect(() => {
@@ -367,12 +366,13 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
     };
 
     const calculateTokenPriceEquivalent = (zarAmount: number): number => {
-        if (!senderUsdPairRate || !tokenLiveData || tokenLiveData.pair === null) {
-            return 0;
-        }
-        const usdAmount = zarAmount * senderUsdPairRate.conversion_rate;
-        const tokenAmount = usdAmount / tokenLiveData.pair.priceUsd;
-        return tokenAmount;
+        // if (!senderUsdPairRate || !tokenLiveData || tokenLiveData.pair === null) {
+        //     return 0;
+        // }
+        // const usdAmount = zarAmount * senderUsdPairRate.conversion_rate;
+        // const tokenAmount = usdAmount / tokenLiveData.pair.priceUsd;
+        // return tokenAmount;
+        return 0;
     };
 
     return (

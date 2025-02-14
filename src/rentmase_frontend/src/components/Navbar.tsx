@@ -19,6 +19,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setTokenLiveData } from '../redux/slices/app';
 import { RootState } from '../redux/store';
 import SignUpModal from './SignUpModal';
+//@ts-ignore 
+import icblast from '@infu/icblast';
 
 
 const Navbar = () => {
@@ -69,19 +71,27 @@ const Navbar = () => {
   }, [location]);
 
   useEffect(() => {
-   (async () => {
-    if (backendActor) {
-      const _cashback = await backendActor.getCashback();
-      dispatch(setCashback(_cashback));
-    }
-   })();
+    (async () => {
+      if (backendActor) {
+        const _cashback = await backendActor.getCashback();
+        dispatch(setCashback(_cashback));
+      }
+    })();
   }, [backendActor]);
 
 
   const fethTokenPrice = async () => {
-    const response = await fetch("https://api.dexscreener.com/latest/dex/pairs/icp/mnbr7-uiaaa-aaaam-adaaq-cai:ryjl3-tyaaa-aaaaa-aaaba-cai");
-    const data = await response.json();
-    dispatch(setTokenLiveData(data));
+    const ic = icblast({ local: false })
+
+    let ps = await ic("ggzvv-5qaaa-aaaag-qck7a-cai");
+    let token_data = await ps.getAllTokens();
+
+    let token = token_data.find(x => x.address == "ryjl3-tyaaa-aaaaa-aaaba-cai");
+
+    // console.log("token", token);
+    // const response = await fetch("https://api.dexscreener.com/latest/dex/pairs/icp/mnbr7-uiaaa-aaaam-adaaq-cai:ryjl3-tyaaa-aaaaa-aaaba-cai");
+    // const data = await response.json();
+    dispatch(setTokenLiveData(token));
   }
 
   const [currentLocation, setCurrentLocation] = useState<string | null>(null);
