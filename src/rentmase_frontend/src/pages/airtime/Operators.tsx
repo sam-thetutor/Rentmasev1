@@ -408,7 +408,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                             <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
                             : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
                         }</>
-                        {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> REM
+                        {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> RENT
                     </AmountButton>
                 ))}
             </AmountWrapper>}
@@ -418,7 +418,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                     Select an amount between <PriceSpan>{selectedCountry?.currencyCode} {minAmount} </PriceSpan> and <PriceSpan>{selectedCountry?.currencyCode} {maxAmount}</PriceSpan>
                     {" "} || {" "}
                     {calculateTokenPriceEquivalent(operator.minAmount).toFixed(2)} and {calculateTokenPriceEquivalent(operator.maxAmount).toFixed(2)}
-                    {" "} REM
+                    {" "} RENT
                 </Label>}
 
                     <AirtimeInput

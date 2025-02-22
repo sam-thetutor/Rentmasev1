@@ -541,7 +541,7 @@ const amountInUSD = (amount: number) => {
                       <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
                       : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
                     }</>
-                    {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> REM
+                    {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> RENT
                   </AmountButton>
                 ))}
               </AmountWrapper>
@@ -552,7 +552,7 @@ const amountInUSD = (amount: number) => {
                     Select an amount between {selectedCountry?.currencyCode} <PriceSpan> {minAmount} </PriceSpan> and <PriceSpan> {selectedCountry?.currencyCode} {maxAmount}</PriceSpan>
                     {" "} || {" "}
                     {calculateTokenPriceEquivalent(card.minSenderDenomination).toFixed(2)}and {calculateTokenPriceEquivalent(card.maxSenderDenomination).toFixed(2)}
-                    {" "} REM
+                    {" "} RENT
                   </Label>
                 )}
                 <Label htmlFor="amount">Amount</Label>

@@ -5,11 +5,11 @@
   },
   "name": "rentmase",
   "scripts": {
-    "build": "pnpm build --if-present",
-    "prebuild": "pnpm prebuild --if-present",
-    "pretest": "pnpm prebuild --if-present",
+    "build": "pnpm --filter rentmase_frontend build",
+    "prebuild": "pnpm --filter rentmase_frontend prebuild",
+    "pretest": "pnpm --filter rentmase_frontend prebuild",
     "start": "concurrently \"pnpm --filter rentmase_frontend start\"",
-    "test": "pnpm test --if-present"
+    "test": "pnpm --filter rentmase_frontend test"
   },
   "type": "module",
   "workspaces": [
@@ -34,14 +34,14 @@
     "styled-components": "^6.1.13"
   },
   "devDependencies": {
-    "@types/node": "^22.7.5",
-    "@types/react": "^18.2.14",
-    "@types/react-dom": "^18.2.6",
+    "@types/node": "^22.13.4",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
     "@vitejs/plugin-react": "^4.0.1",
     "dotenv": "^16.3.1",
     "sass": "^1.63.6",
     "typescript": "^5.1.3",
-    "vite": "^4.3.9",
+    "vite": "6.1.1",
     "vite-plugin-environment": "^1.1.3"
   }
 }

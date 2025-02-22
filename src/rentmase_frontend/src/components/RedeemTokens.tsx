@@ -130,7 +130,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
     }
 
     const rewardText = rewardAmount
-        ? `${rewardAmount} Rewards, Worth ${parseInt(rewardAmount) * tokensPerReward} REM Tokens`
+        ? `${rewardAmount} Rewards, Worth ${parseInt(rewardAmount) * tokensPerReward} RENT Tokens`
         : '';
 
     const buttonText = redeemLoading ? 'Redeeming...' : `Redeem ${rewardText}`;
@@ -141,7 +141,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
                 <div className="">
                     <h2>Redeem Tokens</h2>
                     <h4>
-                        Rewards Worth {Number(rewards.balance)} REM Tokens
+                        Rewards Worth {Number(rewards.balance)} RENT Tokens
                     </h4>
                     <RewardAmountInput type="number"
                         value={rewardAmount}

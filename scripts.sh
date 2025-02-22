@@ -33,7 +33,7 @@ dfx canister call token icrc1_transfer "(record {
   to = record { 
     owner = principal \"hqdel-diaaa-aaaai-actvq-cai\";
   }; 
-  amount = 100_000_000_000_000;
+  amount = 500_000_000_000_000;
 })"
 
 
