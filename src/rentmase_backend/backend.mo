@@ -12,6 +12,9 @@ import Debug "mo:base/Debug";
 import Text "mo:base/Text";
 import Array "mo:base/Array";
 import Order "mo:base/Order";
+import Trie "mo:base/Trie";
+import TrieMap "mo:base/TrieMap";
+import Iter "mo:base/Iter";
 import Types "types";
 
 actor class Rentmase() = this {
@@ -29,41 +32,75 @@ actor class Rentmase() = this {
     let tokenDecimals = 100_000_000;
     let faucetAmount = 1_000_000_000_000;
 
+    type ReviewId = Text;
+    type RewardId = Text;
+    type InternalTxnId = Text;
+    type SocialShareRewardRequestId = Text;
+
     var cashback : CashbackType = null;
 
-    stable var users = List.nil<User>();
-    stable var transactions = List.nil<InternalTxn>();
-    stable var reviews = List.nil<Types.Review>();
-    stable var rewards = List.nil<Types.Rewards>();
-    stable var socialShareRequests = List.nil<Types.SocialShareRewardRequest>();
-    stable var faucets = List.nil<Types.FaucetTxn>();
+    var users = TrieMap.TrieMap<Principal, User>(Principal.equal, Principal.hash);
+    stable var usersEntries : [(Principal, User)] = [];
+
+    var reviews = TrieMap.TrieMap<ReviewId, Types.Review>(Text.equal, Text.hash);
+    stable var reviewsEntries : [(ReviewId, Types.Review)] = [];
+
+    var rewards = TrieMap.TrieMap<RewardId, Types.Rewards>(Text.equal, Text.hash);
+    stable var rewardsEntries : [(RewardId, Types.Rewards)] = [];
+
+    var socialShareRequests = TrieMap.TrieMap<SocialShareRewardRequestId, Types.SocialShareRewardRequest>(Text.equal, Text.hash);
+    stable var socialShareRequestsEntries : [(SocialShareRewardRequestId, Types.SocialShareRewardRequest)] = [];
+
+    var faucets = TrieMap.TrieMap<Principal, Types.FaucetTxn>(Principal.equal, Principal.hash);
+    stable var faucetsEntries : [(Principal, Types.FaucetTxn)] = [];
+
+    var transactions = TrieMap.TrieMap<InternalTxnId, InternalTxn>(Text.equal, Text.hash);
+    stable var transactionsEntries : [(InternalTxnId, InternalTxn)] = [];
+
+    system func preupgrade() {
+        usersEntries := Iter.toArray(users.entries());
+        reviewsEntries := Iter.toArray(reviews.entries());
+        rewardsEntries := Iter.toArray(rewards.entries());
+        socialShareRequestsEntries := Iter.toArray(socialShareRequests.entries());
+        faucetsEntries := Iter.toArray(faucets.entries());
+        transactionsEntries := Iter.toArray(transactions.entries());
+    };
+
+    system func postupgrade() {
+        users := TrieMap.fromEntries<Principal, User>(usersEntries.vals(), Principal.equal, Principal.hash);
+        reviews := TrieMap.fromEntries<ReviewId, Types.Review>(reviewsEntries.vals(), Text.equal, Text.hash);
+        rewards := TrieMap.fromEntries<RewardId, Types.Rewards>(rewardsEntries.vals(), Text.equal, Text.hash);
+        socialShareRequests := TrieMap.fromEntries<SocialShareRewardRequestId, Types.SocialShareRewardRequest>(socialShareRequestsEntries.vals(), Text.equal, Text.hash);
+        faucets := TrieMap.fromEntries<Principal, Types.FaucetTxn>(faucetsEntries.vals(), Principal.equal, Principal.hash);
+        transactions := TrieMap.fromEntries<InternalTxnId, InternalTxn>(transactionsEntries.vals(), Text.equal, Text.hash);
+        usersEntries := [];
+        reviewsEntries := [];
+        rewardsEntries := [];
+        socialShareRequestsEntries := [];
+        faucetsEntries := [];
+        transactionsEntries := [];
+    };
 
     /***************************
      * FAUCET
     ****************************/
 
     public shared ({ caller }) func getTestTokens() : async Result.Result<(), Text> {
-        let userFaucetTxn = List.find<Types.FaucetTxn>(
-            faucets,
-            func(faucet : Types.FaucetTxn) : Bool {
-                return faucet.user == caller;
-            },
-        );
-        switch (userFaucetTxn) {
+        switch (faucets.get(caller)) {
             case (null) {
-
                 switch (await transferTokens(caller, faucetAmount)) {
                     case (#err(err)) {
                         return #err(err);
                     };
                     case (#ok(_)) {
+                        let id = faucets.size();
                         let faucetTxn : Types.FaucetTxn = {
-                            id = List.size<Types.FaucetTxn>(faucets);
+                            id = id;
                             user = caller;
                             amount = faucetAmount;
                             timestamp = Time.now();
                         };
-                        faucets := List.push<Types.FaucetTxn>(faucetTxn, faucets);
+                        faucets.put(caller, faucetTxn);
                         return #ok(());
                     };
                 };
@@ -83,14 +120,7 @@ actor class Rentmase() = this {
                                 _txn with
                                 timestamp = Time.now();
                             };
-                            func updateFaucetTxn(f : Types.FaucetTxn) : Types.FaucetTxn {
-                                if (f.id == _txn.id) {
-                                    return updatedFaucetTxn;
-                                } else {
-                                    return f;
-                                };
-                            };
-                            faucets := List.map(faucets, updateFaucetTxn);
+                            faucets.put(caller, updatedFaucetTxn);
                             return #ok(());
                         };
                     };
@@ -102,13 +132,7 @@ actor class Rentmase() = this {
     };
 
     public shared query ({ caller }) func getMyFaucetTxn() : async Result.Result<Types.FaucetTxn, Text> {
-        let userFaucetTxn = List.find<Types.FaucetTxn>(
-            faucets,
-            func(faucet : Types.FaucetTxn) : Bool {
-                return faucet.user == caller;
-            },
-        );
-        switch (userFaucetTxn) {
+        switch (faucets.get(caller)) {
             case (null) {
                 return #err("User has not received test tokens");
             };
@@ -150,27 +174,36 @@ actor class Rentmase() = this {
     public shared query func getCashback() : async CashbackType {
         return cashback;
     };
-
     public shared query ({ caller }) func getUsersCashbackTxns() : async [InternalTxn] {
-        return List.toArray<InternalTxn>(
-            List.filter<InternalTxn>(
-                transactions,
-                func(txn : InternalTxn) : Bool {
-                    return txn.cashback != null and txn.userPrincipal == caller;
-                },
-            )
+        let usersTxns = TrieMap.mapFilter<InternalTxnId, InternalTxn, InternalTxn>(
+            transactions,
+            Text.equal,
+            Text.hash,
+            func(k, v) {
+                if (v.cashback != null and v.userPrincipal == caller) {
+                    ?v;
+                } else {
+                    null;
+                };
+            },
         );
+        return Iter.toArray(usersTxns.vals());
     };
 
     public shared query ({ caller }) func getUsersTxns() : async [InternalTxn] {
-        return List.toArray<InternalTxn>(
-            List.filter<InternalTxn>(
-                transactions,
-                func(txn : InternalTxn) : Bool {
-                    return txn.userPrincipal == caller;
-                },
-            )
+        let usersTxns = TrieMap.mapFilter<InternalTxnId, InternalTxn, InternalTxn>(
+            transactions,
+            Text.equal,
+            Text.hash,
+            func(k, v) {
+                if (v.userPrincipal == caller) {
+                    ?v;
+                } else {
+                    null;
+                };
+            },
         );
+        return Iter.toArray(usersTxns.vals());
     };
 
     /****************************
@@ -179,75 +212,36 @@ actor class Rentmase() = this {
 
     public shared ({ caller }) func registerUser(payload : Types.UserPayload) : async Result.Result<User, Text> {
         assert (not Principal.isAnonymous(caller));
-        // Does the payload have a referral code?
         switch (payload.referrerCode) {
             case (null) {
-                // No referral code, create user
                 let user = _createUser(payload, caller);
                 return #ok(user);
             };
             case (?code) {
-                // Referral code exists, find the user with the code
-                let referralUser = List.find<User>(
-                    users,
+                let usersArray = Iter.toArray(users.vals());
+
+                let referralUser = Array.find<User>(
+                    usersArray,
                     func(user : User) : Bool {
                         return user.referralCode == code;
                     },
                 );
+
                 switch (referralUser) {
                     case (null) {
-                        // Referral code owner not found, create user
                         let user = _createUser(payload, caller);
                         return #ok(user);
                     };
                     case (?_user) {
-                        // Referral code owner found, create user and reward the owner
-                        var userRewards = List.find<Types.Rewards>(
-                            rewards,
-                            func(reward : Types.Rewards) : Bool {
-                                return reward.user == _user.id;
-                            },
-                        );
-                        let referralReward : Types.ReferralReward = {
-                            referred = caller;
-                            referralCode = payload.referralCode;
-                            amount = referralRewardAmnt;
-                            timestamp = Time.now();
+                        let updatedRefererUser : User = {
+                            _user with
+                            rewards = {
+                                _user.rewards with
+                                totalAmountEarned = _user.rewards.totalAmountEarned + referralRewardAmnt;
+                                balance = _user.rewards.balance + referralRewardAmnt;
+                            }
                         };
-                        switch (userRewards) {
-                            case (null) {
-                                // User has no rewards, create their first reward
-                                let reward : Types.Rewards = {
-                                    user = _user.id;
-                                    username = _user.username;
-                                    rewards = [#Referral(referralReward)];
-                                    totalAmountEarned = referralRewardAmnt;
-                                    balance = referralRewardAmnt;
-                                    created = Time.now();
-                                };
-                                rewards := List.push<Types.Rewards>(reward, rewards);
-                            };
-                            case (?_rewards) {
-                                // User has rewards, add the referral reward
-                                var rewardsList = List.fromArray<Types.RewardType>(_rewards.rewards);
-                                rewardsList := List.push<Types.RewardType>(#Referral(referralReward), rewardsList);
-                                let updatedRewards : Types.Rewards = {
-                                    _rewards with
-                                    rewards = List.toArray<Types.RewardType>(rewardsList);
-                                    totalAmountEarned = _rewards.totalAmountEarned + referralRewardAmnt;
-                                    balance = _rewards.balance + referralRewardAmnt;
-                                };
-                                func updateRewards(r : Types.Rewards) : Types.Rewards {
-                                    if (r.user == _rewards.user) {
-                                        return updatedRewards;
-                                    } else {
-                                        return r;
-                                    };
-                                };
-                                rewards := List.map(rewards, updateRewards);
-                            };
-                        };
-                        // Create the user
+                        users.put(_user.id, updatedRefererUser);
                         let user = _createUser(payload, caller);
                         return #ok(user);
                     };
@@ -264,40 +258,27 @@ actor class Rentmase() = this {
             username = payload.username;
             referralCode = payload.referralCode;
             referrals = [];
+            rewards = {
+                signup = signupRewardAmnt;
+                referral = 0;
+                socialShare = 0;
+                review = 0;
+                totalAmountEarned = signupRewardAmnt;
+                totalWithdrawn = 0;
+                balance = signupRewardAmnt;
+            };
             dob = payload.dob;
             gender = payload.gender;
             lastupdated = Time.now();
             email = payload.email;
             createdAt = Time.now();
         };
-
-        let _signupReward : Types.SignupReward = {
-            amount = signupRewardAmnt;
-            timestamp = Time.now();
-        };
-
-        let reward : Types.Rewards = {
-            user = id;
-            username = payload.username;
-            userReferralCode = payload.referralCode;
-            rewards = [#Signup(_signupReward)];
-            totalAmountEarned = signupRewardAmnt;
-            balance = signupRewardAmnt;
-            created = Time.now();
-        };
-        rewards := List.push<Types.Rewards>(reward, rewards);
-        users := List.push<User>(user, users);
+        users.put(id, user);
         return user;
     };
 
     public shared ({ caller }) func updateProfile(payload : Types.UserUpdatePayload) : async Result.Result<User, Text> {
-        let user = List.find<User>(
-            users,
-            func(user : User) : Bool {
-                return user.id == caller;
-            },
-        );
-        switch (user) {
+        switch (users.get(caller)) {
             case (null) {
                 return #err("User not found");
             };
@@ -312,22 +293,16 @@ actor class Rentmase() = this {
                     gender = payload.gender;
                     lastupdated = Time.now();
                 };
-                func updateUser(u : User) : User {
-                    if (u.id == _user.id) {
-                        return updatedUser;
-                    } else {
-                        return u;
-                    };
-                };
-                users := List.map(users, updateUser);
+                users.put(caller, updatedUser);
                 return #ok(updatedUser);
             };
         };
     };
 
     public shared query func isReferralCodeUnique(referralCode : Text) : async Bool {
-        let user = List.find<User>(
-            users,
+        let usersArray = Iter.toArray(users.vals());
+        let user = Array.find<User>(
+            usersArray,
             func(user : User) : Bool {
                 return user.referralCode == referralCode;
             },
@@ -343,8 +318,9 @@ actor class Rentmase() = this {
     };
 
     public shared query func isUserNameUnique(username : Text) : async Bool {
-        let user = List.find<User>(
-            users,
+        let usersArray = Iter.toArray(users.vals());
+        let user = Array.find<User>(
+            usersArray,
             func(user : User) : Bool {
                 return user.username == username;
             },
@@ -360,13 +336,7 @@ actor class Rentmase() = this {
     };
 
     public shared query ({ caller }) func getUser() : async Result.Result<User, Text> {
-        let user = List.find<User>(
-            users,
-            func(user : User) : Bool {
-                return user.id == caller;
-            },
-        );
-        switch (user) {
+        switch (users.get(caller)) {
             case (null) {
                 return #err("User not found");
             };
@@ -378,38 +348,31 @@ actor class Rentmase() = this {
 
     public shared query ({ caller }) func getAllUsers() : async [User] {
         assert (Principal.isController(caller));
-        return List.toArray<User>(users);
+        return Iter.toArray(users.vals());
     };
 
     public shared query func getPublicUsers() : async [Types.PublicUser] {
-        return List.toArray(
-            List.map<User, Types.PublicUser>(
-                users,
-                func(user : User) : Types.PublicUser {
-                    return {
-                        id = user.id;
-                        firstName = user.firstName;
-                        lastName = user.lastName;
-                        referrals = user.referrals;
-                    };
-                },
-            )
+        let usersArray = Iter.toArray(users.vals());
+        return Array.map<User, Types.PublicUser>(
+            usersArray,
+            func(user : User) : Types.PublicUser {
+                return {
+                    id = user.id;
+                    firstName = user.firstName;
+                    lastName = user.lastName;
+                    referrals = user.referrals;
+                };
+            },
         );
     };
 
     public shared ({ caller }) func redeemRewards(wallet : Principal, amount : Nat) : async Result.Result<(), Text> {
-        let userRewards = List.find<Types.Rewards>(
-            rewards,
-            func(reward : Types.Rewards) : Bool {
-                return reward.user == caller;
-            },
-        );
-        switch (userRewards) {
+        switch (users.get(caller)) {
             case (null) {
-                return #err("User has no rewards");
+                return #err("User not found");
             };
-            case (?_userRewards) {
-                if (_userRewards.balance < amount) {
+            case (?_user) {
+                if (_user.rewards.balance < amount) {
                     return #err("Insufficient balance");
                 };
                 let _actor = actor (tokenCanister) : TokenInterface;
@@ -426,33 +389,25 @@ actor class Rentmase() = this {
                         return #err(handleTransferError(err));
                     };
                     case (#Ok(_)) {
-                        let updatedRewards : Types.Rewards = {
-                            _userRewards with
-                            balance = _userRewards.balance - amount;
-                        };
-                        func updateRewards(r : Types.Rewards) : Types.Rewards {
-                            if (r.user == _userRewards.user) {
-                                return updatedRewards;
-                            } else {
-                                return r;
+                        let updatedUser : User = {
+                            _user with
+                            rewards = {
+                                _user.rewards with
+                                balance = _user.rewards.balance - amount;
+                                totalWithdrawn = _user.rewards.totalWithdrawn + amount;
                             };
                         };
-                        rewards := List.map(rewards, updateRewards);
+                        users.put(caller, updatedUser);
                         return #ok(());
                     };
                 };
             };
         };
+
     };
 
-    public shared func cashbackTxn(txnId : Nat, percentage : Float, reloadlyTxnId : Text) : async Result.Result<(), Text> {
-        let txn = List.find<InternalTxn>(
-            transactions,
-            func(txn : InternalTxn) : Bool {
-                return txn.id == txnId;
-            },
-        );
-        switch (txn) {
+    public shared func cashbackTxn(txnId : Text, percentage : Float, reloadlyTxnId : Text) : async Result.Result<(), Text> {
+        switch (transactions.get(txnId)) {
             case (null) {
                 return #err("Transaction not found");
             };
@@ -503,6 +458,7 @@ actor class Rentmase() = this {
         };
     };
 
+
     func natToFloat(nat : Nat) : Float {
         return Float.fromInt64(Int64.fromNat64(Nat64.fromNat(nat)));
     };
@@ -512,6 +468,9 @@ actor class Rentmase() = this {
     };
 
     public shared query func getRewards() : async ([Types.RewardsReturn], Nat) {
+        
+
+
         // return List.toArray<Types.Rewards>(rewards);
 
         let sortedRewards = List.fromArray(
@@ -694,7 +653,7 @@ actor class Rentmase() = this {
         };
     };
 
-    public shared func completeTxn(txnId : Int, reloadlyTxnId : Text) : async Result.Result<InternalTxn, Text> {
+    public shared func completeTxn(txnId : Text, reloadlyTxnId : Text) : async Result.Result<InternalTxn, Text> {
         let txn = List.find<InternalTxn>(
             transactions,
             func(txn : InternalTxn) : Bool {

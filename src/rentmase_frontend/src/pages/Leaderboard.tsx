@@ -122,7 +122,6 @@ const Leaderboard = () => {
     const top10Users = rewards.slice(0, 10);
     const userRank = rewards.findIndex((u) => u.user.toString() === user?.id.toString()) + 1;
 
-
     return (
       <>
         {/* Display Top 10 rewards */}

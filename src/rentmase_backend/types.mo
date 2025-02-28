@@ -1,5 +1,6 @@
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import Nat "mo:base/Nat";
 module {
     public type FaucetTxn = {
         id : Nat;
@@ -42,11 +43,24 @@ module {
         referralCode : Text;
         referrals : [Principal];
         email : Text;
+        rewards : RewardType;
         dob : ?Time.Time;
         gender : ?Text;
         lastupdated : Time.Time;
         createdAt : Time.Time;
     };
+
+    
+    public type RewardType = {
+        signup : Nat;
+        referral : Nat;
+        socialShare : Nat;
+        review : Nat;
+        totalAmountEarned : Nat;
+        totalWithdrawn : Nat;
+        balance : Nat;
+    };
+
 
     public type Rewards = {
         user : Principal;
@@ -67,7 +81,7 @@ module {
         created : Time.Time;
     };
 
-    public type RewardType = {
+    public type RewardType2 = {
         #Signup : SignupReward;
         #Referral : ReferralReward;
         #SocialShare : SocialShareReward;
