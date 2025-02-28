@@ -237,6 +237,10 @@ actor class Rentmase() = this {
                             _user with
                             rewards = {
                                 _user.rewards with
+                                referral = {
+                                    amount = _user.rewards.referral.amount + referralRewardAmnt;
+                                    numberOfTimes = _user.rewards.referral.numberOfTimes + 1;
+                                };
                                 totalAmountEarned = _user.rewards.totalAmountEarned + referralRewardAmnt;
                                 balance = _user.rewards.balance + referralRewardAmnt;
                             }
@@ -259,10 +263,22 @@ actor class Rentmase() = this {
             referralCode = payload.referralCode;
             referrals = [];
             rewards = {
-                signup = signupRewardAmnt;
-                referral = 0;
-                socialShare = 0;
-                review = 0;
+                signup = {
+                    amount = signupRewardAmnt;
+                    numberOfTimes = 1;
+                };
+                referral = {
+                    amount = 0;
+                    numberOfTimes = 0;
+                };
+                socialShare = {
+                    amount = 0;
+                    numberOfTimes = 0;
+                };
+                review = {
+                    amount = 0;
+                    numberOfTimes = 0;
+                };
                 totalAmountEarned = signupRewardAmnt;
                 totalWithdrawn = 0;
                 balance = signupRewardAmnt;
@@ -468,41 +484,57 @@ actor class Rentmase() = this {
     };
 
     public shared query func getRewards() : async ([Types.RewardsReturn], Nat) {
-        
 
+        let usersArray = Iter.toArray(users.vals());
 
-        // return List.toArray<Types.Rewards>(rewards);
-
-        let sortedRewards = List.fromArray(
-            Array.sort(
-                List.toArray(rewards),
-                func(a : Types.Rewards, b : Types.Rewards) : Order.Order {
-                    let a_rewards = Array.size(a.rewards);
-                    let b_rewards = Array.size(b.rewards);
-                    Nat.compare(a_rewards, b_rewards);
-                },
-            )
-
-        );
-        let reversedRewards = List.reverse(sortedRewards);
-
-        let shortList = List.take(reversedRewards, 50);
-
-        let modifiedList = List.map<Types.Rewards, Types.RewardsReturn>(
-            shortList,
-            func(reward : Types.Rewards) : Types.RewardsReturn {
+        let rewards = Array.map<User, Types.Rewards>(
+            usersArray,
+            func(user : User) : Types.RewardsReturn {
                 return {
-                    user = reward.user;
-                    username = reward.username;
-                    rewards = Array.size(reward.rewards);
-                    referrals = getUsersReferedValue(reward.rewards);
-                    totalAmountEarned = reward.totalAmountEarned;
-                    balance = reward.balance;
-                    created = reward.created;
+                    user = user.id;
+                    username = user.username;
+                    rewards = [];
+                    totalAmountEarned = user.rewards.totalAmountEarned;
+                    balance = user.rewards.balance;
+                    created = user.createdAt;
                 };
             },
         );
-        return (List.toArray(modifiedList), List.size(rewards));
+        
+
+
+        // // return List.toArray<Types.Rewards>(rewards);
+
+        // let sortedRewards = List.fromArray(
+        //     Array.sort(
+        //         List.toArray(rewards),
+        //         func(a : Types.Rewards, b : Types.Rewards) : Order.Order {
+        //             let a_rewards = Array.size(a.rewards);
+        //             let b_rewards = Array.size(b.rewards);
+        //             Nat.compare(a_rewards, b_rewards);
+        //         },
+        //     )
+
+        // );
+        // let reversedRewards = List.reverse(sortedRewards);
+
+        // let shortList = List.take(reversedRewards, 50);
+
+        // let modifiedList = List.map<Types.Rewards, Types.RewardsReturn>(
+        //     shortList,
+        //     func(reward : Types.Rewards) : Types.RewardsReturn {
+        //         return {
+        //             user = reward.user;
+        //             username = reward.username;
+        //             rewards = Array.size(reward.rewards);
+        //             referrals = getUsersReferedValue(reward.rewards);
+        //             totalAmountEarned = reward.totalAmountEarned;
+        //             balance = reward.balance;
+        //             created = reward.created;
+        //         };
+        //     },
+        // );
+        // return (List.toArray(modifiedList), List.size(rewards));
     };
 
     func getUsersReferedValue(args : [Types.RewardType]) : Nat {

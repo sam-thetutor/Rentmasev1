@@ -50,17 +50,27 @@ module {
         createdAt : Time.Time;
     };
 
-    
     public type RewardType = {
-        signup : Nat;
-        referral : Nat;
-        socialShare : Nat;
-        review : Nat;
+        signup : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
+        referral : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
+        socialShare : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
+        review : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
         totalAmountEarned : Nat;
         totalWithdrawn : Nat;
         balance : Nat;
     };
-
 
     public type Rewards = {
         user : Principal;
@@ -111,7 +121,7 @@ module {
     };
 
     public type SocialShareRewardRequest = {
-        id: Nat;
+        id : Nat;
         user : Principal;
         platform : Text;
         postUrl : Text;
