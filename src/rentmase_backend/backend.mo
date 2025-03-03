@@ -458,7 +458,6 @@ actor class Rentmase() = this {
         };
     };
 
-
     func natToFloat(nat : Nat) : Float {
         return Float.fromInt64(Int64.fromNat64(Nat64.fromNat(nat)));
     };
@@ -467,42 +466,35 @@ actor class Rentmase() = this {
         return Nat64.toNat(Int64.toNat64(Float.toInt64(float)));
     };
 
+    //     public type RewardsReturn = {
+    //     user : Principal;
+    //     username : Text;
+    //     rewards : Nat;
+    //     referrals : Nat;
+    //     totalAmountEarned : Nat;
+    //     balance : Nat;
+    //     created : Time.Time;
+    // };
+
     public shared query func getRewards() : async ([Types.RewardsReturn], Nat) {
-        
-
-
-        // return List.toArray<Types.Rewards>(rewards);
-
-        let sortedRewards = List.fromArray(
-            Array.sort(
-                List.toArray(rewards),
-                func(a : Types.Rewards, b : Types.Rewards) : Order.Order {
-                    let a_rewards = Array.size(a.rewards);
-                    let b_rewards = Array.size(b.rewards);
-                    Nat.compare(a_rewards, b_rewards);
-                },
-            )
-
-        );
-        let reversedRewards = List.reverse(sortedRewards);
-
-        let shortList = List.take(reversedRewards, 50);
-
-        let modifiedList = List.map<Types.Rewards, Types.RewardsReturn>(
-            shortList,
-            func(reward : Types.Rewards) : Types.RewardsReturn {
+        let usersRewards = TrieMap.map<Principal, User, Types.RewardsReturn>(
+            users,
+            Principal.equal,
+            Principal.hash,
+            func(k, v) {
+    let rewardsTotal = v.reward.
                 return {
-                    user = reward.user;
-                    username = reward.username;
-                    rewards = Array.size(reward.rewards);
-                    referrals = getUsersReferedValue(reward.rewards);
-                    totalAmountEarned = reward.totalAmountEarned;
-                    balance = reward.balance;
-                    created = reward.created;
+                    user = v.id;
+                    username = v.username;
+                    rewards = Array.size(v.rewards);
+                    referrals = getUsersReferedValue(v.rewards);
+                    totalAmountEarned = v.totalAmountEarned;
+                    balance = v.balance;
+                    created = v.created;
                 };
             },
         );
-        return (List.toArray(modifiedList), List.size(rewards));
+        return (Iter.toArray(usersRewards.vals()), rewards.size());
     };
 
     func getUsersReferedValue(args : [Types.RewardType]) : Nat {
