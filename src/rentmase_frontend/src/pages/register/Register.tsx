@@ -89,7 +89,7 @@ const Title = styled.h1`
 `;
 
 const Register = () => {
-  const { isAuthenticated, backendActor, user, setUser } = useAuth();
+  const { isAuthenticated, newBackendActor, user, setUser } = useAuth();
   const [inviteCode, setInviteCode] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
@@ -124,7 +124,7 @@ const Register = () => {
       return;
     }
     setSaving(true);
-    const isUNameUnique = await backendActor.isUserNameUnique(username);
+    const isUNameUnique = await newBackendActor.isUserNameUnique(username);
     if (!isUNameUnique) {
       setSaving(false);
       toast.error('Username already taken, please choose another');
@@ -135,7 +135,7 @@ const Register = () => {
 
     do {
       referralCode = generateReferralCode(firstName);
-      isUnique = await backendActor.isReferralCodeUnique(referralCode);
+      isUnique = await newBackendActor.isReferralCodeUnique(referralCode);
     } while (!isUnique);
 
     const dobInNanoSeconds = new Date(dob).getTime() * 1000000;
@@ -150,7 +150,7 @@ const Register = () => {
       gender: gender ? [gender] : [],
       referrerCode: inputInviteCode ? [inputInviteCode] : inviteCode ? [inviteCode] : []
     };
-    const result = await backendActor.registerUser(user);
+    const result = await newBackendActor.registerUser(user);
     if ("ok" in result) {
       toast.success('Registered successfully');
       setSaving(false);

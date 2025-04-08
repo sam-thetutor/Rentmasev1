@@ -12,7 +12,7 @@ import Debug "mo:base/Debug";
 import Text "mo:base/Text";
 import Array "mo:base/Array";
 import Order "mo:base/Order";
-import Types "types";
+import Types "old.types";
 
 actor class Rentmase() = this {
     type User = Types.User;

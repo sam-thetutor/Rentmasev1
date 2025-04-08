@@ -52,11 +52,8 @@ function App() {
     canisterId: backendCanisterId,
   })
 
-  console.log("Agent: ", agent);
-  console.log("Identity: ", identity);
-  console.log("Target Actor: ", targetActor);
 
-  const { backendActor, isAuthenticated, setUser, login } = useAuth();
+  const { newBackendActor, isAuthenticated, setUser, login } = useAuth();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -69,23 +66,14 @@ function App() {
     dispatch(setCountries(data));
   };
 
-  // const getTokens = async () => {
-  //   const tokens = await fetchTokens();
-  //   console.log("Tokens: ", tokens);
-  // }
-
-  // useEffect(() => {
-  //   getTokens();
-  // }, []);
-
   useEffect(() => {
-    if (isAuthenticated && backendActor) {
+    if (isAuthenticated && newBackendActor) {
       getUser();
     }
-  }, [isAuthenticated, backendActor]);
+  }, [isAuthenticated, newBackendActor]);
 
   const getUser = async () => {
-    const user = await backendActor.getUser();
+    const user = await newBackendActor.getUser();
     if ("ok" in user) {
       setUser(user.ok);
     }

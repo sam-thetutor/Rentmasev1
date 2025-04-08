@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 const SocialMediaTasks =({ setOpenTaskModal })=> {
-    const { backendActor } = useAuth();
+    const { newBackendActor } = useAuth();
     const [url, setUrl] = useState('');
     const [platform, setPlatform] = useState('');
     const [saving, setSaving] = useState(false);
@@ -14,7 +14,7 @@ const SocialMediaTasks =({ setOpenTaskModal })=> {
             return;
         }
         setSaving(true);
-        await backendActor.addSocialShereRequest({
+        await newBackendActor.addSocialShereRequest({
             postUrl: url,
             platform
         });

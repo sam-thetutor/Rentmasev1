@@ -201,7 +201,7 @@ const PriceSpan = styled.span`
 const BuyGift = ({ card, setOpenModal }) => {
   const [buyCard] = useBuyGiftCardMutation();
   const [getpair] = useLazyGetPairEchangeRateQuery();
-  const { isAuthenticated, user, tokenCanister, backendActor } = useAuth();
+  const { isAuthenticated, user, tokenCanister, newBackendActor } = useAuth();
   const handleClose = () => setOpenModal(false);
   const [amount, setAmount] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
@@ -449,7 +449,7 @@ const amountInUSD = (amount: number) => {
           quantity: BigInt(quantity),
           cashback: isCashback ?  [txncashback] :[],
         }
-        const res2 = await backendActor.intiateTxn(arg2);
+        const res2 = await newBackendActor.intiateTxn(arg2);
 
         console.log("unit price", isFixedDenomination ? lookUpKeyAmount(card.fixedRecipientToSenderDenominationsMap, amount) : amountInUSD(_amount));
 
@@ -541,7 +541,7 @@ const amountInUSD = (amount: number) => {
                       <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
                       : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
                     }</>
-                    {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> RENT
+                    {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> xRem
                   </AmountButton>
                 ))}
               </AmountWrapper>
@@ -552,7 +552,7 @@ const amountInUSD = (amount: number) => {
                     Select an amount between {selectedCountry?.currencyCode} <PriceSpan> {minAmount} </PriceSpan> and <PriceSpan> {selectedCountry?.currencyCode} {maxAmount}</PriceSpan>
                     {" "} || {" "}
                     {calculateTokenPriceEquivalent(card.minSenderDenomination).toFixed(2)}and {calculateTokenPriceEquivalent(card.maxSenderDenomination).toFixed(2)}
-                    {" "} RENT
+                    {" "} xRem
                   </Label>
                 )}
                 <Label htmlFor="amount">Amount</Label>

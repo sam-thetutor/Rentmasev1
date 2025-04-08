@@ -79,13 +79,12 @@ const Button = styled.button`
 type Props = {
     openModal: boolean;
     setOpenModal: (open: boolean) => void;
-    rewards: Rewards | null;
 }
 
 
-const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
+const RedeemTokens: FC<Props> = ({ openModal, setOpenModal }) => {
     const handleClose = () => setOpenModal(false);
-    const { backendActor, isAuthenticated } = useAuth();
+    const { user} = useAuth();
     const [rewardAmount, setRewardAmount] = useState("")
     const [recivingAddress, setRecivingAddress] = useState<string | null>(null);
     const [redeemLoading, setRedeemLoading] = useState(false);
@@ -97,7 +96,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
             toast.error("Please fill all fields");
             return;
         }
-        if (parseInt(rewardAmount) > rewards.rewards.length) {
+        if (parseInt(rewardAmount) > user.rewards.balance) {
             toast.error("You don't have enough rewards to redeem, Please enter a valid amount");
             return;
         }
@@ -110,7 +109,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
         }
         try {
             setRedeemLoading(true);
-            // const result = await backendActor.redeemRewards(principal, BigInt(rewardAmount));
+            // const result = await newBackendActor.redeemRewards(principal, BigInt(rewardAmount));
             // if ("ok" in result) {
             //     toast.success("Tokens Redeemed Successfully");
             //     setRedeemLoading(false);
@@ -130,7 +129,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
     }
 
     const rewardText = rewardAmount
-        ? `${rewardAmount} Rewards, Worth ${parseInt(rewardAmount) * tokensPerReward} RENT Tokens`
+        ? `${rewardAmount} Rewards, Worth ${parseInt(rewardAmount) * tokensPerReward} xRem Tokens`
         : '';
 
     const buttonText = redeemLoading ? 'Redeeming...' : `Redeem ${rewardText}`;
@@ -141,7 +140,7 @@ const RedeemTokens: FC<Props> = ({ openModal, setOpenModal, rewards }) => {
                 <div className="">
                     <h2>Redeem Tokens</h2>
                     <h4>
-                        Rewards Worth {Number(rewards.balance)} RENT Tokens
+                        Rewards Worth {Number(user.rewards.balance)} xRem Tokens
                     </h4>
                     <RewardAmountInput type="number"
                         value={rewardAmount}

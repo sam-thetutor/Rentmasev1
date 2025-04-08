@@ -5,82 +5,29 @@ import { toast } from 'react-toastify';
 import { Rewards, RewardType } from '../../../../declarations/rentmase_backend/rentmase_backend.did';
 import RedeemTokens from '../../components/RedeemTokens';
 
-
-
-const calculateRewardTotals = (rewards: Array<RewardType>) => {
-    let totals = {
-        SocialShare: BigInt(0),
-        ReviewReward: BigInt(0),
-        Signup: BigInt(0),
-        Referral: BigInt(0),
-    };
-
-    rewards.forEach(reward => {
-        if ('SocialShare' in reward) {
-            totals.SocialShare += reward.SocialShare.amount;
-        } else if ('ReviewReward' in reward) {
-            totals.ReviewReward += reward.ReviewReward.amount;
-        } else if ('Signup' in reward) {
-            totals.Signup += reward.Signup.amount;
-        } else if ('Referral' in reward) {
-            totals.Referral += reward.Referral.amount;
-        }
-    });
-
-    return totals;
-};
-
 const RewardsPage = () => {
-    const { backendActor } = useAuth();
+    const { newBackendActor, user } = useAuth();
     const [openModal, setOpenModal] = useState(false);
-    const [rewards, setRewards] = useState<Rewards | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [totals, setTotals] = useState({
-        SocialShare: BigInt(0),
-        ReviewReward: BigInt(0),
-        Signup: BigInt(0),
-        Referral: BigInt(0),
-    });
-
-    useEffect(() => {
-        if (backendActor) {
-            getRewards();
-        }
-    }, [backendActor]);
-
-    const getRewards = async () => {
-        setLoading(true);
-        const res = await backendActor.getUserRewards();
-        if ("ok" in res) {
-            setLoading(false);
-            setRewards(res.ok);
-            setTotals(calculateRewardTotals(res.ok.rewards));
-        } else {
-            console.error("Error fetching rewards: ", res.err);
-            toast.error("Error fetching rewards");
-        }
-
-    }
 
     return (
         <>
-            {loading && (
+            {!user && (
                 <LoadingContainer>
                     <p>Loading...</p>
                 </LoadingContainer>
             )}
-            {rewards && <RewardsContainer>
+            {user && <RewardsContainer>
                 <RewardsTitle>
-                    Your Rewards, {rewards.username}
+                    Your Rewards, {user.username}
                 </RewardsTitle>
                 <StatsSection>
                     <StatBox>
                         <StatLabel>Total Rewards Earned</StatLabel>
-                        <StatValue>{Number(rewards.totalAmountEarned)} $Rent</StatValue>
+                        <StatValue>{Number(user.rewards.totalAmountEarned)} $Rent</StatValue>
                     </StatBox>
                     <StatBox>
                         <StatLabel>Current Balance</StatLabel>
-                        <StatValue>{Number(rewards.balance)} $Rent</StatValue>
+                        <StatValue>{Number(user.rewards.balance)} $Rent</StatValue>
                     </StatBox>
                 </StatsSection>
 
@@ -95,19 +42,19 @@ const RewardsPage = () => {
                     <TableBody>
                         <TableRow>
                             <TableData>Social Share</TableData>
-                            <TableData>{Number(totals.SocialShare)} $Rent</TableData>
+                            <TableData>{Number(user.rewards.socialShare.amount)} $Rent</TableData>
                         </TableRow>
                         <TableRow>
                             <TableData>Review Reward</TableData>
-                            <TableData>{Number(totals.ReviewReward)} $Rent</TableData>
+                            <TableData>{Number(user.rewards.review.amount)} $Rent</TableData>
                         </TableRow>
                         <TableRow>
                             <TableData>Signup Bonus</TableData>
-                            <TableData>{Number(totals.Signup)} $Rent</TableData>
+                            <TableData>{Number(user.rewards.signup.amount)} $Rent</TableData>
                         </TableRow>
                         <TableRow>
                             <TableData>Referral Reward</TableData>
-                            <TableData>{Number(totals.Referral)} $Rent</TableData>
+                            <TableData>{Number(user.rewards.referral.amount)} $Rent</TableData>
                         </TableRow>
                     </TableBody>
                 </RewardsTable>
@@ -117,7 +64,7 @@ const RewardsPage = () => {
                     onClick={() => setOpenModal(true)}
                 >Redeem Your Rewards</RedeemButton>
             </RewardsContainer>}
-            {openModal && <RedeemTokens {...{ openModal, setOpenModal, rewards }} />}
+            {openModal && <RedeemTokens {...{ openModal, setOpenModal }} />}
         </>
     );
 };

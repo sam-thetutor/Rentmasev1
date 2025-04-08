@@ -14,10 +14,11 @@ import { canisterId as iiCanId } from "../../../declarations/internet_identity";
 import { getAuthClient, NFID_AUTH_URL } from "./nfid";
 import { Actor, ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
 import { canisterId, idlFactory } from "../../../declarations/rentmase_backend";
+import { canisterId as oldCanId, idlFactory as oldIDL } from "../../../declarations/old";
 import { _SERVICE, User } from "../../../declarations/rentmase_backend/rentmase_backend.did";
+import { _SERVICE as OLDSERVICE } from "../../../declarations/old/old.did";
 import { _SERVICE as TOKENSERVICE } from "../../../declarations/token/token.did";
 import { tokenCanisterId, tokenIDL } from "../constants";
-import { useAuthenticateMutation } from "../redux/api/servicesSlice";
 
 export const network = process.env.DFX_NETWORK || "local";
 const localhost = "http://localhost:4943";
@@ -25,8 +26,9 @@ const host = "https://icp0.io";
 
 interface AuthContextType {
   isAuthenticated: boolean | null;
-  backendActor: ActorSubclass<_SERVICE> | null;
+  oldBackendActor: ActorSubclass<OLDSERVICE> | null;
   tokenCanister: ActorSubclass<TOKENSERVICE> | null;
+  newBackendActor: ActorSubclass<_SERVICE> | null;
   identity: Identity | null;
   user: User | null;
   setUser: (user: User) => void;
@@ -59,11 +61,13 @@ const defaultOptions: DefaultOptions = {
 export const useAuthClient = (options = defaultOptions) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [authClient, setAuthClient] = useState<AuthClient | null>(null);
-  const [backendActor, setBackendActor] =
-    useState<ActorSubclass<_SERVICE> | null>(null);
+  const [oldBackendActor, setOldBackendActor] =
+    useState<ActorSubclass<OLDSERVICE> | null>(null);
   const [tokenCanister, setTokenCanister] = useState<ActorSubclass<TOKENSERVICE> | null>(null);
+  const [newBackendActor, setBackendActor] = useState<ActorSubclass<_SERVICE> | null>(null);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [user, setUser] = useState<User | null>(null);
+
 
 
   useEffect(() => {
@@ -128,7 +132,8 @@ export const useAuthClient = (options = defaultOptions) => {
     const _identity = client.getIdentity();
     setIdentity(_identity);
 
-    let agent = new HttpAgent({
+
+    let agent = await HttpAgent.create({
       host: network === "local" ? localhost : host,
       identity: _identity,
     });
@@ -145,14 +150,24 @@ export const useAuthClient = (options = defaultOptions) => {
     );
     setTokenCanister(_tokenCanister);
 
-    const _backendActor: ActorSubclass<_SERVICE> = Actor.createActor(
+    const _backendActor: ActorSubclass<OLDSERVICE> = Actor.createActor(
+      oldIDL,
+      {
+        agent,
+        canisterId: oldCanId
+      }
+    );
+    setOldBackendActor(_backendActor);
+
+    const _newBackendActor: ActorSubclass<_SERVICE> = Actor.createActor(
       idlFactory,
       {
         agent,
         canisterId: canisterId,
       }
     );
-    setBackendActor(_backendActor);
+    setBackendActor(_newBackendActor);
+
   }
 
 
@@ -164,7 +179,8 @@ export const useAuthClient = (options = defaultOptions) => {
 
   return {
     isAuthenticated,
-    backendActor,
+    oldBackendActor,
+    newBackendActor,
     tokenCanister,
     login,
     logout,

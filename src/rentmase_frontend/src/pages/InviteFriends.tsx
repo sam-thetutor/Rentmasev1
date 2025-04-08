@@ -260,25 +260,15 @@ const ModalButton = styled.button`
 `;
 const InviteFriends = () => {
   const navigate = useNavigate();
-  const { user, setUser, isAuthenticated, backendActor } = useAuth();
-  const [rewards, setRewards] = useState<Rewards | null>(null);
+  const { user, setUser, isAuthenticated, newBackendActor } = useAuth();
+
   const [customCode, setCustomCode] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [copyStatus, setCopyStatus] = useState('Copy');
   const [copyLinkStatus, setCopyLinkStatus] = useState('Copy');
   const [openTaskModal, setOpenTaskModal] = useState(false);
 
-  const [link, setLink] = useState("");
-  useEffect(() => {
-    if (isAuthenticated && backendActor) {
-      (async () => {
-        const rewards = await backendActor.getUserRewards();
-        if ("ok" in rewards) {
-          setRewards(rewards.ok);
-        }
-      })();
-    }
-  }, [isAuthenticated, backendActor]);
+;
 
   useEffect(() => {
     if (user) {
@@ -294,7 +284,7 @@ const InviteFriends = () => {
   };
 
   const handleSaveCustomCode = async () => {
-    if (isAuthenticated && backendActor && user) {
+    if (isAuthenticated && newBackendActor && user) {
       if (saving) return;
       if (customCode === user.referralCode) return;
       if (customCode.length < 4) {
@@ -302,7 +292,7 @@ const InviteFriends = () => {
         return;
       }
       setSaving(true);
-      const isUnique = await backendActor.isReferralCodeUnique(customCode);
+      const isUnique = await newBackendActor.isReferralCodeUnique(customCode);
       if (!isUnique) {
         setSaving(false);
         toast.error("Custom code is already taken, please choose another");
@@ -317,7 +307,7 @@ const InviteFriends = () => {
         email: user.email,
         refferalCode: customCode,
       };
-      const result = await backendActor.updateProfile(updatedUser);
+      const result = await newBackendActor.updateProfile(updatedUser);
       setSaving(false);
       if ("ok" in result) {
         setUser(result.ok);
@@ -338,7 +328,7 @@ const InviteFriends = () => {
   return (
     <InviteContainer>
       <SectionTitle>Hello {user?.firstName}, <br /> Invite Friends</SectionTitle>
-      <SubTitle>Invite your friends to RentMase & earn $RENT</SubTitle>
+      <SubTitle>Invite your friends to RentMase & earn $xRem</SubTitle>
 
       <ReferralCodeContainer>
         <ReferralTitle>Your referral code</ReferralTitle>
@@ -379,19 +369,19 @@ const InviteFriends = () => {
           </TaskRow>
           <TaskRow>
             <TaskColumn>Share on Social Media</TaskColumn>
-            <TaskColumn>Share RentMase on any social platform and earn 50 $RENT</TaskColumn>
+            <TaskColumn>Share RentMase on any social platform and earn 50 $xRem</TaskColumn>
             <TaskColumn><TaskButton
              onClick={handleOpenTaskModal}
             >Verify</TaskButton></TaskColumn>
           </TaskRow>
           <TaskRow>
             <TaskColumn>Leave a Review</TaskColumn>
-            <TaskColumn>Submit a review of your experience and earn 30 $RENT</TaskColumn>
+            <TaskColumn>Submit a review of your experience and earn 30 $xRem</TaskColumn>
             <TaskColumn><TaskButton>Verify</TaskButton></TaskColumn>
           </TaskRow>
           <TaskRow>
             <TaskColumn>Invite a Friend</TaskColumn>
-            <TaskColumn>Invite a friend who signs up and earns 100 $RENT</TaskColumn>
+            <TaskColumn>Invite a friend who signs up and earns 100 $xRem</TaskColumn>
             <TaskColumn><TaskButton>Verify</TaskButton></TaskColumn>
           </TaskRow>
         </TaskTable>

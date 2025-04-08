@@ -69,7 +69,7 @@ const StyledButton = styled.button`
 `;
 
 const PurchasesHistory = () => {
-  const { backendActor } = useAuth();
+  const { newBackendActor } = useAuth();
   const [purchases, setPurchases] = useState<InternalTxn[] | null>(null);
   const [view, setView] = useState<'all' | 'cashbacks'>('all');
   const [cashbacks, setCashbacks] = useState<InternalTxn[] | null>(null);
@@ -79,14 +79,14 @@ const PurchasesHistory = () => {
   };
 
   useEffect(() => {
-    if (backendActor) {
+    if (newBackendActor) {
       getPurchaseHistory();
     }
-  }, [backendActor]);
+  }, [newBackendActor]);
 
   const getPurchaseHistory = async () => {
     try {
-      const response = await backendActor.getUsersTxns();
+      const response = await newBackendActor.getUsersTxns();
       setPurchases(response);
       setCashbacks(filterCashbacks(response));
       console.log('Purchase history:', response);

@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 const Faucet = () => {
     const { tokenBalance } = useSelector((state: RootState) => state.app);
     const [balance, setBalance] = useState(tokenBalance);
-    const { tokenCanister, backendActor, identity } = useAuth();
+    const { tokenCanister, newBackendActor, identity } = useAuth();
     const [claiming, setClaiming] = useState(false);
     // const [isEligible, setIsEligible] = useState(false);
     // const [timeRemaining, setTimeRemaining] = useState('');
@@ -47,10 +47,10 @@ const Faucet = () => {
     // }, [lastClaimed]);
 
     useEffect(() => {
-        if (tokenCanister && backendActor) {
+        if (tokenCanister && newBackendActor) {
             getBalance();
         }
-    }, [tokenCanister, backendActor]);
+    }, [tokenCanister, newBackendActor]);
 
     const getBalance = async () => {
         const balance = await tokenCanister.icrc1_balance_of({
@@ -67,7 +67,7 @@ const Faucet = () => {
 
     const handleClaim = async () => {
         setClaiming(true);
-        const res = await backendActor.getTestTokens();
+        const res = await newBackendActor.getTestTokens();
         if ("ok" in res) {
             setClaiming(false);
             getBalance();
@@ -86,7 +86,7 @@ const Faucet = () => {
                 <BalanceLabel>Current Balance</BalanceLabel>
                 <BalanceValue>
                     {balance ? <span>{(Number(balance.balance) / 1e8).toFixed(3)}</span> : 0} {" "}
-                    $exRem</BalanceValue>
+                    $xRem</BalanceValue>
             </BalanceSection>
 
             {/* {!isEligible && <CountdownText>{timeRemaining}</CountdownText>} */}

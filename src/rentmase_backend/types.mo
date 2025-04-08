@@ -41,7 +41,6 @@ module {
         lastName : Text;
         username : Text;
         referralCode : Text;
-        referrals : [Principal];
         email : Text;
         rewards : RewardType;
         dob : ?Time.Time;
@@ -50,22 +49,32 @@ module {
         createdAt : Time.Time;
     };
 
-    
     public type RewardType = {
-        signup : Nat;
-        referral : Nat;
-        socialShare : Nat;
-        review : Nat;
+        signup : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
+        referral : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
+        socialShare : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
+        review : {
+            amount : Nat;
+            numberOfTimes : Nat;
+        };
         totalAmountEarned : Nat;
-        totalWithdrawn : Nat;
         balance : Nat;
     };
-
 
     public type Rewards = {
         user : Principal;
         username : Text;
-        rewards : [RewardType];
+        rewards : Nat;
+        referrals : Nat;
         totalAmountEarned : Nat;
         balance : Nat;
         created : Time.Time;
@@ -81,22 +90,16 @@ module {
         created : Time.Time;
     };
 
-    public type RewardType2 = {
-        #Signup : SignupReward;
-        #Referral : ReferralReward;
-        #SocialShare : SocialShareReward;
-        #ReviewReward : ReviewReward;
-    };
-
     public type SignupReward = {
         amount : Nat;
         timestamp : Time.Time;
     };
 
-    public type ReferralReward = {
-        referred : Principal;
+    public type Referral = {
+        referredBy : Principal;
+        refefferedUser : Principal;
         referralCode : Text;
-        amount : Nat;
+        rewardAmount : Nat;
         timestamp : Time.Time;
     };
 
@@ -111,7 +114,7 @@ module {
     };
 
     public type SocialShareRewardRequest = {
-        id: Nat;
+        id : Nat;
         user : Principal;
         platform : Text;
         postUrl : Text;

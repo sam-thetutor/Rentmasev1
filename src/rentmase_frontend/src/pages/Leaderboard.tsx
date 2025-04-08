@@ -88,20 +88,20 @@ const Trophy = styled.span`
 `;
 
 const Leaderboard = () => {
-  const { backendActor, user } = useAuth();
+  const { newBackendActor, user } = useAuth();
   const [rewards, setRewards] = useState<RewardsReturn[]>([]);
   const [currentReward, setCurrentReward] = useState<RewardsReturn | null>(null);
   const [totalUsers, setTotalUsers] = useState<number>(0);
 
   useEffect(() => {
-    if (backendActor) {
+    if (newBackendActor) {
       getUsers();
     }
-  }, [backendActor]);
+  }, [newBackendActor]);
 
   const getUsers = async () => {
-    if (backendActor) {
-      const _rewards = await backendActor.getRewards()
+    if (newBackendActor) {
+      const _rewards = await newBackendActor.getRewards()
       setRewards(_rewards[0]);
       setTotalUsers(Number(_rewards[1]));
 
@@ -119,6 +119,7 @@ const Leaderboard = () => {
   };
 
   const renderRows = () => {
+    rewards.sort((a, b) => Number(b.totalAmountEarned) - Number(a.totalAmountEarned));
     const top10Users = rewards.slice(0, 10);
     const userRank = rewards.findIndex((u) => u.user.toString() === user?.id.toString()) + 1;
 

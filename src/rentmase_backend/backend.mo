@@ -1,21 +1,18 @@
-import List "mo:base/List";
 import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 import Bool "mo:base/Bool";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
-import Int "mo:base/Int";
 import Float "mo:base/Float";
 import Int64 "mo:base/Int64";
 import Debug "mo:base/Debug";
 import Text "mo:base/Text";
 import Array "mo:base/Array";
-import Order "mo:base/Order";
-import Trie "mo:base/Trie";
 import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
 import Types "types";
+import OldTypes "old.types";
 
 actor class Rentmase() = this {
     type User = Types.User;
@@ -23,6 +20,7 @@ actor class Rentmase() = this {
     type InternalTxn = Types.InternalTxn;
     type TxnPayload = Types.TxnPayload;
     type CashbackType = Types.CashbackType;
+    type Referral = Types.Referral;
 
     var signupRewardAmnt = 100;
     var referralRewardAmnt = 50;
@@ -45,8 +43,11 @@ actor class Rentmase() = this {
     var reviews = TrieMap.TrieMap<ReviewId, Types.Review>(Text.equal, Text.hash);
     stable var reviewsEntries : [(ReviewId, Types.Review)] = [];
 
-    var rewards = TrieMap.TrieMap<RewardId, Types.Rewards>(Text.equal, Text.hash);
-    stable var rewardsEntries : [(RewardId, Types.Rewards)] = [];
+    var referrals = TrieMap.TrieMap<Text, Referral>(Text.equal, Text.hash);
+    stable var referralsEntries : [(Text, Referral)] = [];
+
+    // var rewards = TrieMap.TrieMap<RewardId, Types.Rewards>(Text.equal, Text.hash);
+    // stable var rewardsEntries : [(RewardId, Types.Rewards)] = [];
 
     var socialShareRequests = TrieMap.TrieMap<SocialShareRewardRequestId, Types.SocialShareRewardRequest>(Text.equal, Text.hash);
     stable var socialShareRequestsEntries : [(SocialShareRewardRequestId, Types.SocialShareRewardRequest)] = [];
@@ -60,25 +61,28 @@ actor class Rentmase() = this {
     system func preupgrade() {
         usersEntries := Iter.toArray(users.entries());
         reviewsEntries := Iter.toArray(reviews.entries());
-        rewardsEntries := Iter.toArray(rewards.entries());
+        // rewardsEntries := Iter.toArray(rewards.entries());
         socialShareRequestsEntries := Iter.toArray(socialShareRequests.entries());
         faucetsEntries := Iter.toArray(faucets.entries());
         transactionsEntries := Iter.toArray(transactions.entries());
+        referralsEntries := Iter.toArray(referrals.entries());
     };
 
     system func postupgrade() {
         users := TrieMap.fromEntries<Principal, User>(usersEntries.vals(), Principal.equal, Principal.hash);
         reviews := TrieMap.fromEntries<ReviewId, Types.Review>(reviewsEntries.vals(), Text.equal, Text.hash);
-        rewards := TrieMap.fromEntries<RewardId, Types.Rewards>(rewardsEntries.vals(), Text.equal, Text.hash);
+        // rewards := TrieMap.fromEntries<RewardId, Types.Rewards>(rewardsEntries.vals(), Text.equal, Text.hash);
         socialShareRequests := TrieMap.fromEntries<SocialShareRewardRequestId, Types.SocialShareRewardRequest>(socialShareRequestsEntries.vals(), Text.equal, Text.hash);
         faucets := TrieMap.fromEntries<Principal, Types.FaucetTxn>(faucetsEntries.vals(), Principal.equal, Principal.hash);
         transactions := TrieMap.fromEntries<InternalTxnId, InternalTxn>(transactionsEntries.vals(), Text.equal, Text.hash);
+        referrals := TrieMap.fromEntries<Text, Referral>(referralsEntries.vals(), Text.equal, Text.hash);
         usersEntries := [];
         reviewsEntries := [];
-        rewardsEntries := [];
+        // rewardsEntries := [];
         socialShareRequestsEntries := [];
         faucetsEntries := [];
         transactionsEntries := [];
+        referralsEntries := [];
     };
 
     /***************************
@@ -162,6 +166,132 @@ actor class Rentmase() = this {
         };
     };
 
+    public shared func migrateUser(oluser : OldTypes.User, rewardsArgs : OldTypes.Rewards, socialRe : [OldTypes.SocialShareRewardRequest]) : async Result.Result<(), Text> {
+
+        switch (users.get(oluser.id)) {
+            case (?_) {
+                return #err("User already migrated");
+            };
+            case (null) {
+                var signupAmount = 0;
+                var signupNumberOfTimes = 0;
+
+                var referralAmount = 0;
+                var referralNumberOfTimes = 0;
+
+                var socialShareAmount = 0;
+                var socialShareNumberOfTimes = 0;
+
+                var reviewAmount = 0;
+                var reviewNumberOfTimes = 0;
+
+                for (_reward in rewardsArgs.rewards.vals()) {
+                    switch (_reward) {
+                        case (#Signup(reward)) {
+                            signupAmount := signupAmount + reward.amount;
+                            signupNumberOfTimes := signupNumberOfTimes + 1;
+                        };
+                        case (#Referral(reward)) {
+                            referralAmount := referralAmount + reward.amount;
+                            referralNumberOfTimes := referralNumberOfTimes + 1;
+
+                            let referralVal : Referral = {
+                                refefferedUser = reward.referred;
+                                referredBy = rewardsArgs.user;
+                                referralCode = reward.referralCode;
+                                rewardAmount = reward.amount;
+                                timestamp = reward.timestamp;
+                            };
+
+                            let id = referrals.size() + 1;
+                            referrals.put(Nat.toText(id), referralVal);
+                        };
+                        case (#SocialShare(reward)) {
+                            socialShareAmount := socialShareAmount + reward.amount;
+                            socialShareNumberOfTimes := socialShareNumberOfTimes + 1;
+                        };
+                        case (#ReviewReward(reward)) {
+                            reviewAmount := reviewAmount + reward.amount;
+                            reviewNumberOfTimes := reviewNumberOfTimes + 1;
+                        };
+                    };
+                };
+
+                var userRewards : Types.RewardType = {
+                    signup = {
+                        amount = signupAmount;
+                        numberOfTimes = signupNumberOfTimes;
+                    };
+                    referral = {
+                        amount = referralAmount;
+                        numberOfTimes = referralNumberOfTimes;
+                    };
+                    socialShare = {
+                        amount = socialShareAmount;
+                        numberOfTimes = socialShareNumberOfTimes;
+                    };
+                    review = {
+                        amount = reviewAmount;
+                        numberOfTimes = reviewNumberOfTimes;
+                    };
+                    totalAmountEarned = rewardsArgs.totalAmountEarned;
+                    balance = rewardsArgs.balance;
+                };
+
+                let user : Types.User = {
+                    id = oluser.id;
+                    firstName = oluser.firstName;
+                    lastName = oluser.lastName;
+                    username = oluser.username;
+                    email = oluser.email;
+                    gender = oluser.gender;
+                    referralCode = oluser.referralCode;
+                    rewards = userRewards;
+                    dob = oluser.dob;
+                    lastupdated = oluser.lastupdated;
+                    createdAt = oluser.createdAt;
+                };
+
+                users.put(oluser.id, user);
+
+                for (req in socialRe.vals()) {
+                    socialShareRequests.put(
+                        Nat.toText(req.id),
+                        {
+                            id = req.id;
+                            user = req.user;
+                            postUrl = req.postUrl;
+                            platform = req.platform;
+                            approved = req.approved;
+                            timestamp = req.timestamp;
+                        },
+                    );
+                };
+                return #ok(());
+            };
+        };
+    };
+
+    public shared func migrateUserTransactions(txns : [OldTypes.InternalTxn]) : async () {
+        for (txn in txns.vals()) {
+            transactions.put(
+                Nat.toText(txn.id),
+                {
+                    id = txn.id;
+                    userEmail = txn.userEmail;
+                    status = txn.status;
+                    transferData = txn.transferData;
+                    cashback = txn.cashback;
+                    quantity = txn.quantity;
+                    txnType = txn.txnType;
+                    userPrincipal = txn.userPrincipal;
+                    reloadlyTxnId = txn.reloadlyTxnId;
+                    timestamp = txn.timestamp;
+                },
+            );
+        };
+    };
+
     /*****************************
      * CASHBACK
      *****************************/
@@ -237,11 +367,27 @@ actor class Rentmase() = this {
                             _user with
                             rewards = {
                                 _user.rewards with
+                                referral = {
+                                    amount = _user.rewards.referral.amount + referralRewardAmnt;
+                                    numberOfTimes = _user.rewards.referral.numberOfTimes + 1;
+                                };
                                 totalAmountEarned = _user.rewards.totalAmountEarned + referralRewardAmnt;
                                 balance = _user.rewards.balance + referralRewardAmnt;
                             }
                         };
                         users.put(_user.id, updatedRefererUser);
+
+                        let referralVal : Referral = {
+                            refefferedUser = caller;
+                            referredBy = _user.id;
+                            referralCode = payload.referralCode;
+                            rewardAmount = referralRewardAmnt;
+                            timestamp = Time.now();
+                        };
+
+                        let id = referrals.size() + 1;
+                        referrals.put(Nat.toText(id), referralVal);
+
                         let user = _createUser(payload, caller);
                         return #ok(user);
                     };
@@ -259,10 +405,22 @@ actor class Rentmase() = this {
             referralCode = payload.referralCode;
             referrals = [];
             rewards = {
-                signup = signupRewardAmnt;
-                referral = 0;
-                socialShare = 0;
-                review = 0;
+                signup = {
+                    amount = signupRewardAmnt;
+                    numberOfTimes = 1;
+                };
+                referral = {
+                    amount = 0;
+                    numberOfTimes = 0;
+                };
+                socialShare = {
+                    amount = 0;
+                    numberOfTimes = 0;
+                };
+                review = {
+                    amount = 0;
+                    numberOfTimes = 0;
+                };
                 totalAmountEarned = signupRewardAmnt;
                 totalWithdrawn = 0;
                 balance = signupRewardAmnt;
@@ -356,11 +514,30 @@ actor class Rentmase() = this {
         return Array.map<User, Types.PublicUser>(
             usersArray,
             func(user : User) : Types.PublicUser {
+                let usersRefferals = TrieMap.mapFilter<Text, Referral, Referral>(
+                    referrals,
+                    Text.equal,
+                    Text.hash,
+                    func(k, v) {
+                        if (v.referredBy == user.id) {
+                            ?v;
+                        } else {
+                            null;
+                        };
+                    },
+                );
+
+                let referralPrincipals = Array.map<Referral, Principal>(
+                    Iter.toArray(usersRefferals.vals()),
+                    func(referral : Referral) : Principal {
+                        return referral.refefferedUser;
+                    },
+                );
                 return {
                     id = user.id;
                     firstName = user.firstName;
                     lastName = user.lastName;
-                    referrals = user.referrals;
+                    referrals = referralPrincipals;
                 };
             },
         );
@@ -394,7 +571,6 @@ actor class Rentmase() = this {
                             rewards = {
                                 _user.rewards with
                                 balance = _user.rewards.balance - amount;
-                                totalWithdrawn = _user.rewards.totalWithdrawn + amount;
                             };
                         };
                         users.put(caller, updatedUser);
@@ -465,65 +641,45 @@ actor class Rentmase() = this {
     func floatToNat(float : Float) : Nat {
         return Nat64.toNat(Int64.toNat64(Float.toInt64(float)));
     };
-
-    //     public type RewardsReturn = {
-    //     user : Principal;
-    //     username : Text;
-    //     rewards : Nat;
-    //     referrals : Nat;
-    //     totalAmountEarned : Nat;
-    //     balance : Nat;
-    //     created : Time.Time;
-    // };
-
     public shared query func getRewards() : async ([Types.RewardsReturn], Nat) {
+
         let usersRewards = TrieMap.map<Principal, User, Types.RewardsReturn>(
             users,
             Principal.equal,
             Principal.hash,
             func(k, v) {
-    let rewardsTotal = v.reward.
+                let rewardsTotal = v.rewards.signup.numberOfTimes + v.rewards.referral.numberOfTimes + v.rewards.socialShare.numberOfTimes + v.rewards.review.numberOfTimes;
                 return {
                     user = v.id;
                     username = v.username;
-                    rewards = Array.size(v.rewards);
-                    referrals = getUsersReferedValue(v.rewards);
-                    totalAmountEarned = v.totalAmountEarned;
-                    balance = v.balance;
-                    created = v.created;
+                    rewards = rewardsTotal;
+                    referrals = v.rewards.referral.numberOfTimes;
+                    totalAmountEarned = v.rewards.totalAmountEarned;
+                    balance = v.rewards.balance;
+                    created = v.createdAt;
                 };
             },
         );
-        return (Iter.toArray(usersRewards.vals()), rewards.size());
-    };
-
-    func getUsersReferedValue(args : [Types.RewardType]) : Nat {
-        var value = 0;
-        for (reward in args.vals()) {
-            switch (reward) {
-                case (#Referral(_)) {
-                    value += 1;
-                };
-                case (_) {};
-
-            };
-        };
-        return value;
+        return (Iter.toArray(usersRewards.vals()), users.size());
     };
 
     public shared query ({ caller }) func getUserRewards() : async Result.Result<Types.Rewards, Text> {
-        let userRewards = List.find<Types.Rewards>(
-            rewards,
-            func(reward : Types.Rewards) : Bool {
-                return reward.user == caller;
-            },
-        );
-        switch (userRewards) {
+        switch (users.get(caller)) {
             case (null) {
-                return #err("User has no rewards");
+                return #err("User not found");
             };
-            case (?_userRewards) {
-                return #ok(_userRewards);
+            case (?_user) {
+                let rewardsTotal = _user.rewards.signup.numberOfTimes + _user.rewards.referral.numberOfTimes + _user.rewards.socialShare.numberOfTimes + _user.rewards.review.numberOfTimes;
+                let rewards : Types.Rewards = {
+                    user = _user.id;
+                    username = _user.username;
+                    rewards = rewardsTotal;
+                    referrals = _user.rewards.referral.numberOfTimes;
+                    totalAmountEarned = _user.rewards.totalAmountEarned;
+                    balance = _user.rewards.balance;
+                    created = _user.createdAt;
+                };
+                return #ok(rewards);
             };
         };
     };
@@ -562,7 +718,7 @@ actor class Rentmase() = this {
     *************************/
 
     public shared ({ caller }) func intiateTxn(payload : Types.TxnPayload) : async Result.Result<InternalTxn, Text> {
-        let id = List.size<InternalTxn>(transactions);
+        let id = transactions.size();
         let txn : InternalTxn = {
             id;
             userEmail = payload.userEmail;
@@ -579,18 +735,12 @@ actor class Rentmase() = this {
             userPrincipal = caller;
             timestamp = Time.now();
         };
-        transactions := List.push<InternalTxn>(txn, transactions);
+        transactions.put(Nat.toText(id), txn);
         return #ok(txn);
     };
 
-    public shared func transferTransaction(txnId : Int) : async Result.Result<InternalTxn, Text> {
-        let txn = List.find<InternalTxn>(
-            transactions,
-            func(txn : InternalTxn) : Bool {
-                return txn.id == txnId;
-            },
-        );
-        switch (txn) {
+    public shared func transferTransaction(txnId : Text) : async Result.Result<InternalTxn, Text> {
+        switch (transactions.get(txnId)) {
             case (null) {
                 return #err("Transaction not found");
             };
@@ -619,14 +769,7 @@ actor class Rentmase() = this {
                                     _txn with
                                     status = #TokensTransfered;
                                 };
-                                func updateTxn(t : InternalTxn) : InternalTxn {
-                                    if (t.id == _txn.id) {
-                                        return updatedTxn;
-                                    } else {
-                                        return t;
-                                    };
-                                };
-                                transactions := List.map(transactions, updateTxn);
+                                transactions.put(txnId, updatedTxn);
                                 return #ok(updatedTxn);
                             };
                         };
@@ -646,13 +789,7 @@ actor class Rentmase() = this {
     };
 
     public shared func completeTxn(txnId : Text, reloadlyTxnId : Text) : async Result.Result<InternalTxn, Text> {
-        let txn = List.find<InternalTxn>(
-            transactions,
-            func(txn : InternalTxn) : Bool {
-                return txn.id == txnId;
-            },
-        );
-        switch (txn) {
+        switch (transactions.get(txnId)) {
             case (null) {
                 return #err("Transaction not found");
             };
@@ -673,14 +810,7 @@ actor class Rentmase() = this {
                             reloadlyTxnId = ?reloadlyTxnId;
                             status = #Completed;
                         };
-                        func updateTxn(t : InternalTxn) : InternalTxn {
-                            if (t.id == _txn.id) {
-                                return updatedTxn;
-                            } else {
-                                return t;
-                            };
-                        };
-                        transactions := List.map(transactions, updateTxn);
+                        transactions.put(txnId, updatedTxn);
                         return #ok(updatedTxn);
                     };
                 };
@@ -688,14 +818,8 @@ actor class Rentmase() = this {
         };
     };
 
-    public shared func refundFailedTxn(txnId : Int) : async Result.Result<InternalTxn, Text> {
-        let txn = List.find<InternalTxn>(
-            transactions,
-            func(txn : InternalTxn) : Bool {
-                return txn.id == txnId;
-            },
-        );
-        switch (txn) {
+    public shared func refundFailedTxn(txnId : Text) : async Result.Result<InternalTxn, Text> {
+        switch (transactions.get(txnId)) {
             case (null) {
                 return #err("Transaction not found");
             };
@@ -729,14 +853,7 @@ actor class Rentmase() = this {
                                     _txn with
                                     status = #FailedNRefunded;
                                 };
-                                func updateTxn(t : InternalTxn) : InternalTxn {
-                                    if (t.id == _txn.id) {
-                                        return updatedTxn;
-                                    } else {
-                                        return t;
-                                    };
-                                };
-                                transactions := List.map(transactions, updateTxn);
+                                transactions.put(txnId, updatedTxn);
                                 return #ok(updatedTxn);
                             };
                         };
@@ -748,14 +865,19 @@ actor class Rentmase() = this {
 
     public shared query ({ caller }) func getTxnsByEmail(email : Text) : async [InternalTxn] {
         assert (Principal.isController(caller));
-        return List.toArray<InternalTxn>(
-            List.filter<InternalTxn>(
-                transactions,
-                func(txn : InternalTxn) : Bool {
-                    return txn.userEmail == email;
-                },
-            )
+        let txns = TrieMap.mapFilter<InternalTxnId, InternalTxn, InternalTxn>(
+            transactions,
+            Text.equal,
+            Text.hash,
+            func(k, v) {
+                if (v.userEmail == email) {
+                    ?v;
+                } else {
+                    null;
+                };
+            },
         );
+        return Iter.toArray(txns.vals());
     };
 
     func handleTransferFromError(err : Types.TransferFromError) : Text {
@@ -795,39 +917,26 @@ actor class Rentmase() = this {
     *****************************/
 
     public shared ({ caller }) func addSocialShereRequest(args : Types.SocialShareRewardRequestPayload) : async () {
+        let id = socialShareRequests.size();
         let request : Types.SocialShareRewardRequest = {
-            id = List.size(socialShareRequests);
+            id = id;
             user = caller;
             postUrl = args.postUrl;
             platform = args.platform;
             approved = false;
             timestamp = Time.now();
         };
-        socialShareRequests := List.push<Types.SocialShareRewardRequest>(request, socialShareRequests);
+        socialShareRequests.put(Nat.toText(id), request);
     };
 
-    public shared ({ caller }) func approveSocialShareReuest(id : Nat) : async Result.Result<(Types.SocialShareRewardRequest), Text> {
+    public shared ({ caller }) func approveSocialShareReuest(id : Text) : async Result.Result<(Types.SocialShareRewardRequest), Text> {
         assert (Principal.isController(caller));
-        let request = List.find<Types.SocialShareRewardRequest>(
-            socialShareRequests,
-            func(txn : Types.SocialShareRewardRequest) : Bool {
-                return txn.id == id;
-            },
-        );
-
-        switch (request) {
+        switch (socialShareRequests.get(id)) {
             case (null) {
                 return #err("Social reward not found");
             };
             case (?_req) {
-                let user = List.find<User>(
-                    users,
-                    func(u : User) : Bool {
-                        return u.id == _req.user;
-                    },
-                );
-
-                switch (user) {
+                switch (users.get(_req.user)) {
                     case (null) {
                         return #err("User not found");
                     };
@@ -837,40 +946,22 @@ actor class Rentmase() = this {
                             _req with
                             approved = true
                         };
-                        func updateReq(t : Types.SocialShareRewardRequest) : Types.SocialShareRewardRequest {
-                            if (t.id == _req.id) {
-                                return updatedReq;
-                            } else {
-                                return t;
-                            };
-                        };
-                        socialShareRequests := List.map(socialShareRequests, updateReq);
+                        socialShareRequests.put(id, updatedReq);
 
-                        let userRewards = List.find<Types.Rewards>(
-                            rewards,
-                            func(reward : Types.Rewards) : Bool {
-                                return reward.user == caller;
-                            },
-                        );
-                        switch (userRewards) {
-                            case (null) {
-                                return #err("User has no rewards");
-                            };
-                            case (?_userRewards) {
-                                var rewardsList = List.fromArray<Types.RewardType>(_userRewards.rewards);
-                                rewardsList := List.push<Types.RewardType>(#SocialShare({ amount = socialShareReward; timestamp = Time.now() }), rewardsList);
-                                let reward : Types.Rewards = {
-                                    user = _req.user;
-                                    username = _user.username;
-                                    rewards = List.toArray<Types.RewardType>(rewardsList);
-                                    totalAmountEarned = _userRewards.totalAmountEarned + socialShareReward;
-                                    balance = _userRewards.balance + socialShareReward;
-                                    created = Time.now();
+                        let updatedUser : User = {
+                            _user with
+                            rewards = {
+                                _user.rewards with
+                                socialShare = {
+                                    amount = _user.rewards.socialShare.amount + socialShareReward;
+                                    numberOfTimes = _user.rewards.socialShare.numberOfTimes + 1;
                                 };
-                                rewards := List.push<Types.Rewards>(reward, rewards);
-                                return #ok(updatedReq);
-                            };
+                                totalAmountEarned = _user.rewards.totalAmountEarned + socialShareReward;
+                                balance = _user.rewards.balance + socialShareReward;
+                            }
                         };
+                        users.put(_req.user, updatedUser);
+                        return #ok(updatedReq);
 
                     };
                 };
@@ -880,45 +971,38 @@ actor class Rentmase() = this {
     };
 
     public shared query func getAllSocialShareRequest() : async [Types.SocialShareRewardRequest] {
-        return List.toArray<Types.SocialShareRewardRequest>(socialShareRequests);
+        return Iter.toArray(socialShareRequests.vals());
     };
 
     public shared query ({ caller }) func getMySocialShareRequest() : async [Types.SocialShareRewardRequest] {
-        return List.toArray<Types.SocialShareRewardRequest>(
-            List.filter<Types.SocialShareRewardRequest>(
-                socialShareRequests,
-                func(req : Types.SocialShareRewardRequest) : Bool {
-                    return req.user == caller;
-                },
-            )
-        );
-    };
-
-    public shared ({ caller }) func updateMyShareRequest(args : Types.SocialShareRewardRequestPayload, id : Nat) : async Result.Result<Types.SocialShareRewardRequest, Text> {
-        let request = List.find<Types.SocialShareRewardRequest>(
+        let myRequests = TrieMap.mapFilter<SocialShareRewardRequestId, Types.SocialShareRewardRequest, Types.SocialShareRewardRequest>(
             socialShareRequests,
-            func(req : Types.SocialShareRewardRequest) : Bool {
-                return req.user == caller and req.id == id;
+            Text.equal,
+            Text.hash,
+            func(k, v) {
+                if (v.user == caller) {
+                    ?v;
+                } else {
+                    null;
+                };
             },
         );
-
-        switch (request) {
+        return Iter.toArray(myRequests.vals());
+    };
+    public shared ({ caller }) func updateMyShareRequest(args : Types.SocialShareRewardRequestPayload, id : Nat) : async Result.Result<Types.SocialShareRewardRequest, Text> {
+        switch (socialShareRequests.get(Nat.toText(id))) {
             case (null) {
                 return #err("Social reward not found");
             };
             case (?_req) {
+                if (_req.user != caller) {
+                    return #err("You are not authorized to update this request");
+                };
                 let updatedReq : Types.SocialShareRewardRequest = {
                     _req with
                     postUrl = args.postUrl;
                 };
-                func updateReq(t : Types.SocialShareRewardRequest) : Types.SocialShareRewardRequest {
-                    if (t.id == _req.id) {
-                        return updatedReq;
-                    } else {
-                        return t;
-                    };
-                };
-                socialShareRequests := List.map(socialShareRequests, updateReq);
+                socialShareRequests.put(Nat.toText(id), updatedReq);
                 return #ok(updatedReq);
             };
         };

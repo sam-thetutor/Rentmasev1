@@ -21,13 +21,15 @@ import { RootState } from '../redux/store';
 import SignUpModal from './SignUpModal';
 //@ts-ignore 
 import icblast from '@infu/icblast';
+import { User } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { User as UserOld } from '../../../declarations/old/old.did';
 
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
   const [openSignUpModal, setOpenSignUpModal] = useState(false);
-  const { isAuthenticated, backendActor, user, tokenCanister, identity } = useAuth();
+  const { isAuthenticated, newBackendActor, oldBackendActor, user, tokenCanister, identity } = useAuth();
   const { location } = useSelector((state: RootState) => state.app);
 
   useEffect(() => {
@@ -37,21 +39,44 @@ const Navbar = () => {
   }, [user, tokenCanister]);
 
   useEffect(() => {
-    if (isAuthenticated && !user && backendActor) {
+    if (isAuthenticated && !user && newBackendActor && oldBackendActor) {
       getUser()
     } else {
       setOpenSignUpModal(false);
     }
-  }, [user, isAuthenticated, backendActor]);
+  }, [user, isAuthenticated, newBackendActor, oldBackendActor]);
 
   const getUser = async () => {
-    const res = await backendActor.getUser()
+    const res1 = await oldBackendActor.getUser();
+    const res = await newBackendActor.getUser();
     if ("ok" in res) {
       setOpenSignUpModal(false);
-    } else {
+      return;
+    }
+    if ("err" in res1 && "err" in res) {
       setOpenSignUpModal(true);
+      return;
+    }
+
+    if ("ok" in res1) {
+      checkAndMigrateUser(res1.ok);
     }
   }
+
+  const checkAndMigrateUser = async (args: UserOld) => {
+    const userRewards = await oldBackendActor.getUserRewards();
+    if ("err" in userRewards) {
+      return;
+    }
+    const socialShareReq = await oldBackendActor.getMySocialShareRequest()
+    await newBackendActor.migrateUser(args, userRewards.ok, socialShareReq);
+
+    const txns = await oldBackendActor.getUsersTxns();
+    await newBackendActor.migrateUserTransactions(txns);
+    console.log("Migrated User");
+    getUser();
+  }
+
 
   const getBalance = async () => {
     const balance = await tokenCanister.icrc1_balance_of({
@@ -72,12 +97,12 @@ const Navbar = () => {
 
   useEffect(() => {
     (async () => {
-      if (backendActor) {
-        const _cashback = await backendActor.getCashback();
+      if (newBackendActor) {
+        const _cashback = await newBackendActor.getCashback();
         dispatch(setCashback(_cashback));
       }
     })();
-  }, [backendActor]);
+  }, [newBackendActor]);
 
 
   const fethTokenPrice = async () => {

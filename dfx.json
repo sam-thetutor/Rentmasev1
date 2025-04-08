@@ -1,7 +1,11 @@
 {
   "canisters": {
     "rentmase_backend": {
-      "main": "src/rentmase_backend/main.mo",
+      "main": "src/rentmase_backend/backend.mo",
+      "type": "motoko"
+    },
+    "old" : {
+      "main": "src/rentmase_backend/old.mo",
       "type": "motoko"
     },
     "token": {

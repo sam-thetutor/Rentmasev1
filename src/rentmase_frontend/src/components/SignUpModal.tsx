@@ -7,12 +7,13 @@ import { UserPayload } from "../../../declarations/rentmase_backend/rentmase_bac
 
 
 const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
-    const { isAuthenticated, backendActor, user, setUser, logout } = useAuth();
+    const { isAuthenticated, newBackendActor, user, setUser, logout } = useAuth();
     const [inviteCode, setInviteCode] = useState('');
     const location = useLocation();
     const navigate = useNavigate();
     const [saving, setSaving] = useState(false);
     const [inputInviteCode, setInputInviteCode] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastname] = useState('');
@@ -23,6 +24,7 @@ const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
     const handleClose = () => setOpenSignUpModal(false);
 
     if (!openSignUpModal) return null;
+
 
 
     useEffect(() => {
@@ -46,7 +48,7 @@ const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
             return;
         }
         setSaving(true);
-        const isUNameUnique = await backendActor.isUserNameUnique(username);
+        const isUNameUnique = await newBackendActor.isUserNameUnique(username);
         if (!isUNameUnique) {
             setSaving(false);
             toast.error('Username already taken, please choose another');
@@ -57,7 +59,7 @@ const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
 
         do {
             referralCode = generateReferralCode(firstName);
-            isUnique = await backendActor.isReferralCodeUnique(referralCode);
+            isUnique = await newBackendActor.isReferralCodeUnique(referralCode);
         } while (!isUnique);
 
         const dobInNanoSeconds = new Date(dob).getTime() * 1000000;
@@ -72,7 +74,7 @@ const SignUpModal = ({ openSignUpModal, setOpenSignUpModal }) => {
             gender: gender ? [gender] : [],
             referrerCode: inputInviteCode ? [inputInviteCode] : inviteCode ? [inviteCode] : []
         };
-        const result = await backendActor.registerUser(user);
+        const result = await newBackendActor.registerUser(user);
         if ("ok" in result) {
             toast.success('Registered successfully');
             setSaving(false);

@@ -110,7 +110,7 @@ const WalletBalanceDiv = styled.div`
 
 const Profile = () => {
   const {tokenBalance} = useSelector((state : RootState) => state.app);
-  const { user, isAuthenticated, backendActor } = useAuth();
+  const { user, isAuthenticated, newBackendActor } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
@@ -142,7 +142,7 @@ const Profile = () => {
   const handleUpdate = async () => {
     setSaving(true);
 
-    const isUNameUnique = await backendActor.isUserNameUnique(username);
+    const isUNameUnique = await newBackendActor.isUserNameUnique(username);
     if (!isUNameUnique) {
       setSaving(false);
       toast.error('Username already taken, please choose another');
@@ -158,7 +158,7 @@ const Profile = () => {
       refferalCode: user.referralCode,
       gender: gender ? [gender] : user.gender,
     };
-    await backendActor.updateProfile(userPayload);
+    await newBackendActor.updateProfile(userPayload);
     toast.success('Profile updated successfully');
     setSaving(false);
   };

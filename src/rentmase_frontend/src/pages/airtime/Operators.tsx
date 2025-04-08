@@ -119,7 +119,7 @@ type Props = {
 
 const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) => {
     const { tokenLiveData, tokenBalance, cashback } = useSelector((state: RootState) => state.app);
-    const { user, isAuthenticated, tokenCanister, identity, backendActor } = useAuth();
+    const { user, isAuthenticated, tokenCanister, identity, newBackendActor } = useAuth();
     const [fetchNumberOperators] = useLazyGetNumberOperatorsQuery();
     const [amount, setAmount] = useState(0);
     const [showOperators, setShowOperators] = useState(false);
@@ -279,7 +279,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
         //         cashback: isCashback ? [txncashback] : []
         //     }
 
-        //     const res2 = await backendActor.intiateTxn(arg2);
+        //     const res2 = await newBackendActor.intiateTxn(arg2);
 
         //     if ("ok" in res2) {
                 const data = {
@@ -408,7 +408,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                             <ClipLoader color={"#000"} loading={calcutatingPrice} size={15} />
                             : <>{selectedCountry?.currencyCode} {getCountryCountryCurrency(denomination)} </>
                         }</>
-                        {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> RENT
+                        {" "} || <PriceSpan>{calculateTokenPriceEquivalent(denomination).toFixed(2)}</PriceSpan> xRem
                     </AmountButton>
                 ))}
             </AmountWrapper>}
@@ -418,7 +418,7 @@ const Operators: FC<Props> = ({ phoneNumber, selectedCountry, setComponent }) =>
                     Select an amount between <PriceSpan>{selectedCountry?.currencyCode} {minAmount} </PriceSpan> and <PriceSpan>{selectedCountry?.currencyCode} {maxAmount}</PriceSpan>
                     {" "} || {" "}
                     {calculateTokenPriceEquivalent(operator.minAmount).toFixed(2)} and {calculateTokenPriceEquivalent(operator.maxAmount).toFixed(2)}
-                    {" "} RENT
+                    {" "} xRem
                 </Label>}
 
                     <AirtimeInput
