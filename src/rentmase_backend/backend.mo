@@ -663,6 +663,30 @@ actor class Rentmase() = this {
         return (Iter.toArray(usersRewards.vals()), users.size());
     };
 
+      //get rewards extended
+    public shared query func getRewardsExtended() : async ([Types.RewardsExtended], Nat) {
+        let usersArray = Iter.toArray(users.vals());
+
+        let rewards = Array.map<User, Types.RewardsExtended>(
+            usersArray,
+            func(user : User) : Types.RewardsExtended {
+                return {
+                    user = user.id;
+                    username = user.username;
+                    rewards = [];
+                    referrals = user.rewards.referral.numberOfTimes;
+                    totalAmountEarned = user.rewards.totalAmountEarned;
+                    balance = user.rewards.balance;
+                    created = user.createdAt;
+                    email = user.email;
+                };
+            },
+        );
+
+        return (rewards, rewards.size());
+    };
+
+
     public shared query ({ caller }) func getUserRewards() : async Result.Result<Types.Rewards, Text> {
         switch (users.get(caller)) {
             case (null) {

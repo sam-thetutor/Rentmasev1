@@ -7,6 +7,7 @@ import { UserUpdatePayload } from '../../../declarations/rentmase_backend/rentma
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
+import { BEARER_TOKEN } from '../constants';
 
 // Styled components
 const ProfileContainer = styled.div`
@@ -19,6 +20,7 @@ const ProfileContainer = styled.div`
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   margin-bottom: 100px;
   margin-top: 100px;
+  position: relative;
   @media (max-width: 768px) {
     padding: 20px;
   }
@@ -108,6 +110,48 @@ const WalletBalanceDiv = styled.div`
   margin: 20px;
 `;
 
+const POHBadge = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #008DD5;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: help;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+`;
+
+const POHScore = styled.span`
+  font-weight: 600;
+  font-size: 16px;
+`;
+
+const POHTooltip = styled.div<{ visible: boolean }>`
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  width: 200px;
+  font-size: 14px;
+  color: #333;
+  opacity: ${props => props.visible ? 1 : 0};
+  visibility: ${props => props.visible ? 'visible' : 'hidden'};
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 100;
+`;
+
 const Profile = () => {
   const {tokenBalance} = useSelector((state : RootState) => state.app);
   const { user, isAuthenticated, newBackendActor } = useAuth();
@@ -120,6 +164,8 @@ const Profile = () => {
   const [gender, setGender] = useState('');
   const [birthday, setBirthday] = useState('');
   const navigate = useNavigate();
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [pohScore, setPohScore] = useState<number | null>(null);
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -135,6 +181,53 @@ const Profile = () => {
       setEmail(user.email);
       setGender(user.gender[0]);
     }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchPOHScore = async () => {
+      if (user && user.email) {
+        try {
+          console.log('Fetching POH score for email:', user.email);
+          const url = `https://publicapi.intract.io/api/pv1/proof-of-humanity/check-identity-score?identityType=Email&identity=${user.email}`;
+          
+          const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BEARER_TOKEN}`,
+            'Accept': 'application/json'
+          };
+
+          const response = await fetch(url, { 
+            headers,
+          });
+
+          console.log('POH Response:', response);
+          if (!response.ok) {
+            const errorText = await response.json();
+            console.error('POH API Error:', response.status, errorText);
+            setPohScore(0);
+            return;
+          }
+
+          const res = await response.json();
+          console.log('POH Response data:', res);
+          
+          if (res.message === "success") {
+            setPohScore(Number(res?.data));
+          } else {
+            console.warn('POH API returned non-success:', res);
+            setPohScore(0);
+          }
+        } catch (error) {
+          console.error('Error fetching POH score:', error);
+          setPohScore(0);
+          if (error instanceof TypeError) {
+            toast.error('Network error while fetching POH score');
+          }
+        }
+      }
+    };
+
+    fetchPOHScore();
   }, [user]);
 
   const dobInNanoSeconds = new Date(birthday).getTime() * 1000000;
@@ -167,6 +260,17 @@ const Profile = () => {
     <div>
       <ProfileContainer>
         <Title>My Profile</Title>
+        {pohScore !== null && (
+          <POHBadge 
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <POHScore>{pohScore}</POHScore>
+            <POHTooltip visible={showTooltip}>
+              Your Proof of Humanity score from Intract. This score reflects your verified human status and platform activity.
+            </POHTooltip>
+          </POHBadge>
+        )}
         <ProfileForm>
           <Input
             type="text"

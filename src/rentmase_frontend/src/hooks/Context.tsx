@@ -197,7 +197,6 @@ interface LayoutProps {
 
 export const AuthProvider: FC<LayoutProps> = ({ children }) => {
   const auth = useAuthClient();
-
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 

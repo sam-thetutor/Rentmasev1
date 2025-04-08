@@ -19,6 +19,16 @@ module {
         email : Text;
     };
 
+  public type RewardsExtended = {
+        user : Principal;
+        username : Text;
+        email : Text;
+        referrals : Nat;
+        rewards : [RewardType];
+        totalAmountEarned : Nat;
+        balance : Nat;
+        created : Time.Time;
+    };
     public type UserUpdatePayload = {
         firstName : Text;
         lastName : Text;
