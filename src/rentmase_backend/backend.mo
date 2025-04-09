@@ -11,6 +11,7 @@ import Text "mo:base/Text";
 import Array "mo:base/Array";
 import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
+import Error "mo:base/Error";
 import Types "types";
 import OldTypes "old.types";
 
@@ -46,6 +47,10 @@ actor class Rentmase() = this {
     var referrals = TrieMap.TrieMap<Text, Referral>(Text.equal, Text.hash);
     stable var referralsEntries : [(Text, Referral)] = [];
 
+    //store the is verified status
+    var isverified = TrieMap.TrieMap<Principal, Bool>(Principal.equal, Principal.hash);
+    stable var isverifiedEntries : [(Principal, Bool)] = [];
+
     // var rewards = TrieMap.TrieMap<RewardId, Types.Rewards>(Text.equal, Text.hash);
     // stable var rewardsEntries : [(RewardId, Types.Rewards)] = [];
 
@@ -66,6 +71,8 @@ actor class Rentmase() = this {
         faucetsEntries := Iter.toArray(faucets.entries());
         transactionsEntries := Iter.toArray(transactions.entries());
         referralsEntries := Iter.toArray(referrals.entries());
+        //isverified entries
+        isverifiedEntries := Iter.toArray(isverified.entries());
     };
 
     system func postupgrade() {
@@ -76,6 +83,7 @@ actor class Rentmase() = this {
         faucets := TrieMap.fromEntries<Principal, Types.FaucetTxn>(faucetsEntries.vals(), Principal.equal, Principal.hash);
         transactions := TrieMap.fromEntries<InternalTxnId, InternalTxn>(transactionsEntries.vals(), Text.equal, Text.hash);
         referrals := TrieMap.fromEntries<Text, Referral>(referralsEntries.vals(), Text.equal, Text.hash);
+        isverified := TrieMap.fromEntries<Principal, Bool>(isverifiedEntries.vals(), Principal.equal, Principal.hash);
         usersEntries := [];
         reviewsEntries := [];
         // rewardsEntries := [];
@@ -83,6 +91,26 @@ actor class Rentmase() = this {
         faucetsEntries := [];
         transactionsEntries := [];
         referralsEntries := [];
+        isverifiedEntries := [];
+    };
+
+    //check if user is verified
+    public query func checkUserVerification(user : Principal) : async Bool {
+        switch (isverified.get(user)) {
+            case (?data) { return data };
+            case (null) { return false };
+        };
+    };
+
+    //verify the user.
+    public shared ({ caller }) func verifyUser() : async Result.Result<Bool, Text> {
+        try {
+            isverified.put(caller, true);
+            return #ok(true);
+
+        } catch (error) {
+            return #err("error in verifying user :" #Error.message(error));
+        };
     };
 
     /***************************
@@ -250,6 +278,7 @@ actor class Rentmase() = this {
                     dob = oluser.dob;
                     lastupdated = oluser.lastupdated;
                     createdAt = oluser.createdAt;
+                    isverified = false;
                 };
 
                 users.put(oluser.id, user);
@@ -430,6 +459,7 @@ actor class Rentmase() = this {
             lastupdated = Time.now();
             email = payload.email;
             createdAt = Time.now();
+            isverified = false;
         };
         users.put(id, user);
         return user;
@@ -663,13 +693,19 @@ actor class Rentmase() = this {
         return (Iter.toArray(usersRewards.vals()), users.size());
     };
 
-      //get rewards extended
+    //get rewards extended
     public shared query func getRewardsExtended() : async ([Types.RewardsExtended], Nat) {
         let usersArray = Iter.toArray(users.vals());
+
+        //fetch the user verification status
 
         let rewards = Array.map<User, Types.RewardsExtended>(
             usersArray,
             func(user : User) : Types.RewardsExtended {
+                let _userVerification = switch (isverified.get(user.id)) {
+                    case (null) { false };
+                    case (_) { true };
+                };
                 return {
                     user = user.id;
                     username = user.username;
@@ -679,13 +715,13 @@ actor class Rentmase() = this {
                     balance = user.rewards.balance;
                     created = user.createdAt;
                     email = user.email;
+                    isverified = _userVerification;
                 };
             },
         );
 
         return (rewards, rewards.size());
     };
-
 
     public shared query ({ caller }) func getUserRewards() : async Result.Result<Types.Rewards, Text> {
         switch (users.get(caller)) {

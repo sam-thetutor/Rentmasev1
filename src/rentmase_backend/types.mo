@@ -17,6 +17,7 @@ module {
         referrerCode : ?Text;
         referralCode : Text;
         email : Text;
+
     };
 
   public type RewardsExtended = {
@@ -28,6 +29,7 @@ module {
         totalAmountEarned : Nat;
         balance : Nat;
         created : Time.Time;
+        isverified:Bool
     };
     public type UserUpdatePayload = {
         firstName : Text;
@@ -57,6 +59,7 @@ module {
         gender : ?Text;
         lastupdated : Time.Time;
         createdAt : Time.Time;
+        
     };
 
     public type RewardType = {

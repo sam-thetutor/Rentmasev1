@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../hooks/Context';
 import { BEARER_TOKEN, tokensPerReward } from '../constants';
-import { Rewards, RewardsReturn, RewardType } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { Rewards, RewardsExtended, RewardType } from '../../../declarations/rentmase_backend/rentmase_backend.did';
+import { Principal } from '@dfinity/principal';
 
 const LeaderboardContainer = styled.div`
   max-width: 1200px;
@@ -261,16 +262,14 @@ const NavButton = styled.button`
   }
 `;
 
-// Add this interface at the top
+// Update RewardsExtendedWithPOH interface
 interface RewardsExtendedWithPOH extends RewardsExtended {
   pohScore?: number;
-}
-
-interface PohScoreCache {
-  [email: string]: {
-    score: number;
-    timestamp: number;
-  }
+  email: string;
+  username: string;
+  totalAmountEarned: bigint;
+  referrals: bigint;
+  user: Principal;
 }
 
 // Add these styled components
@@ -313,108 +312,57 @@ const Leaderboard = () => {
   const rowsPerPage = 50;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [pohScoreCache, setPohScoreCache] = useState<PohScoreCache>({});
-  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  const [isLoadingScores, setIsLoadingScores] = useState(false);
 
-  // Function to load POH scores from localStorage
-  const loadPohScoresFromCache = () => {
-    const cached = localStorage.getItem('pohScores');
-    if (cached) {
-      const parsedCache = JSON.parse(cached) as PohScoreCache;
-      setPohScoreCache(parsedCache);
-      return parsedCache;
-    }
-    return {};
-  };
-
-  // Function to save POH scores to localStorage
-  const savePohScoresToCache = (scores: PohScoreCache) => {
-    localStorage.setItem('pohScores', JSON.stringify(scores));
-    setPohScoreCache(scores);
-  };
-
-  // Modified getPohScore function
+  // Update getPohScore function
   const getPohScore = async (userEmail: string) => {
-    const now = Date.now();
-    const cached = pohScoreCache[userEmail];
-
-    // Return cached score if it exists and is not expired
-    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-      return cached.score;
-    }
-
     try {
-      console.log('Fetching POH score for email:', userEmail);
       const url = `https://publicapi.intract.io/api/pv1/proof-of-humanity/check-identity-score?identityType=Email&identity=${userEmail}`;
       
       const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${BEARER_TOKEN}`,
-        'Accept': 'application/json'
       };
 
-      const response = await fetch(url, { headers });
+    
+      const response = await fetch(url, { 
+        headers
+      });
+
+      if (!response.ok) {
+        console.error('POH API Error:', response.status);
+        return 0;
+      }
+
       const res = await response.json();
-      
-      const score = res.data ? Number(res.data) : 0;
-
-      // Update cache with new score
-      const newCache = {
-        ...pohScoreCache,
-        [userEmail]: {
-          score,
-          timestamp: now
-        }
-      };
-      savePohScoresToCache(newCache);
-
-      return score;
+      return res.data ? Number(res.data) : 0;
     } catch (error) {
       console.error('Error fetching POH score:', error);
       return 0;
     }
   };
 
-  // Load cached scores on component mount
-  useEffect(() => {
-    loadPohScoresFromCache();
-  }, []);
-
   useEffect(() => {
     if (newBackendActor) {
-      getUsers();
+       getUsers();
     }
   }, [newBackendActor]);
 
-  // Modified getUsers function
+
+  // Modify getUsers function to fetch all scores at once
   const getUsers = async () => {
     if (newBackendActor) {
       const _rewardsExtended = await newBackendActor.getRewardsExtended();
-      
-      // Load cached scores
-      const cachedScores = loadPohScoresFromCache();
-      const now = Date.now();
-
-      // Fetch POH scores for all users
-      const _pohScores = await Promise.all(_rewardsExtended[0].map(async (user) => {
-        const cached = cachedScores[user.email];
-        let pohScore;
-
-        // Use cached score if not expired, otherwise fetch new score
-        if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-          pohScore = cached.score;
-        } else {
-          pohScore = await getPohScore(user.email);
-        }
-
-        return { ...user, pohScore };
-      }));
-
-      setRewards(_pohScores);
+      const users = _rewardsExtended[0];
+      console.log("new users data :",users)
       setTotalUsers(Number(_rewardsExtended[1]));
+       setRewards(users);
 
-      const currentUserData = _pohScores.find((u) => u.user.toString() === user?.id.toString());
-      setCurrentReward(currentUserData);
+      // // Set current user data
+      const currentUserData = users.find(
+        (u) => u.user.toString() === user?.id.toString()
+      );
+      setCurrentReward(currentUserData || null);
     }
   };
 
@@ -425,15 +373,18 @@ const Leaderboard = () => {
     return '';
   };
 
+  console.log("dddd")
 
   // Calculate pagination values
   const totalPages = Math.ceil(rewards.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
 
-  // Update renderRows function
+  // Modify renderRows function
   const renderRows = () => {
-    const sortedRewards = [...rewards].sort((a, b) => Number(b.totalAmountEarned) - Number(a.totalAmountEarned));
+    const sortedRewards = [...rewards].sort((a, b) => 
+      Number(b.totalAmountEarned) - Number(a.totalAmountEarned)
+    );
     const paginatedRewards = sortedRewards.slice(startIndex, endIndex);
     const userRank = sortedRewards.findIndex((u) => u.user.toString() === user?.id.toString()) + 1;
 
@@ -452,16 +403,11 @@ const Leaderboard = () => {
             <TableData>{Number(userReward.referrals)}</TableData>
             <TableData>
               <ScoreContainer>
-                {userReward.pohScore >= 91 ? (
-                  <>
-                    👨‍💼
-                    <ScoreTooltip>
-                      POH Score: {userReward.pohScore}
-                    </ScoreTooltip>
-                  </>
+                {isLoadingScores ? (
+                  "Loading..."
                 ) : (
                   <>
-                    🤖
+                    {userReward.isverified ===true ? "👨‍💼" : "🤖"}
                     <ScoreTooltip>
                       POH Score: {userReward.pohScore}
                     </ScoreTooltip>
@@ -492,19 +438,19 @@ const Leaderboard = () => {
               <TableData>{Number(currentReward.referrals)}</TableData>
               <TableData>
                 <ScoreContainer>
-                  {currentReward.pohScore >= 91 ? (
+                  {currentReward.isverified ? (
                     <>
                       👨‍💼
-                      <ScoreTooltip>
+                      {/* <ScoreTooltip>
                         Human Score: {currentReward.pohScore}
-                      </ScoreTooltip>
+                      </ScoreTooltip> */}
                     </>
                   ) : (
                     <>
                       🤖
-                      <ScoreTooltip>
+                      {/* <ScoreTooltip>
                         Bot Score: {currentReward.pohScore}
-                      </ScoreTooltip>
+                      </ScoreTooltip> */}
                     </>
                   )}
                 </ScoreContainer>
@@ -622,18 +568,6 @@ const Leaderboard = () => {
   return (
     <>
       <LeaderboardContainer>
-        <VerifyWidget>
-          <VerifyContent>
-            <VerifyTitle>Verify your humanity!</VerifyTitle>
-            <VerifyDescription>
-              Verify your account to prove you're human and earn extra rewards
-            </VerifyDescription>
-          </VerifyContent>
-          <VerifyButton onClick={openModal}>
-            Verify Now
-          </VerifyButton>
-        </VerifyWidget>
-
         <LeaderboardTitle>Leaderboard</LeaderboardTitle>
         <TotalUsersText>Total Users: {totalUsers}</TotalUsersText>
         <LeaderboardTable>
