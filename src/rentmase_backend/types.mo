@@ -256,6 +256,18 @@ module {
         #InsufficientFunds : { balance : Nat };
     };
 
+     public type RewardsExtended = {
+        user : Principal;
+        username : Text;
+        email : Text;
+        referrals : Nat;
+        rewards : [RewardType];
+        totalAmountEarned : Nat;
+        balance : Nat;
+        created : Time.Time;
+        isverified:Bool
+    };
+
     public type TransferFromArgs = {
         to : Account;
         fee : ?Nat;

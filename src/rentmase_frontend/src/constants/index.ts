@@ -20,6 +20,7 @@ export const giftcards_audience = "giftcards-sandbox"
 export const utilities_audience = "utilities-sandbox"
 export const defaultAudience = "topups-sandbox"
 
+export const BEARER_TOKEN = '66ff4d641514894f0c5b8096-997bcf06-ec8f-4aee-8228-fee36cbff13a';
 
 // export const cashback =  {
 //     percentage: 90

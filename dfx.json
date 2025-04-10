@@ -19,6 +19,16 @@
       ],
       "type": "assets",
       "workspace": "rentmase_frontend"
+    }, "internet_identity": {
+      "type": "custom",
+      "candid": "internet_identity.did",
+      "wasm": "internet_identity_dev.wasm.gz",
+      "shrink": false,
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
     }
   },
   "defaults": {
