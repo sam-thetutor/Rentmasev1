@@ -5,11 +5,12 @@
   },
   "name": "rentmase",
   "scripts": {
-    "build": "pnpm --filter rentmase_frontend build",
+    "build": "vite build src/rentmase_frontend --outDir dist/rentmase_frontend",
     "prebuild": "pnpm --filter rentmase_frontend prebuild",
     "pretest": "pnpm --filter rentmase_frontend prebuild",
     "start": "concurrently \"pnpm --filter rentmase_frontend start\"",
-    "test": "pnpm --filter rentmase_frontend test"
+    "test": "pnpm --filter rentmase_frontend test",
+    "compress-images": "node scripts/compress-images.js"
   },
   "type": "module",
   "workspaces": [
@@ -31,6 +32,7 @@
     "react-icons": "^5.3.0",
     "react-spinners": "^0.14.1",
     "react-toastify": "^10.0.6",
+    "sharp": "^0.34.1",
     "styled-components": "^6.1.13"
   },
   "devDependencies": {

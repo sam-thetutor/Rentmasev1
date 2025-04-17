@@ -1,5 +1,5 @@
 export { idlFactory as tokenIDL } from "../../../declarations/token/token.did.js";
-export const backendCanisterId = "5tjvo-jiaaa-aaaal-qsjvq-cai"
+export const backendCanisterId = "hqdel-diaaa-aaaai-actvq-cai"
 export const tokenCanisterId = "fr2qs-haaaa-aaaai-actya-cai"
 
 export const API_BASE_URL = "https://e3f4-197-239-11-226.ngrok-free.app/api"
